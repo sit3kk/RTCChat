@@ -2,7 +2,7 @@
   "expo": {
     "name": "app",
     "slug": "app",
-    "scheme": "app",
+    "scheme": "yourapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

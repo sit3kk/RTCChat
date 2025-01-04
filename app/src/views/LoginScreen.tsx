@@ -5,13 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IOS_CLIENT_ID, WEB_CLIENT_ID } from "@env";
 import { db } from "../api/FirebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import * as AuthSession from "expo-auth-session";
 
-interface LoginScreenProps {
-  setUserLoggedIn: (value: boolean) => void;
-}
-
-export default function LoginScreen({ setUserLoggedIn }: LoginScreenProps) {
+export default function LoginScreen({ navigation }: any) {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: IOS_CLIENT_ID,
@@ -38,11 +33,12 @@ export default function LoginScreen({ setUserLoggedIn }: LoginScreenProps) {
         }
       );
       const user = await userInfoResponse.json();
+
       await saveUserToFirestore(user);
+
       setUserInfo(user);
       await AsyncStorage.setItem("@user", JSON.stringify(user));
-
-      setUserLoggedIn(true);
+      navigation.navigate("Home");
     } catch (error) {
       console.error("Error fetching user info:", error);
     }
