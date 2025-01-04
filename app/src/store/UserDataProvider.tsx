@@ -10,6 +10,7 @@ interface UserDataContextProps {
   userName: string;
   userEmail: string;
   userPicture: string;
+  invitationCode: string;
   setUserData: (data: UserData) => Promise<void>;
   clearUserData: () => Promise<void>;
   loadUserData: () => Promise<void>;
@@ -108,6 +109,7 @@ export function UserDataProvider({ children }: { children: React.ReactNode }) {
     userName,
     userEmail,
     userPicture,
+    invitationCode,
     setUserData,
     clearUserData,
     loadUserData,

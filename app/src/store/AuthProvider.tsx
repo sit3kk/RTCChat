@@ -9,15 +9,7 @@ interface AuthContextProps {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextProps>({
-  token: "" as string,
-  isAuthenticated: false,
-  fetchStoredToken: async () => {
-    return null as string | null;
-  },
-  authenticate: (token: string) => {},
-  logout: () => {},
-});
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authToken, setAuthToken] = useState<string | null>();
