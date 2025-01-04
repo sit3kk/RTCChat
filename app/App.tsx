@@ -13,11 +13,13 @@ import LoginScreen from "./src/views/LoginScreen";
 import HomeScreen from "./src/views/HomeScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
 import ChatScreen from "./src/views/ChatScreen";
+import SettingsScreen from "./src/views/SettingsScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
   Home: undefined;
   Chat: { chatId: string };
+  Settings: undefined;
 };
 
 const Stack = createStackNavigator();
@@ -75,6 +77,16 @@ const AuthenticatedStack = () => {
             <Ionicons name="chatbubbles" size={24} color={color} />
           ),
           tabBarLabel: "Chat",
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings-outline" size={24} color={color} />
+          ),
+          tabBarLabel: "Settings",
         }}
       />
     </Tab.Navigator>

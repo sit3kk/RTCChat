@@ -41,6 +41,7 @@ export type BottomTabParamList = {
   Contacts: undefined;
   Home: undefined;
   InviteFriends: undefined;
+  Settings: undefined;
 };
 
 type ContactsScreenProps = BottomTabScreenProps<BottomTabParamList, "Contacts">;

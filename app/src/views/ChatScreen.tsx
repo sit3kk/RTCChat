@@ -44,6 +44,7 @@ type BottomTabParamList = {
   Contacts: undefined;
   Home: undefined;
   Chat: { chatId: string };
+  Settings: undefined;
 };
 
 type ChatScreenProps = BottomTabScreenProps<BottomTabParamList, "Chat">;
