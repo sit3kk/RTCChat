@@ -19,14 +19,16 @@ export type BottomTabParamList = {
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-const AuthStack = () => {
+const AuthStack = ({
+  setUserLoggedIn,
+}: {
+  setUserLoggedIn: (value: boolean) => void;
+}) => {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="Login" options={{ headerShown: false }}>
+        {() => <LoginScreen setUserLoggedIn={setUserLoggedIn} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
@@ -35,12 +37,14 @@ interface TabNavigatorProps {
   userId: string;
   userName: string;
   userLoggedIn: boolean;
+  setUserLoggedIn: (value: boolean) => void;
 }
 
 const TabNavigator: React.FC<TabNavigatorProps> = ({
   userId,
   userName,
   userLoggedIn,
+  setUserLoggedIn,
 }) => {
   return (
     <Tab.Navigator
@@ -62,14 +66,21 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
       />
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={24} color={color} />
           ),
           tabBarLabel: "Home",
         }}
-      />
+      >
+        {() => (
+          <HomeScreen
+            userId={userId}
+            userName={userName}
+            setUserLoggedIn={setUserLoggedIn}
+          />
+        )}
+      </Tab.Screen>
       <Tab.Screen
         name="Chat"
         component={ChatScreen}
@@ -93,6 +104,8 @@ const App: React.FC = () => {
   const [userLoggedIn, setUserLoggedIn] = useState<boolean | null>(null);
   const [userId, setUserId] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
+
+  console.log("User Logged In:", userLoggedIn);
 
   useEffect(() => {
     checkLoginStatus();
@@ -128,9 +141,10 @@ const App: React.FC = () => {
             userId={userId}
             userName={userName}
             userLoggedIn={userLoggedIn}
+            setUserLoggedIn={setUserLoggedIn}
           />
         ) : (
-          <AuthStack />
+          <AuthStack setUserLoggedIn={setUserLoggedIn} />
         )}
       </NavigationContainer>
     </SafeAreaProvider>

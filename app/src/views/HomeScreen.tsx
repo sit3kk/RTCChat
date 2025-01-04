@@ -10,7 +10,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db } from "../api/FirebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 
-export default function HomeScreen({ navigation }: any) {
+interface HomeScreenProps {
+  userId: string;
+  userName: string;
+  setUserLoggedIn: (value: boolean) => void;
+}
+
+export default function HomeScreen({
+  userId,
+  userName,
+  setUserLoggedIn,
+}: HomeScreenProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +49,7 @@ export default function HomeScreen({ navigation }: any) {
     try {
       await AsyncStorage.removeItem("@user");
       setUser(null);
-      navigation.navigate("Login");
+      setUserLoggedIn(false);
     } catch (error) {
       console.error("Error during sign-out:", error);
     }
