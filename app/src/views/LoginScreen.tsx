@@ -6,6 +6,7 @@ import { useAuth } from "../store/AuthProvider";
 import { useUserData } from "../store/UserDataProvider";
 import LoadingScreen from "./LoadingScreen";
 import { REACT_APP_IOS_CLIENT_ID, REACT_APP_WEB_CLIENT_ID } from "@env";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -42,6 +43,8 @@ export default function LoginScreen() {
       } else {
         console.error("Access token is undefined");
       }
+    } else if (response?.type === "cancel") {
+      setIsAuthenticating(false);
     }
   }
 
@@ -49,19 +52,24 @@ export default function LoginScreen() {
     handleSignInWithGoogle();
   }, [response]);
 
-  return isAuthenticating ? (
-    <View style={styles.container}>
-      <Text style={styles.text}>Logging you in...</Text>
-      <LoadingScreen />
-    </View>
-  ) : (
-    <View style={styles.container}>
-      <Button
-        title="Sign in with Google"
-        disabled={!request}
-        onPress={loginHandler}
-      />
-    </View>
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      {isAuthenticating && (
+        <View style={styles.container}>
+          <Text style={styles.text}>Logging you in...</Text>
+          <LoadingScreen />
+        </View>
+      )}
+      {!isAuthenticating && (
+        <View style={styles.container}>
+          <Button
+            title="Sign in with Google"
+            disabled={!request}
+            onPress={loginHandler}
+          />
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
 
