@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Ionicons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
+import { useAuth, AuthProvider } from "./src/store/AuthProvider";
+import { UserDataProvider } from "./src/store/UserDataProvider";
+import { Colors } from "./src/styles/commonStyles";
+import LoadingScreen from "./src/views/LoadingScreen";
 import LoginScreen from "./src/views/LoginScreen";
 import HomeScreen from "./src/views/HomeScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
 import ChatScreen from "./src/views/ChatScreen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons";
 
 export type BottomTabParamList = {
-  Contacts: { userId: string; userName: string };
+  Contacts: undefined;
   Home: undefined;
-  Chat: { chatId: string; userId: string; userName: string };
+  Chat: { chatId: string };
 };
 
 const Stack = createStackNavigator();
@@ -31,19 +35,10 @@ const AuthStack = () => {
   );
 };
 
-interface TabNavigatorProps {
-  userId: string;
-  userName: string;
-  userLoggedIn: boolean;
-}
-
-const TabNavigator: React.FC<TabNavigatorProps> = ({
-  userId,
-  userName,
-  userLoggedIn,
-}) => {
+const AuthenticatedStack = () => {
   return (
     <Tab.Navigator
+      initialRouteName="Home"
       screenOptions={{
         tabBarActiveTintColor: "#0000FF",
         tabBarInactiveTintColor: "#888",
@@ -52,7 +47,6 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
       <Tab.Screen
         name="Contacts"
         component={ContactsScreen}
-        initialParams={{ userId, userName }}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="people" size={24} color={color} />
@@ -75,8 +69,6 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
         component={ChatScreen}
         initialParams={{
           chatId: "general",
-          userId,
-          userName,
         }}
         options={{
           tabBarIcon: ({ color }) => (
@@ -89,50 +81,52 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
   );
 };
 
-const App: React.FC = () => {
-  const [userLoggedIn, setUserLoggedIn] = useState<boolean | null>(null);
-  const [userId, setUserId] = useState<string>("");
-  const [userName, setUserName] = useState<string>("");
+function Navigation() {
+  const authCtx = useAuth();
 
-  useEffect(() => {
-    checkLoginStatus();
-  }, []);
+  return (
+    <NavigationContainer>
+      {!authCtx.isAuthenticated && <AuthStack />}
+      {authCtx.isAuthenticated && <AuthenticatedStack />}
+    </NavigationContainer>
+  );
+}
 
-  const checkLoginStatus = async () => {
+function Root() {
+  const [isTryingInitLogin, setIsTryingInitLogin] = useState(true);
+  const authCtx = useAuth();
+
+  const initialLogin = async () => {
     try {
-      const userString = await AsyncStorage.getItem("@user");
-
-      const isUserLoggedIn = !!userString;
-      setUserLoggedIn(isUserLoggedIn);
-
-      if (userString) {
-        const parsedUser = JSON.parse(userString);
-        setUserId(parsedUser.id);
-        setUserName(parsedUser.name);
+      const storedToken = await authCtx.fetchStoredToken();
+      if (storedToken) {
+        authCtx.authenticate(storedToken);
       }
+      setIsTryingInitLogin(false);
     } catch (error) {
       console.error("Error checking login status:", error);
-      setUserLoggedIn(false);
     }
   };
 
-  if (userLoggedIn === null) {
-    return null;
-  }
+  useEffect(() => {
+    initialLogin();
+  }, []);
 
+  if (isTryingInitLogin) {
+    return <LoadingScreen />;
+  }
+  return <Navigation />;
+}
+
+const App: React.FC = () => {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        {userLoggedIn ? (
-          <TabNavigator
-            userId={userId}
-            userName={userName}
-            userLoggedIn={userLoggedIn}
-          />
-        ) : (
-          <AuthStack />
-        )}
-      </NavigationContainer>
+      <StatusBar style="auto" />
+      <AuthProvider>
+        <UserDataProvider>
+          <Root />
+        </UserDataProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 };

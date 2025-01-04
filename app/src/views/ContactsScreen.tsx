@@ -20,8 +20,8 @@ import {
   doc,
   deleteDoc,
 } from "firebase/firestore";
-
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { useUserData } from "../store/UserDataProvider";
 
 type Contact = {
   id: string;
@@ -38,18 +38,15 @@ type Invitation = {
 };
 
 export type BottomTabParamList = {
-  Contacts: { userId: string; userName: string };
+  Contacts: undefined;
   Home: undefined;
   InviteFriends: undefined;
 };
 
 type ContactsScreenProps = BottomTabScreenProps<BottomTabParamList, "Contacts">;
 
-const ContactsScreen: React.FC<ContactsScreenProps> = ({
-  route,
-  navigation,
-}) => {
-  const { userId, userName } = route.params;
+const ContactsScreen: React.FC<ContactsScreenProps> = () => {
+  const { userId, userName } = useUserData();
 
   const [invitationCode, setInvitationCode] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([]);

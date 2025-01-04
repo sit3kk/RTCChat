@@ -8,3 +8,7 @@ export const commonStyles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+export const Colors = {
+  primary: "#ff0000",
+};
