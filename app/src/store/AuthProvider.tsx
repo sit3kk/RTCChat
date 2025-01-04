@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 interface AuthContextProps {
   token: string;
   isAuthenticated: boolean;
-  fetchStoredToken: () => string | null;
+  fetchStoredToken: () => Promise<string | null>;
   authenticate: (token: string) => void;
   logout: () => void;
 }
@@ -12,7 +12,7 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps>({
   token: "" as string,
   isAuthenticated: false,
-  fetchStoredToken: () => {
+  fetchStoredToken: async () => {
     return null as string | null;
   },
   authenticate: (token: string) => {},
@@ -24,16 +24,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const AUTH_TOKEN_KEY = "@authToken";
 
-  function fetchStoredToken() {
-    AsyncStorage.getItem(AUTH_TOKEN_KEY)
-      .then((token) => {
-        if (token) {
-          return token;
-        }
-      })
-      .catch((_) => {
-        return null;
-      });
+  async function fetchStoredToken() {
+    try {
+      const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
+      if (token) {
+        return token;
+      }
+    } catch (error) {
+      return null;
+    }
     return null;
   }
 
