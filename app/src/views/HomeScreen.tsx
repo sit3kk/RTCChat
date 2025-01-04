@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  ActivityIndicator,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db } from "../api/FirebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 
 export default function HomeScreen({ navigation }: any) {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadUser();
@@ -23,24 +30,32 @@ export default function HomeScreen({ navigation }: any) {
       }
     } catch (error) {
       console.error("Error loading user:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    await AsyncStorage.removeItem("@user");
-    setUser(null);
-    navigation.navigate("Login");
+    try {
+      await AsyncStorage.removeItem("@user");
+      setUser(null);
+      navigation.navigate("Login");
+    } catch (error) {
+      console.error("Error during sign-out:", error);
+    }
   };
 
   return (
     <View style={styles.container}>
-      {user ? (
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : user ? (
         <>
           <Text style={styles.text}>Welcome, {user.name}!</Text>
           <Button title="Sign Out" onPress={handleSignOut} />
         </>
       ) : (
-        <Text style={styles.text}>Loading...</Text>
+        <Text style={styles.text}>No user data found.</Text>
       )}
     </View>
   );
@@ -56,5 +71,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 10,
   },
 });
