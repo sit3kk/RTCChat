@@ -5,14 +5,15 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./src/views/LoginScreen";
 import HomeScreen from "./src/views/HomeScreen";
+import ContactsScreen from "./src/views/ContactsScreen";
+import ChatScreen from "./src/views/ChatScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import ContactsScreen from "./src/views/ContactsScreen";
 
 export type BottomTabParamList = {
   Contacts: { userId: string; userName: string };
   Home: undefined;
-  InviteFriends: undefined;
+  Chat: { chatId: string; userId: string; userName: string };
 };
 
 const Stack = createStackNavigator();
@@ -67,6 +68,21 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
             <Ionicons name="home" size={24} color={color} />
           ),
           tabBarLabel: "Home",
+        }}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        initialParams={{
+          chatId: "general",
+          userId,
+          userName,
+        }}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="chatbubbles" size={24} color={color} />
+          ),
+          tabBarLabel: "Chat",
         }}
       />
     </Tab.Navigator>
