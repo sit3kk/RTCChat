@@ -108,11 +108,11 @@ const styles = StyleSheet.create({
   textContainer: {
     justifyContent: "center",
     alignItems: "flex-start",
-    height: 450,
+    height: 150,
   },
   middleContainer: {
-    height: 100,
-    justifyContent: "center",
+    height: 400,
+    justifyContent: "flex-end",
     alignItems: "center",
     gap: 10,
   },
