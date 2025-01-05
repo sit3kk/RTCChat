@@ -1,22 +1,24 @@
-import { User } from "../types/User";
+import { UserData } from "../types/UserData";
 
-export const fetchUserInfo = async (accessToken: string): Promise<User> => {
+export const fetchUserData = async (accessToken: string): Promise<UserData> => {
   try {
     const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
-      throw new Error("Failed to fetch user info");
+      throw new Error(
+        `Failed to fetch user data with status ${response.status}`
+      );
     }
-    const data = await response.json();
+    const user = await response.json();
     return {
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      picture: data.picture,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      picture: user.picture,
     };
   } catch (error) {
-    console.error("Error fetching user info:", error);
+    console.error("Failed to fetch user data:", error);
     throw error;
   }
 };

@@ -25,6 +25,7 @@ import {
 import { db } from "../api/FirebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { useUserData } from "../store/UserDataProvider";
 
 type Message = {
   id: string;
@@ -40,15 +41,16 @@ type Contact = {
 };
 
 type BottomTabParamList = {
-  Contacts: { userId: string; userName: string };
+  Contacts: undefined;
   Home: undefined;
-  Chat: { chatId: string; userId: string; userName: string };
+  Chat: { chatId: string };
+  Settings: undefined;
 };
 
 type ChatScreenProps = BottomTabScreenProps<BottomTabParamList, "Chat">;
 
-const ChatScreen: React.FC<ChatScreenProps> = ({ route }) => {
-  const { userId, userName } = route.params;
+const ChatScreen: React.FC<ChatScreenProps> = () => {
+  const { userId, userName } = useUserData();
 
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
