@@ -14,11 +14,13 @@ import HomeScreen from "./src/views/HomeScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
 import ChatScreen from "./src/views/ChatScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
+import CallScreen from "./src/views/CallScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
   Home: undefined;
   Chat: { chatId: string };
+  Calls: { channelName: string; contactName: string };
   Settings: undefined;
 };
 
@@ -77,6 +79,16 @@ const AuthenticatedStack = () => {
             <Ionicons name="chatbubbles" size={24} color={color} />
           ),
           tabBarLabel: "Chat",
+        }}
+      />
+      <Tab.Screen
+        name="Calls"
+        component={CallScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="call" size={24} color={color} />
+          ),
+          tabBarLabel: "Calls",
         }}
       />
       <Tab.Screen
