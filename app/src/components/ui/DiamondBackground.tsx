@@ -8,8 +8,11 @@ const DiamondBackground: React.FC = () => {
     <View style={styles.diamondContainer}>
       <Svg width="100%" height="100%" viewBox="0 0 200 200">
         <Defs>
-          <Filter id="blurFilter">
-            <FeGaussianBlur in="SourceGraphic" stdDeviation="20" />
+          <Filter id="blurFilterOuter">
+            <FeGaussianBlur in="SourceGraphic" stdDeviation="50" />
+          </Filter>
+          <Filter id="blurFilterInner">
+            <FeGaussianBlur in="SourceGraphic" stdDeviation="25" />
           </Filter>
         </Defs>
 
@@ -17,13 +20,13 @@ const DiamondBackground: React.FC = () => {
           points="100,0 200,100 100,200 0,100"
           fill={Colors.backgroundGradientMid}
           opacity={0.5}
-          filter="url(#blurFilter)"
+          filter="url(#blurFilterOuter)"
         />
         <Polygon
           points="100,50 150,100 100,150 50,100"
           fill={Colors.backgroundGradientStart}
-          opacity={0.5}
-          filter="url(#blurFilter)"
+          opacity={0.3}
+          filter="url(#blurFilterInner)"
         />
       </Svg>
     </View>
