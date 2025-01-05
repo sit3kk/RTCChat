@@ -9,3 +9,11 @@ export const generateInvitationCode = (): string => {
 
   return code;
 };
+
+export const alphabet = "#abcdefghijklmnopqrstuvwxyz";
+
+export const randomAvatar = () => {
+  const num = Math.floor(Math.random() * 60);
+  const avatarSize = 36;
+  return `https://i.pravatar.cc/${avatarSize}?img=${num}`;
+};
