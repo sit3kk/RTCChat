@@ -133,7 +133,7 @@ function Root() {
 const App: React.FC = () => {
   return (
     <SafeAreaProvider>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <AuthProvider>
         <UserDataProvider>
           <Root />
