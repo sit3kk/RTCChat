@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Button, Text, StyleSheet, Alert } from "react-native";
+import { StyleSheet, View, Text, Alert, ActivityIndicator } from "react-native";
 import * as Google from "expo-auth-session/providers/google";
 import { fetchUserData } from "../api/AuthGateway";
 import { useAuth } from "../store/AuthProvider";
 import { useUserData } from "../store/UserDataProvider";
-import LoadingScreen from "./LoadingScreen";
 import { REACT_APP_IOS_CLIENT_ID, REACT_APP_WEB_CLIENT_ID } from "@env";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors } from "../styles/commonStyles";
+import Button from "../components/ui/Button";
+import DiamondBackground from "../components/ui/DiamondBackground";
 
 export default function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -53,36 +55,88 @@ export default function LoginScreen() {
   }, [response]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      {isAuthenticating && (
-        <View style={styles.container}>
-          <Text style={styles.text}>Logging you in...</Text>
-          <LoadingScreen />
+    <>
+      <DiamondBackground />
+      <SafeAreaView style={styles.contentContainer}>
+        <View
+          style={{
+            ...styles.textContainer,
+            paddingTop: 50,
+            paddingRight: 20,
+          }}
+        >
+          <Text style={styles.title}>More Than</Text>
+          <Text style={styles.title}>Words,</Text>
+          <Text style={styles.title}>
+            It’s a <Text style={styles.highlight}>Connection.</Text>
+          </Text>
         </View>
-      )}
-      {!isAuthenticating && (
-        <View style={styles.container}>
-          <Button
-            title="Sign in with Google"
-            disabled={!request}
-            onPress={loginHandler}
-          />
+        <View style={styles.middleContainer}>
+          {isAuthenticating ? (
+            <>
+              <Text style={styles.text}>Logging you in...</Text>
+              <ActivityIndicator size="large" color={Colors.primary} />
+            </>
+          ) : (
+            <Button
+              title="Log in with Google"
+              onPress={loginHandler}
+              isLoading={false}
+              disabled={false}
+            />
+          )}
         </View>
-      )}
-    </SafeAreaView>
+
+        <View style={styles.textContainer}>
+          <Text style={{ ...styles.footerText, letterSpacing: 9 }}>
+            built on WebRTC
+          </Text>
+          <Text style={styles.footerText}>by Konrad Sitek, Paweł Małecki</Text>
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    zIndex: 1,
+  },
+  textContainer: {
+    justifyContent: "center",
+    alignItems: "flex-start",
+    height: 450,
+  },
+  middleContainer: {
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+  },
+  title: {
+    fontSize: 40,
+    fontWeight: "400",
+    color: Colors.textLight,
+    marginBottom: 5,
+    letterSpacing: 1.4,
+  },
+  highlight: {
+    color: Colors.primary,
+    fontWeight: "600",
   },
   text: {
-    marginTop: 16,
     fontSize: 18,
-    fontWeight: "bold",
+    color: Colors.textLight,
+    marginBottom: 10,
+  },
+  footerText: {
+    fontSize: 14,
+    color: Colors.textLight,
+    textAlign: "left",
+    marginTop: 5,
+    letterSpacing: 1.4,
   },
 });
