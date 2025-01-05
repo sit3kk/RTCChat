@@ -169,9 +169,16 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
   const alphabetRef = useAnimatedRef<View>();
   const scrollViewRef = useRef<SectionList>(null);
 
+  const firstContactIndex = alphabet.indexOf(
+    contactItems[0]?.title.toLowerCase() ?? alphabet.charAt(0)
+  );
+  const lastContactIndex = alphabet.indexOf(
+    contactItems[contactItems.length - 1]?.title.toLowerCase() ??
+      alphabet.charAt(alphabet.length - 1)
+  );
+
   const snapIndicatorTo = (index: number) => {
     runOnUI(() => {
-      console.log("FRYTKI scrollableIndex", scrollableIndex.value);
       if (scrollableIndex.value === index || isInteracting.value) {
         return;
       }
@@ -193,7 +200,7 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
   const scrollToLocation = (index: number) => {
     scrollViewRef.current?.scrollToLocation({
       itemIndex: 0,
-      sectionIndex: index,
+      sectionIndex: index - firstContactIndex, // adjust for the first section header offset
       animated: false,
       viewOffset: 0,
       viewPosition: 0,
@@ -222,8 +229,9 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
       scrollableIndex.value = y.value / snapBy;
       const snapToIndex = Math.round(scrollableIndex.value);
       const clampedIndex = Math.max(
-        0,
-        Math.min(snapToIndex, contactItems.length - 1)
+        // clamp the index to the first and last contact index
+        firstContactIndex,
+        Math.min(snapToIndex, lastContactIndex)
       );
       runOnJS(scrollToLocation)(clampedIndex);
 
@@ -248,20 +256,6 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
     };
   });
 
-  // useEffect(() => {
-  //   // ensure the knob starts on the first contact's letter
-  //   const firstIndex = 0;
-  //   const alphabetLayout = measure(alphabetRef);
-
-  //   if (alphabetLayout) {
-  //     const snapBy =
-  //       (alphabetLayout.height - KNOB_SIZE) / Math.max(1, alphabet.length - 1);
-  //     y.value = firstIndex * snapBy;
-  //     scrollableIndex.value = firstIndex;
-  //     activeScrollIndex.value = firstIndex;
-  //   }
-  // }, [contactsData]);
-
   const getItemLayout = useMemo(() => {
     return sectionListGetItemLayout({
       getItemHeight: () => ITEM_HEIGHT,
@@ -284,7 +278,7 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
         const section = viewableItems[half]?.section;
         if (section) {
           const { index } = section as ContactSectionsType;
-          runOnJS(snapIndicatorTo)(index);
+          runOnJS(snapIndicatorTo)(index + firstContactIndex); // adjust for the first section header offset
         }
       },
     []
