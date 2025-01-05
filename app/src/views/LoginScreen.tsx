@@ -61,7 +61,7 @@ export default function LoginScreen() {
         <View
           style={{
             ...styles.textContainer,
-            paddingTop: 50,
+            paddingTop: 100,
             paddingRight: 20,
           }}
         >
