@@ -61,10 +61,12 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     marginBottom: 20,
+    borderWidth: 3,
+    borderColor: Colors.primary,
   },
   infoText: {
     fontSize: 20,
@@ -74,11 +76,6 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "bold",
     color: Colors.textLight,
-  },
-  callerNumber: {
-    fontSize: 18,
-    color: Colors.textDimmed,
-    marginTop: 5,
   },
   buttonsContainer: {
     marginTop: 250,

@@ -212,7 +212,7 @@ const InteractionStack = () => {
       <InteractionStackNavigator.Screen
         name="ActiveAudioCall"
         component={ActiveAudioCallScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
       {/* <InteractionStackNavigator.Screen
         name="ActiveVideoCallScreen"

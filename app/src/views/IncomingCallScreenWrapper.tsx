@@ -1,5 +1,9 @@
 import React from "react";
-import { useNavigation, RouteProp } from "@react-navigation/native";
+import {
+  useNavigation,
+  RouteProp,
+  CommonActions,
+} from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { InteractionStackParamList } from "../../App";
 import IncomingCallScreen from "./IncomingCallScreen";
@@ -18,7 +22,7 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
 
   const handleAccept = () => {
     console.log("Call accepted with", caller);
-    navigation.navigate("ActiveAudioCall", {
+    navigation.replace("ActiveAudioCall", {
       callData: callData,
     });
   };
