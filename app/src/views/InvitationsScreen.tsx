@@ -27,7 +27,7 @@ const InvitationsScreen: React.FC = () => {
     try {
       const fetchedInvitations = await fetchInvitations(userId);
       setInvitations(fetchedInvitations);
-      setInvitations(mockInvitations);
+      // setInvitations(mockInvitations);
     } catch (error) {
       setStatus("Failed to load invitations.");
     }
@@ -102,9 +102,10 @@ const InvitationsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 20,
+    paddingTop: 220,
   },
 });
 

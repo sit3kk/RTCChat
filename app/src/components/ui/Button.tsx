@@ -13,7 +13,11 @@ interface ButtonProps {
   disabled?: boolean;
   type?: "primary" | "secondary";
   width?: number | string;
+  height?: number | string;
 }
+
+const DEFAULT_WIDTH = 30;
+const DEFAULT_HIGHT = 8;
 
 const Button: React.FC<ButtonProps> = ({
   title,
@@ -21,17 +25,24 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   type = "primary",
   width = "auto",
+  height = "auto",
 }) => {
   const buttonColorStyle =
     type === "primary" ? styles.primaryButton : styles.secondaryButton;
-  const dynamicPadding = typeof width === "number" ? width / 2 : 30;
+  const dynamicPaddingHorizontal =
+    typeof width === "number" ? width / 2 : DEFAULT_WIDTH;
+  const dynamicPaddingVertical =
+    typeof height === "number" ? height / 2 : DEFAULT_HIGHT;
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
         buttonColorStyle,
-        { paddingHorizontal: dynamicPadding },
+        {
+          paddingHorizontal: dynamicPaddingHorizontal,
+          paddingVertical: dynamicPaddingVertical,
+        },
         disabled && styles.buttonDisabled,
       ]}
       onPress={onPress}
@@ -46,7 +57,6 @@ const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 8,
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",

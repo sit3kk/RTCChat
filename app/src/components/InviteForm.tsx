@@ -45,16 +45,23 @@ const InviteForm: React.FC<InviteFormProps> = ({
 
 const styles = StyleSheet.create({
   newInviteContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    position: "absolute",
+    top: 20,
+    left: 5,
+    right: 5,
+    padding: 10,
+    borderRadius: 10,
     maxHeight: 200,
+    zIndex: 10,
     backgroundColor: Colors.secondaryTransparent,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.5,
   },
   rowContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     alignItems: "center",
   },
   subHeader: {
@@ -68,7 +75,9 @@ const styles = StyleSheet.create({
   },
   status: {
     color: Colors.textLight,
-    marginBottom: 10,
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: "center",
   },
 });
 

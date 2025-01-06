@@ -1,8 +1,8 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import ReactNative, { View, Text, FlatList, StyleSheet } from "react-native";
 import { Colors } from "../styles/commonStyles";
 import { Invitation } from "../types/commonTypes";
-import Button from "./ui/Button";
+import FlatButton from "./ui/FlatButton";
 
 interface PendingInvitationsProps {
   invitations: Invitation[];
@@ -17,14 +17,16 @@ const PendingInvitations: React.FC<PendingInvitationsProps> = ({
 }) => {
   const renderInvitation = ({ item }: { item: Invitation }) => (
     <View style={styles.invitationItem}>
-      <Text>Invitation from: {item.fromUserName}</Text>
+      <Text style={styles.invitationText}>{item.fromUserName}</Text>
       <View style={styles.buttons}>
-        <Button
+        <FlatButton
           title="Accept"
+          color={Colors.textLight}
           onPress={() => handleAcceptInvitation(item.id, item.fromUserId)}
         />
-        <Button
+        <FlatButton
           title="Reject"
+          color={Colors.danger}
           onPress={() => handleRejectInvitation(item.id)}
         />
       </View>
@@ -61,18 +63,28 @@ const styles = StyleSheet.create({
   },
   invitationItem: {
     padding: 15,
-    backgroundColor: Colors.primaryTransparent,
+    flexDirection: "row",
+    justifyContent: "space-between",
     borderRadius: 10,
+    backgroundColor: Colors.secondaryTransparent,
+    alignItems: "center",
     marginVertical: 5,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.5,
   },
+  invitationText: {
+    color: Colors.textLight,
+    fontWeight: "bold",
+    left: 5,
+    flex: 1,
+  },
   buttons: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
   },
 });
 
