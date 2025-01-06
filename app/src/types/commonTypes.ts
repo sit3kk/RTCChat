@@ -26,3 +26,8 @@ export interface Invitation {
   toUserName: string;
   status: string;
 }
+
+export interface IncomingCall {
+  caller: Contact;
+  callType: "audio" | "video";
+}

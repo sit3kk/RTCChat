@@ -21,9 +21,8 @@ import ChatScreen from "./src/views/ChatScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
-import IncomingCallScreen from "./src/views/IncomingCallScreen";
 import { randomAvatar } from "./src/utils/utils";
-import { Contact } from "./src/types/commonTypes";
+import { IncomingCall } from "./src/types/commonTypes";
 import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 
 export type BottomTabParamList = {
@@ -40,7 +39,7 @@ export type AuthenticatedStackParamList = {
 
 export type InteractionStackParamList = {
   Invitations: undefined;
-  IncomingCall: { caller: Contact };
+  IncomingCall: IncomingCall;
 };
 
 type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
@@ -98,6 +97,10 @@ const AppNavigator = () => {
               <IconButton
                 name="add"
                 onPress={() => {
+                  // navigation.navigate("InteractionStack", {
+                  //   screen: "Invitations",
+                  // });
+                  // temporary navigation to IncomingCallScreen
                   navigation.navigate("InteractionStack", {
                     screen: "IncomingCall",
                     params: {
@@ -106,6 +109,7 @@ const AppNavigator = () => {
                         name: "John Doe",
                         avatar: randomAvatar(),
                       },
+                      callType: "video",
                     },
                   });
                 }}

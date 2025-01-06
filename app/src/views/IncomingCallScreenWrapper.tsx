@@ -1,5 +1,6 @@
 import React from "react";
-import { RouteProp } from "@react-navigation/native";
+import { useNavigation, RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { InteractionStackParamList } from "../../App";
 import IncomingCallScreen from "./IncomingCallScreen";
 
@@ -10,7 +11,9 @@ interface IncomingCallScreenWrapperProps {
 const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   route,
 }) => {
-  const { caller } = route.params;
+  const navigation =
+    useNavigation<StackNavigationProp<InteractionStackParamList>>();
+  const { caller, callType } = route.params;
 
   const handleAccept = () => {
     console.log("Call accepted with", caller);
@@ -18,11 +21,13 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
 
   const handleReject = () => {
     console.log("Call rejected with", caller);
+    navigation.goBack();
   };
 
   return (
     <IncomingCallScreen
       caller={caller}
+      callType={callType}
       onAccept={handleAccept}
       onReject={handleReject}
     />

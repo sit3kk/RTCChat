@@ -7,12 +7,14 @@ import Button from "../components/ui/Button";
 
 interface IncomingCallScreenProps {
   caller: Contact;
+  callType: "audio" | "video";
   onAccept: () => void;
   onReject: () => void;
 }
 
 const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
   caller,
+  callType,
   onAccept,
   onReject,
 }) => {
@@ -22,7 +24,7 @@ const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
       <View style={styles.container}>
         <View style={styles.callInfoContainer}>
           <Image source={{ uri: caller.avatar }} style={styles.avatar} />
-          <Text style={styles.infoText}>Incoming call</Text>
+          <Text style={styles.infoText}>Incoming {callType} call</Text>
           <Text style={styles.callerName}>{caller.name}</Text>
         </View>
 
@@ -36,7 +38,7 @@ const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
           />
           <Button
             title="Accept"
-            onPress={onReject}
+            onPress={onAccept}
             type="accept"
             width={100}
             height={50}
