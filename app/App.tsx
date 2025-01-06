@@ -21,6 +21,10 @@ import ChatScreen from "./src/views/ChatScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
+import IncomingCallScreen from "./src/views/IncomingCallScreen";
+import { randomAvatar } from "./src/utils/utils";
+import { Contact } from "./src/types/commonTypes";
+import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -29,30 +33,40 @@ export type BottomTabParamList = {
   Settings: undefined;
 };
 
-export type AppStackParamList = {
+export type AuthenticatedStackParamList = {
   AppNavigator: undefined;
-  Invitations: undefined;
+  InteractionStack: { screen: keyof InteractionStackParamList; params?: any };
 };
 
-type AppNavigationProp = StackNavigationProp<AppStackParamList, "Invitations">;
+export type InteractionStackParamList = {
+  Invitations: undefined;
+  IncomingCall: { caller: Contact };
+};
 
-const Stack = createStackNavigator();
+type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
+type InteractionStackProp = StackNavigationProp<InteractionStackParamList>;
+
+const AuthStackNavigator = createStackNavigator();
+const AuthenticatedStackNavigator =
+  createStackNavigator<AuthenticatedStackParamList>();
+const InteractionStackNavigator =
+  createStackNavigator<InteractionStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const AuthStack = () => {
   return (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen
+    <AuthStackNavigator.Navigator initialRouteName="Login">
+      <AuthStackNavigator.Screen
         name="Login"
         component={LoginScreen}
         options={{ headerShown: false }}
       />
-    </Stack.Navigator>
+    </AuthStackNavigator.Navigator>
   );
 };
 
 const AppNavigator = () => {
-  const navigation = useNavigation<AppNavigationProp>();
+  const navigation = useNavigation<AuthenticatedStackProp>();
   return (
     <Tab.Navigator
       initialRouteName="Contacts"
@@ -68,7 +82,7 @@ const AppNavigator = () => {
         },
         headerTitleAlign: "left",
         tabBarActiveTintColor: Colors.textLight,
-        tabBarInactiveTintColor: Colors.textDimed,
+        tabBarInactiveTintColor: Colors.textDimmed,
         tabBarStyle: {
           backgroundColor: Colors.background,
           borderColor: Colors.background,
@@ -84,7 +98,16 @@ const AppNavigator = () => {
               <IconButton
                 name="add"
                 onPress={() => {
-                  navigation.navigate("Invitations");
+                  navigation.navigate("InteractionStack", {
+                    screen: "IncomingCall",
+                    params: {
+                      caller: {
+                        id: "1",
+                        name: "John Doe",
+                        avatar: randomAvatar(),
+                      },
+                    },
+                  });
                 }}
               />
             </View>
@@ -132,11 +155,11 @@ const AppNavigator = () => {
   );
 };
 
-const InvitationsStack = () => {
-  const navigation = useNavigation();
+const InteractionStack = () => {
+  const navigation = useNavigation<InteractionStackProp>();
   return (
-    <Stack.Navigator>
-      <Stack.Screen
+    <InteractionStackNavigator.Navigator>
+      <InteractionStackNavigator.Screen
         name="Invitations"
         component={InvitationsScreen}
         options={{
@@ -172,24 +195,29 @@ const InvitationsStack = () => {
           ),
         }}
       />
-    </Stack.Navigator>
+      <InteractionStackNavigator.Screen
+        name="IncomingCall"
+        component={IncomingCallScreenWrapper}
+        options={{ headerShown: false }}
+      />
+    </InteractionStackNavigator.Navigator>
   );
 };
 
 const AuthenticatedStack = () => {
   return (
-    <Stack.Navigator initialRouteName="AppNavigator">
-      <Stack.Screen
+    <AuthenticatedStackNavigator.Navigator initialRouteName="AppNavigator">
+      <AuthenticatedStackNavigator.Screen
         name="AppNavigator"
         component={AppNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="Invitations"
-        component={InvitationsStack}
+      <AuthenticatedStackNavigator.Screen
+        name="InteractionStack"
+        component={InteractionStack}
         options={{ headerShown: false }}
       />
-    </Stack.Navigator>
+    </AuthenticatedStackNavigator.Navigator>
   );
 };
 
