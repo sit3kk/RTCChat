@@ -36,7 +36,7 @@ const PendingInvitations: React.FC<PendingInvitationsProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.subHeader}>Pending Invitations</Text>
-      {invitations.length === 0 && (
+      {invitations.length > 0 && (
         <FlatList
           data={invitations}
           renderItem={renderInvitation}

@@ -290,20 +290,29 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
 
   return (
     <View style={styles.container}>
-      <SectionList
-        ref={scrollViewRef}
-        sections={contactItems}
-        stickySectionHeadersEnabled={false}
-        contentContainerStyle={{ paddingHorizontal: ITEM_SPACING * 2 }}
-        // @ts-ignore
-        getItemLayout={getItemLayout}
-        onViewableItemsChanged={onViewableItemsChanged}
-        renderSectionHeader={({ section: { title } }) => (
-          <ContactsListHeader title={title} />
-        )}
-        renderItem={({ item }) => <ContactsListItem item={item} />}
-        keyExtractor={(item) => item.id}
-      />
+      {contactItems.length > 0 && (
+        <SectionList
+          ref={scrollViewRef}
+          sections={contactItems}
+          stickySectionHeadersEnabled={false}
+          contentContainerStyle={{ paddingHorizontal: ITEM_SPACING * 2 }}
+          // @ts-ignore
+          getItemLayout={getItemLayout}
+          onViewableItemsChanged={onViewableItemsChanged}
+          renderSectionHeader={({ section: { title } }) => (
+            <ContactsListHeader title={title} />
+          )}
+          renderItem={({ item }) => <ContactsListItem item={item} />}
+          keyExtractor={(item) => item.id}
+        />
+      )}
+      {contactItems.length === 0 && (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={styles.text}>
+            No contacts added.{"\n"}Tap the + button to invite new friends!
+          </Text>
+        </View>
+      )}
 
       {/* Alphabet Indicator */}
       <View
@@ -358,6 +367,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "900",
     color: Colors.textLight,
+  },
+  text: {
+    color: Colors.textLight,
+    textAlign: "center",
   },
   contactItem: {
     flexDirection: "row",
