@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useUserData } from "../store/UserDataProvider";
 import SearchBar from "../components/ui/SearchBar";
@@ -9,6 +9,7 @@ import ContactSection from "../components/ContactSection";
 import { Contact } from "../types/commonTypes";
 import { fetchContacts } from "../api/FirestoreGateway";
 import { useFocusEffect } from "@react-navigation/native";
+import LoadingScreen from "./LoadingScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -49,11 +50,7 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
   }, [searchQuery, contacts]);
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (
