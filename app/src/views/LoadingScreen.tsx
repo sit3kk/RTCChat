@@ -4,6 +4,7 @@ import { Colors } from "../styles/commonStyles";
 
 const LoadingScreen = () => {
   return (
+    // Todo: Create better loading screen
     <View style={styles.container}>
       <ActivityIndicator size="large" color={Colors.primary} />
     </View>
