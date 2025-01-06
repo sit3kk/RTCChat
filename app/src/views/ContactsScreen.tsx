@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useUserData } from "../store/UserDataProvider";
@@ -34,16 +34,11 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
     loadData();
   }, []);
 
-  const handleSearchSubmit = () => {
-    const query = searchQuery.trim();
-    if (query) {
-      setContacts(
-        contacts.filter((contact) =>
-          contact.name.toLowerCase().startsWith(query.toLowerCase())
-        )
-      );
-    }
-  };
+  const filteredContacts = useMemo(() => {
+    return contacts.filter((contact) =>
+      contact.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, contacts]);
 
   if (loading) {
     return (
@@ -61,7 +56,6 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
           placeholder="Search"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearchSubmit}
           autoCapitalize="words"
           autoComplete="off"
           keyboardType="default"
@@ -69,7 +63,7 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
         />
 
         <Text style={styles.subHeader}>Contact list</Text>
-        <ContactSection contactsData={contacts} />
+        <ContactSection contactsData={filteredContacts} />
       </View>
     </>
   );

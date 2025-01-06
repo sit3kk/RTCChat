@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -271,6 +271,10 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
       ],
     };
   });
+
+  useEffect(() => {
+    setContactItems(generateContactSections(contactsData));
+  }, [contactsData]);
 
   const getItemLayout = useMemo(() => {
     return sectionListGetItemLayout({
