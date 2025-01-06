@@ -17,3 +17,11 @@ export const randomAvatar = () => {
   const avatarSize = 36;
   return `https://i.pravatar.cc/${avatarSize}?img=${num}`;
 };
+
+export const formatCallDuration = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs
+    .toString()
+    .padStart(2, "0")}`;
+};

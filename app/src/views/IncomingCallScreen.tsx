@@ -8,23 +8,25 @@ import Button from "../components/ui/Button";
 interface IncomingCallScreenProps {
   callData: CallData;
   onAccept: () => void;
+  onAcceptAudio: () => void;
   onReject: () => void;
 }
 
 const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
   callData,
   onAccept,
+  onAcceptAudio,
   onReject,
 }) => {
-  const { caller, callType } = callData;
+  const { callPartner, callType } = callData;
   return (
     <>
       <DiamondBackground />
       <View style={styles.container}>
         <View style={styles.callInfoContainer}>
-          <Image source={{ uri: caller.avatar }} style={styles.avatar} />
+          <Image source={{ uri: callPartner.avatar }} style={styles.avatar} />
           <Text style={styles.infoText}>Incoming {callType} call</Text>
-          <Text style={styles.callerName}>{caller.name}</Text>
+          <Text style={styles.callPartnerName}>{callPartner.name}</Text>
         </View>
 
         <View style={styles.buttonsContainer}>
@@ -43,6 +45,13 @@ const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
             height={50}
           />
         </View>
+        <Button
+          title="Accept Audio"
+          onPress={onAcceptAudio}
+          type="accept"
+          width={100}
+          height={50}
+        />
       </View>
     </>
   );
@@ -72,7 +81,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Colors.textLight,
   },
-  callerName: {
+  callPartnerName: {
     fontSize: 48,
     fontWeight: "bold",
     color: Colors.textLight,

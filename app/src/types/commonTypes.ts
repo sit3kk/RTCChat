@@ -28,6 +28,6 @@ export interface Invitation {
 }
 
 export interface CallData {
-  caller: Contact;
+  callPartner: Contact;
   callType: "audio" | "video";
 }
