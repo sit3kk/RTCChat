@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Image, Button, StyleSheet } from "react-native";
-import { User } from "../types/User";
+import { UserData } from "../types/UserData";
 
 interface UserInfoProps {
-  userInfo: User;
+  userInfo: UserData;
   onSignOut: () => void;
 }
 

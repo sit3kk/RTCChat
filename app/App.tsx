@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { View, TouchableOpacity } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuth, AuthProvider } from "./src/store/AuthProvider";
 import { UserDataProvider } from "./src/store/UserDataProvider";
 import { Colors } from "./src/styles/commonStyles";
@@ -14,6 +16,7 @@ import HomeScreen from "./src/views/HomeScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
 import ChatScreen from "./src/views/ChatScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
+import IconButton from "./src/components/ui/IconButton";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -40,16 +43,35 @@ const AuthStack = () => {
 const AuthenticatedStack = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Contacts"
       screenOptions={{
-        tabBarActiveTintColor: "#0000FF",
-        tabBarInactiveTintColor: "#888",
+        tabBarActiveTintColor: Colors.textLight,
+        tabBarInactiveTintColor: Colors.textDimed,
+        tabBarStyle: {
+          backgroundColor: Colors.background,
+          borderColor: Colors.background,
+        },
       }}
     >
       <Tab.Screen
         name="Contacts"
         component={ContactsScreen}
         options={{
+          headerStyle: {
+            backgroundColor: Colors.background,
+            height: 120,
+          },
+          headerTitleStyle: {
+            fontSize: 32,
+            fontWeight: "bold",
+            color: Colors.textLight,
+          },
+          headerTitleAlign: "left",
+          headerRight: () => (
+            <View style={{ marginRight: 10 }}>
+              <IconButton name="add" onPress={() => {}} />
+            </View>
+          ),
           tabBarIcon: ({ color }) => (
             <Ionicons name="people" size={24} color={color} />
           ),
@@ -136,7 +158,9 @@ const App: React.FC = () => {
       <StatusBar style="light" />
       <AuthProvider>
         <UserDataProvider>
-          <Root />
+          <GestureHandlerRootView>
+            <Root />
+          </GestureHandlerRootView>
         </UserDataProvider>
       </AuthProvider>
     </SafeAreaProvider>
