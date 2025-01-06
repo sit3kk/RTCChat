@@ -38,7 +38,7 @@ const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
             height={50}
           />
           <Button
-            title="Accept"
+            title="Accept Video"
             onPress={onAccept}
             type="accept"
             width={100}

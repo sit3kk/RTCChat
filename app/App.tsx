@@ -97,27 +97,32 @@ const AppNavigator = () => {
         component={ContactsScreen}
         options={{
           headerRight: () => (
-            <View style={{ marginRight: 10 }}>
+            <View style={{ marginRight: 10, flexDirection: "row" }}>
               <IconButton
                 name="add"
                 onPress={() => {
                   navigation.navigate("InteractionStack", {
                     screen: "Invitations",
                   });
-                  // temporary navigation to IncomingCallScreen
-                  // navigation.navigate("InteractionStack", {
-                  //   screen: "IncomingCall",
-                  //   params: {
-                  //     callData: {
-                  //       callPartner: {
-                  //         id: "1",
-                  //         name: "John Dough",
-                  //         avatar: randomAvatar(),
-                  //       },
-                  //       callType: "video",
-                  //     },
-                  //   },
-                  // });
+                }}
+              />
+              <IconButton
+                // temporary navigation to IncomingCallScreen
+                name="call"
+                onPress={() => {
+                  navigation.navigate("InteractionStack", {
+                    screen: "IncomingCall",
+                    params: {
+                      callData: {
+                        callPartner: {
+                          id: "1",
+                          name: "John Dough",
+                          avatar: randomAvatar(),
+                        },
+                        callType: "video",
+                      },
+                    },
+                  });
                 }}
               />
             </View>
