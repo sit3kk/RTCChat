@@ -15,6 +15,7 @@ export const Colors = {
   secondary: "#35319F",
   secondaryTransparent: "#35319F80",
   ternary: "#101327",
+  ternaryTransparent: "#101327C0",
   textLight: "#D2DAFB",
   textAccent: "#FFFFFF",
   textDimmed: "#888888",

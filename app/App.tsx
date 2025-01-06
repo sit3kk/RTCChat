@@ -21,10 +21,11 @@ import ChatScreen from "./src/views/ChatScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
-import IncomingCallScreen from "./src/views/IncomingCallScreen";
 import { randomAvatar } from "./src/utils/utils";
-import { Contact } from "./src/types/commonTypes";
+import { CallData } from "./src/types/commonTypes";
 import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
+import AudioCallScreen from "./src/views/AudioCallScreen";
+import VideoCallScreen from "./src/views/VideoCallScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -40,7 +41,9 @@ export type AuthenticatedStackParamList = {
 
 export type InteractionStackParamList = {
   Invitations: undefined;
-  IncomingCall: { caller: Contact };
+  IncomingCall: { callData: CallData };
+  AudioCall: { callData: CallData };
+  VideoCall: { callData: CallData };
 };
 
 type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
@@ -101,6 +104,20 @@ const AppNavigator = () => {
                   navigation.navigate("InteractionStack", {
                     screen: "Invitations",
                   });
+                  // temporary navigation to IncomingCallScreen
+                  // navigation.navigate("InteractionStack", {
+                  //   screen: "IncomingCall",
+                  //   params: {
+                  //     callData: {
+                  //       callPartner: {
+                  //         id: "1",
+                  //         name: "John Dough",
+                  //         avatar: randomAvatar(),
+                  //       },
+                  //       callType: "video",
+                  //     },
+                  //   },
+                  // });
                 }}
               />
             </View>
@@ -192,6 +209,16 @@ const InteractionStack = () => {
         name="IncomingCall"
         component={IncomingCallScreenWrapper}
         options={{ headerShown: false }}
+      />
+      <InteractionStackNavigator.Screen
+        name="AudioCall"
+        component={AudioCallScreen}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
+      <InteractionStackNavigator.Screen
+        name="VideoCall"
+        component={VideoCallScreen}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
     </InteractionStackNavigator.Navigator>
   );

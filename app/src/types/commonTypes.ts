@@ -26,3 +26,8 @@ export interface Invitation {
   toUserName: string;
   status: string;
 }
+
+export interface CallData {
+  callPartner: Contact;
+  callType: "audio" | "video";
+}
