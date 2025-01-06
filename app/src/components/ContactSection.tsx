@@ -23,7 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
-import { Contact, ContactSectionsType } from "../types/ContactData";
+import { Contact, ContactSectionsType } from "../types/commonTypes";
 import { Colors } from "../styles/commonStyles";
 import { alphabet, randomAvatar } from "../utils/utils";
 
