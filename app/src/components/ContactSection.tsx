@@ -160,7 +160,6 @@ interface ContactSectionProps {
 export function ContactSection({ contactsData }: ContactSectionProps) {
   const [contactItems, setContactItems] = useState<ContactSectionsType[]>(
     generateContactSections(contactsData)
-    // mockContacts
   );
   const y = useSharedValue(0);
   const isInteracting = useSharedValue(false);
@@ -258,6 +257,7 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
 
   useEffect(() => {
     setContactItems(generateContactSections(contactsData));
+    // setContactItems(mockContacts);
   }, [contactsData]);
 
   const getItemLayout = useMemo(() => {
