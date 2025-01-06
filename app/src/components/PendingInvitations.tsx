@@ -36,12 +36,17 @@ const PendingInvitations: React.FC<PendingInvitationsProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.subHeader}>Pending Invitations</Text>
-      <FlatList
-        data={invitations}
-        renderItem={renderInvitation}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.flatListContainer}
-      />
+      {invitations.length === 0 && (
+        <FlatList
+          data={invitations}
+          renderItem={renderInvitation}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.flatListContainer}
+        />
+      )}
+      {invitations.length === 0 && (
+        <Text style={styles.text}>No pending invitations.</Text>
+      )}
     </View>
   );
 };
@@ -57,6 +62,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.textLight,
     marginBottom: 15,
+  },
+  text: {
+    color: Colors.textLight,
+    textAlign: "center",
   },
   flatListContainer: {
     paddingBottom: 20,
