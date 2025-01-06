@@ -25,7 +25,8 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import { Contact, ContactSectionsType } from "../types/commonTypes";
 import { Colors } from "../styles/commonStyles";
-import { alphabet, randomAvatar } from "../utils/utils";
+import { alphabet } from "../utils/utils";
+import { mockContacts } from "../tests/mockData";
 
 const ITEM_SPACING = 8;
 const AVATAR_SIZE = 36;
@@ -124,23 +125,6 @@ function generateContactSections(contacts: Contact[]): ContactSectionsType[] {
 
   return contactSections;
 }
-
-// Utility to generate contacts for each section
-const mockContacts: ContactSectionsType[] = [
-  ...Array(alphabet.length - 15).keys(),
-].map((sectionIndex) => {
-  const letter = alphabet.charAt(sectionIndex + 5).toUpperCase();
-  return {
-    title: letter,
-    index: sectionIndex,
-    key: `list-${letter}`,
-    data: [...Array(Math.floor(Math.random() * 7) + 5).keys()].map((i) => ({
-      id: `${letter}-Contact-${i + 1}`,
-      name: `${letter}-Contact ${i + 1}`,
-      avatar: randomAvatar(),
-    })),
-  };
-});
 
 export function ContactsListHeader({ title }: { title: string }) {
   return (
