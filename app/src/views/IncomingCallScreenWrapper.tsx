@@ -18,17 +18,25 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   const navigation =
     useNavigation<StackNavigationProp<InteractionStackParamList>>();
   const callData = route.params.callData;
-  const caller = callData.caller;
+  const callPartner = callData.callPartner;
+
+  const handleAcceptAudio = () => {
+    console.log("Call accepted with", callPartner);
+    navigation.replace("AudioCall", {
+      callData: callData,
+    });
+  };
 
   const handleAccept = () => {
-    console.log("Call accepted with", caller);
-    navigation.replace("ActiveAudioCall", {
+    console.log("Call accepted with", callPartner);
+
+    navigation.replace("VideoCall", {
       callData: callData,
     });
   };
 
   const handleReject = () => {
-    console.log("Call rejected with", caller);
+    console.log("Call rejected with", callPartner);
     navigation.goBack();
   };
 
@@ -36,6 +44,7 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
     <IncomingCallScreen
       callData={callData}
       onAccept={handleAccept}
+      onAcceptAudio={handleAcceptAudio}
       onReject={handleReject}
     />
   );
