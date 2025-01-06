@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  StackNavigationProp,
+} from "@react-navigation/stack";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -17,6 +20,7 @@ import ContactsScreen from "./src/views/ContactsScreen";
 import ChatScreen from "./src/views/ChatScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
+import InvitationsScreen from "./src/views/InvitationsScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -24,6 +28,13 @@ export type BottomTabParamList = {
   Chat: { chatId: string };
   Settings: undefined;
 };
+
+export type AppStackParamList = {
+  AppNavigator: undefined;
+  Invitations: undefined;
+};
+
+type AppNavigationProp = StackNavigationProp<AppStackParamList, "Invitations">;
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -40,11 +51,22 @@ const AuthStack = () => {
   );
 };
 
-const AuthenticatedStack = () => {
+const AppNavigator = () => {
+  const navigation = useNavigation<AppNavigationProp>();
   return (
     <Tab.Navigator
       initialRouteName="Contacts"
       screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors.background,
+          height: 120,
+        },
+        headerTitleStyle: {
+          fontSize: 32,
+          fontWeight: "bold",
+          color: Colors.textLight,
+        },
+        headerTitleAlign: "left",
         tabBarActiveTintColor: Colors.textLight,
         tabBarInactiveTintColor: Colors.textDimed,
         tabBarStyle: {
@@ -57,19 +79,14 @@ const AuthenticatedStack = () => {
         name="Contacts"
         component={ContactsScreen}
         options={{
-          headerStyle: {
-            backgroundColor: Colors.background,
-            height: 120,
-          },
-          headerTitleStyle: {
-            fontSize: 32,
-            fontWeight: "bold",
-            color: Colors.textLight,
-          },
-          headerTitleAlign: "left",
           headerRight: () => (
             <View style={{ marginRight: 10 }}>
-              <IconButton name="add" onPress={() => {}} />
+              <IconButton
+                name="add"
+                onPress={() => {
+                  navigation.navigate("Invitations");
+                }}
+              />
             </View>
           ),
           tabBarIcon: ({ color }) => (
@@ -112,6 +129,67 @@ const AuthenticatedStack = () => {
         }}
       />
     </Tab.Navigator>
+  );
+};
+
+const InvitationsStack = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Invitations"
+        component={InvitationsScreen}
+        options={{
+          headerStyle: {
+            backgroundColor: Colors.background,
+            height: 120,
+          },
+          headerTitleStyle: {
+            fontSize: 32,
+            fontWeight: "bold",
+            color: Colors.textLight,
+          },
+          headerTitleAlign: "left",
+          headerLeft: () => (
+            <View
+              style={{
+                marginLeft: 10,
+                marginRight: 140,
+                gap: 5,
+                flexDirection: "row",
+              }}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={Colors.textLight}
+                onPress={() => navigation.goBack()}
+              />
+              <Text style={{ fontSize: 18, color: Colors.textLight }}>
+                Back
+              </Text>
+            </View>
+          ),
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const AuthenticatedStack = () => {
+  return (
+    <Stack.Navigator initialRouteName="AppNavigator">
+      <Stack.Screen
+        name="AppNavigator"
+        component={AppNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Invitations"
+        component={InvitationsStack}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 };
 

@@ -18,6 +18,8 @@ export const Colors = {
   textLight: "#D2DAFB",
   textAccent: "#FFFFFF",
   textDimed: "#888888",
+  accept: "#00bb00",
+  danger: "#dd0000",
   background: "#02051B",
   backgroundGradientStart: "#F1F3F080",
   backgroundGradientMid: "#35319F80",

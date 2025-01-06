@@ -81,7 +81,7 @@ export default function LoginScreen() {
             <Button
               title="Log in with Google"
               onPress={loginHandler}
-              isLoading={false}
+              type="secondary"
               disabled={false}
             />
           )}

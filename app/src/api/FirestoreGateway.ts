@@ -6,8 +6,11 @@ import {
   getDocs,
   getDoc,
   doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
-import { Contact } from "../types/ContactData";
+import { Contact, Invitation } from "../types/commonTypes";
 import { randomAvatar } from "../utils/utils";
 
 export const fetchContacts = async (userId: string): Promise<Contact[]> => {
@@ -18,7 +21,7 @@ export const fetchContacts = async (userId: string): Promise<Contact[]> => {
     );
     const querySnapshot = await getDocs(contactsQuery);
 
-    const contacts: Contact[] = [];
+    const fetchedContacts: Contact[] = [];
     for (const contactDoc of querySnapshot.docs) {
       const contactData = contactDoc.data();
       const contactUserId = contactData.contactId;
@@ -28,16 +31,107 @@ export const fetchContacts = async (userId: string): Promise<Contact[]> => {
 
       if (contactUserDoc.exists()) {
         const userData = contactUserDoc.data() as { name: string };
-        contacts.push({
+        fetchedContacts.push({
           id: contactDoc.id,
           name: userData.name,
           avatar: randomAvatar(), // TODO: fetch user avatar
         });
       }
     }
-    return contacts;
+    return fetchedContacts;
   } catch (error) {
     console.error("Failed to fetch contacts:", error);
+    throw error;
+  }
+};
+
+export const fetchInvitations = async (userId: string) => {
+  try {
+    const invitationsQuery = query(
+      collection(db, "invitations"),
+      where("toUserId", "==", userId),
+      where("status", "==", "pending")
+    );
+    const querySnapshot = await getDocs(invitationsQuery);
+
+    const fetchedInvitations = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Invitation[];
+    return fetchedInvitations;
+  } catch (error) {
+    console.error("Failed to fetch invitations:", error);
+    throw error;
+  }
+};
+
+export const sendInvitation = async (
+  userId: string,
+  userName: string,
+  invitationCode: string
+) => {
+  try {
+    const userQuery = query(
+      collection(db, "users"),
+      where("invitationCode", "==", invitationCode)
+    );
+    const userSnapshot = await getDocs(userQuery);
+
+    if (userSnapshot.empty) {
+      return { success: false, message: "No user found with this code." };
+    }
+
+    const toUserId = userSnapshot.docs[0].id;
+    const toUserName = userSnapshot.docs[0].data().name;
+
+    await addDoc(collection(db, "invitations"), {
+      fromUserId: userId,
+      fromUserName: userName,
+      toUserId,
+      toUserName,
+      status: "pending",
+    });
+
+    return { success: true, message: "Invitation sent successfully." };
+  } catch (error: any) {
+    console.error("Error sending invitation:", error);
+    return {
+      success: false,
+      message: "Error sending invitation: " + error.message,
+    };
+  }
+};
+
+export const acceptInvitation = async (
+  userId: string,
+  invitationId: string,
+  fromUserId: string
+) => {
+  try {
+    const invitationRef = doc(db, "invitations", invitationId);
+    await updateDoc(invitationRef, { status: "accepted" });
+
+    // Add contacts in both directions
+    await addDoc(collection(db, "contacts"), {
+      userId,
+      contactId: fromUserId,
+    });
+    await addDoc(collection(db, "contacts"), {
+      userId: fromUserId,
+      contactId: userId,
+    });
+  } catch (error) {
+    console.error("Error accepting invitation:", error);
+    throw error;
+  }
+};
+
+export const rejectInvitation = async (invitationId: string) => {
+  try {
+    const invitationRef = doc(db, "invitations", invitationId);
+    await deleteDoc(invitationRef);
+  } catch (error) {
+    console.error("Error rejecting invitation:", error);
     throw error;
   }
 };

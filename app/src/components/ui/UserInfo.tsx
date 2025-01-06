@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, Button, StyleSheet } from "react-native";
-import { UserData } from "../types/UserData";
+import { UserData } from "../../types/commonTypes";
 
 interface UserInfoProps {
   userInfo: UserData;
