@@ -1,5 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, SectionList, Image, StyleSheet } from "react-native";
+import React, { useMemo, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  SectionList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import sectionListGetItemLayout from "react-native-section-list-get-item-layout";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -15,6 +22,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 import { Contact, ContactSectionsType } from "../types/ContactData";
 import { Colors } from "../styles/commonStyles";
 import { alphabet, randomAvatar } from "../utils/utils";
@@ -143,13 +151,21 @@ export function ContactsListHeader({ title }: { title: string }) {
 }
 
 export function ContactsListItem({ item }: { item: Contact }) {
+  const handleItemPress = () => {
+    console.log("Selected contact: ", item);
+  };
   return (
-    <View style={styles.contactItem}>
+    <TouchableOpacity style={styles.contactItem} onPress={handleItemPress}>
       <Image source={{ uri: item.avatar }} style={styles.contactAvatar} />
-      <View style={styles.contactNameContainer}>
+      <View style={styles.contactInnerContainer}>
         <Text style={styles.contactName}>{item.name}</Text>
+        <Ionicons
+          name={"chevron-forward-outline"}
+          size={20}
+          color={Colors.primary}
+        />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -361,13 +377,16 @@ const styles = StyleSheet.create({
     padding: 10,
     height: ITEM_HEIGHT,
   },
-  contactNameContainer: {
+  contactInnerContainer: {
+    flexDirection: "row",
     borderBottomColor: Colors.primary,
     borderBottomWidth: 0.5,
     width: "80%",
-    paddingBottom: 3,
     height: "100%",
-    justifyContent: "center",
+    marginLeft: 5,
+    paddingLeft: 5,
+    paddingBottom: 3,
+    justifyContent: "space-between",
   },
   contactAvatar: {
     marginRight: 10,

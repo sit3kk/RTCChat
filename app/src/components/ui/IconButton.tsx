@@ -27,7 +27,7 @@ const IconButton: React.FC<IconButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
+    paddingHorizontal: 10,
   },
 });
 
