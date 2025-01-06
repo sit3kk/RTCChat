@@ -99,14 +99,7 @@ const AppNavigator = () => {
                 name="add"
                 onPress={() => {
                   navigation.navigate("InteractionStack", {
-                    screen: "IncomingCall",
-                    params: {
-                      caller: {
-                        id: "1",
-                        name: "John Doe",
-                        avatar: randomAvatar(),
-                      },
-                    },
+                    screen: "Invitations",
                   });
                 }}
               />
