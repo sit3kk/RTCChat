@@ -27,7 +27,7 @@ export interface Invitation {
   status: string;
 }
 
-export interface IncomingCall {
+export interface CallData {
   caller: Contact;
   callType: "audio" | "video";
 }

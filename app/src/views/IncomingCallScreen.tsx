@@ -2,22 +2,21 @@ import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Colors } from "../styles/commonStyles";
 import DiamondBackground from "../components/ui/DiamondBackground";
-import { Contact } from "../types/commonTypes";
+import { CallData } from "../types/commonTypes";
 import Button from "../components/ui/Button";
 
 interface IncomingCallScreenProps {
-  caller: Contact;
-  callType: "audio" | "video";
+  callData: CallData;
   onAccept: () => void;
   onReject: () => void;
 }
 
 const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
-  caller,
-  callType,
+  callData,
   onAccept,
   onReject,
 }) => {
+  const { caller, callType } = callData;
   return (
     <>
       <DiamondBackground />

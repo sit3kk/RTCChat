@@ -22,8 +22,9 @@ import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
 import { randomAvatar } from "./src/utils/utils";
-import { IncomingCall } from "./src/types/commonTypes";
+import { CallData } from "./src/types/commonTypes";
 import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
+import ActiveAudioCallScreen from "./src/views/ActiveAudioCallScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -39,7 +40,9 @@ export type AuthenticatedStackParamList = {
 
 export type InteractionStackParamList = {
   Invitations: undefined;
-  IncomingCall: IncomingCall;
+  IncomingCall: { callData: CallData };
+  ActiveAudioCall: { callData: CallData };
+  // ActiveVideoCall: { callData: CallData };
 };
 
 type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
@@ -104,12 +107,14 @@ const AppNavigator = () => {
                   navigation.navigate("InteractionStack", {
                     screen: "IncomingCall",
                     params: {
-                      caller: {
-                        id: "1",
-                        name: "John Doe",
-                        avatar: randomAvatar(),
+                      callData: {
+                        caller: {
+                          id: "1",
+                          name: "John Doe",
+                          avatar: randomAvatar(),
+                        },
+                        callType: "video",
                       },
-                      callType: "video",
                     },
                   });
                 }}
@@ -204,6 +209,16 @@ const InteractionStack = () => {
         component={IncomingCallScreenWrapper}
         options={{ headerShown: false }}
       />
+      <InteractionStackNavigator.Screen
+        name="ActiveAudioCall"
+        component={ActiveAudioCallScreen}
+        options={{ headerShown: false }}
+      />
+      {/* <InteractionStackNavigator.Screen
+        name="ActiveVideoCallScreen"
+        component={ActiveVideoCallScreen}
+        options={{ headerShown: false }}
+      /> */}
     </InteractionStackNavigator.Navigator>
   );
 };

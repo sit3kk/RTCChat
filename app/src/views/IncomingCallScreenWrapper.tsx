@@ -13,10 +13,14 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
 }) => {
   const navigation =
     useNavigation<StackNavigationProp<InteractionStackParamList>>();
-  const { caller, callType } = route.params;
+  const callData = route.params.callData;
+  const caller = callData.caller;
 
   const handleAccept = () => {
     console.log("Call accepted with", caller);
+    navigation.navigate("ActiveAudioCall", {
+      callData: callData,
+    });
   };
 
   const handleReject = () => {
@@ -26,8 +30,7 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
 
   return (
     <IncomingCallScreen
-      caller={caller}
-      callType={callType}
+      callData={callData}
       onAccept={handleAccept}
       onReject={handleReject}
     />
