@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useUserData } from "../store/UserDataProvider";
@@ -8,6 +8,7 @@ import DiamondBackground from "../components/ui/DiamondBackground";
 import ContactSection from "../components/ContactSection";
 import { Contact } from "../types/ContactData";
 import { fetchContacts } from "../api/FirestoreGateway";
+import { useFocusEffect } from "@react-navigation/native";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -33,6 +34,13 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
 
     loadData();
   }, []);
+
+  useFocusEffect(
+    // clear the search query whenever the screen is focused
+    useCallback(() => {
+      setSearchQuery("");
+    }, [])
+  );
 
   const filteredContacts = useMemo(() => {
     return contacts.filter((contact) =>
