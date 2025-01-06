@@ -11,7 +11,7 @@ interface ButtonProps {
   title: string;
   onPress: (event: GestureResponderEvent) => void;
   disabled?: boolean;
-  type?: "primary" | "secondary";
+  type?: "primary" | "secondary" | "accept" | "reject";
   width?: number | string;
   height?: number | string;
 }
@@ -28,7 +28,13 @@ const Button: React.FC<ButtonProps> = ({
   height = "auto",
 }) => {
   const buttonColorStyle =
-    type === "primary" ? styles.primaryButton : styles.secondaryButton;
+    type === "primary"
+      ? styles.primaryButton
+      : type === "secondary"
+      ? styles.secondaryButton
+      : type === "accept"
+      ? styles.acceptButton
+      : styles.rejectButton;
   const dynamicPaddingHorizontal =
     typeof width === "number" ? width / 2 : DEFAULT_WIDTH;
   const dynamicPaddingVertical =
@@ -69,6 +75,16 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: Colors.secondaryTransparent,
     borderColor: Colors.secondaryTransparent,
+  },
+  acceptButton: {
+    backgroundColor: Colors.acceptTransparent,
+    borderColor: Colors.acceptTransparent,
+    borderRadius: 1000,
+  },
+  rejectButton: {
+    backgroundColor: Colors.dangerTransparent,
+    borderColor: Colors.dangerTransparent,
+    borderRadius: 1000,
   },
   buttonDisabled: {
     color: Colors.textAccent,
