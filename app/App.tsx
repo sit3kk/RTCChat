@@ -101,24 +101,23 @@ const AppNavigator = () => {
               <IconButton
                 name="add"
                 onPress={() => {
-                  // navigation.navigate("InteractionStack", {
-                  //   screen: "Invitations",
-                  // });
-
-                  // temporary navigation to IncomingCallScreen
                   navigation.navigate("InteractionStack", {
-                    screen: "IncomingCall",
-                    params: {
-                      callData: {
-                        callPartner: {
-                          id: "1",
-                          name: "John Dough",
-                          avatar: randomAvatar(),
-                        },
-                        callType: "video",
-                      },
-                    },
+                    screen: "Invitations",
                   });
+                  // temporary navigation to IncomingCallScreen
+                  // navigation.navigate("InteractionStack", {
+                  //   screen: "IncomingCall",
+                  //   params: {
+                  //     callData: {
+                  //       callPartner: {
+                  //         id: "1",
+                  //         name: "John Dough",
+                  //         avatar: randomAvatar(),
+                  //       },
+                  //       callType: "video",
+                  //     },
+                  //   },
+                  // });
                 }}
               />
             </View>
