@@ -17,7 +17,7 @@ export const Colors = {
   ternary: "#101327",
   textLight: "#D2DAFB",
   textAccent: "#FFFFFF",
-  textDimed: "#888888",
+  textDimmed: "#888888",
   accept: "#00bb00",
   danger: "#dd0000",
   background: "#02051B",

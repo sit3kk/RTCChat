@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   buttonTextDisabled: {
-    color: Colors.textDimed,
+    color: Colors.textDimmed,
   },
 });
 

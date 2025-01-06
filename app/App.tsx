@@ -68,7 +68,7 @@ const AppNavigator = () => {
         },
         headerTitleAlign: "left",
         tabBarActiveTintColor: Colors.textLight,
-        tabBarInactiveTintColor: Colors.textDimed,
+        tabBarInactiveTintColor: Colors.textDimmed,
         tabBarStyle: {
           backgroundColor: Colors.background,
           borderColor: Colors.background,
