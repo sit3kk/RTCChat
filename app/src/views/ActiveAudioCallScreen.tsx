@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/commonStyles";
 import { InteractionStackParamList } from "../../App";
 import DiamondBackground from "../components/ui/DiamondBackground";
+import CallControls from "../components/CallControls";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 type ActiveAudioCallRouteProp = RouteProp<
@@ -38,13 +38,11 @@ const ActiveAudioCallScreen: React.FC<ActiveAudioCallScreenProps> = ({
   };
 
   const handleMuteToggle = () => {
-    const newMuteState = !muted;
-    setMuted(newMuteState);
+    setMuted((prev) => !prev);
   };
 
   const handleSpeakerToggle = () => {
-    const newSpeakerState = !speakerOn;
-    setSpeakerOn(newSpeakerState);
+    setSpeakerOn((prev) => !prev);
   };
 
   const handleEndCall = () => {
@@ -70,42 +68,13 @@ const ActiveAudioCallScreen: React.FC<ActiveAudioCallScreenProps> = ({
           {formatCallDuration(callDuration)}
         </Text>
 
-        <View style={styles.controlsContainer}>
-          <TouchableOpacity
-            style={[styles.controlButton, muted && styles.activeControlButton]}
-            onPress={handleMuteToggle}
-          >
-            <Ionicons
-              name={muted ? "mic-off" : "mic"}
-              size={30}
-              color={muted ? Colors.danger : Colors.textLight}
-            />
-            <Text style={styles.controlLabel}>Mute</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.controlButton, styles.endCallButton]}
-            onPress={handleEndCall}
-          >
-            <Ionicons name="call" size={30} color="#fff" />
-            <Text style={styles.controlLabel}>End</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.controlButton,
-              speakerOn && styles.activeControlButton,
-            ]}
-            onPress={handleSpeakerToggle}
-          >
-            <Ionicons
-              name={speakerOn ? "volume-high" : "volume-low"}
-              size={30}
-              color={speakerOn ? Colors.primary : Colors.textLight}
-            />
-            <Text style={styles.controlLabel}>Speaker</Text>
-          </TouchableOpacity>
-        </View>
+        <CallControls
+          muted={muted}
+          speakerOn={speakerOn}
+          onMuteToggle={handleMuteToggle}
+          onSpeakerToggle={handleSpeakerToggle}
+          onEndCall={handleEndCall}
+        />
       </View>
     </>
   );
@@ -137,33 +106,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Colors.textDimmed,
     marginBottom: 40,
-  },
-  controlsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    width: "100%",
-    paddingTop: 250,
-    paddingHorizontal: 20,
-  },
-  controlButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 18,
-    borderRadius: 50,
-    backgroundColor: Colors.secondaryTransparent,
-    width: 85,
-    height: 85,
-  },
-  activeControlButton: {
-    backgroundColor: Colors.primaryTransparent,
-  },
-  endCallButton: {
-    backgroundColor: Colors.danger,
-  },
-  controlLabel: {
-    marginTop: 8,
-    fontSize: 12,
-    color: Colors.textLight,
   },
 });
 
