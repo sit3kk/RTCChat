@@ -30,16 +30,19 @@ const FlatTextInput: React.FC<FlatTextInputProps> = ({
   width = "100%",
   ...textInputProps
 }) => {
+  // Temporary fix for the dark mode text color
+  const textColor = isDarkMode ? Colors.textLight : Colors.ternary;
   const containerStyle: StyleProp<ViewStyle> = {
     ...styles.container,
     width: width as DimensionValue | undefined,
     backgroundColor: isDarkMode ? Colors.ternary : Colors.textLight,
   };
-
   const inputStyle = {
     ...styles.input,
-    color: isDarkMode ? Colors.textLight : Colors.ternary,
+    color: textColor,
     textAlign,
+    paddingLeft: icon ? 35 : 0,
+    paddingRight: icon ? 35 : 0,
   };
 
   return (
@@ -50,7 +53,7 @@ const FlatTextInput: React.FC<FlatTextInputProps> = ({
         placeholder={placeholder}
         value={value}
         onChangeText={onChangeText}
-        placeholderTextColor={Colors.textLight}
+        placeholderTextColor={textColor}
         {...textInputProps}
       />
     </View>
@@ -73,8 +76,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    paddingLeft: 35,
-    paddingRight: 35,
   },
 });
 

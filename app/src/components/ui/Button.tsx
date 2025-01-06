@@ -3,7 +3,6 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  ActivityIndicator,
   GestureResponderEvent,
 } from "react-native";
 import { Colors } from "../../styles/commonStyles";
@@ -11,46 +10,55 @@ import { Colors } from "../../styles/commonStyles";
 interface ButtonProps {
   title: string;
   onPress: (event: GestureResponderEvent) => void;
-  isLoading?: boolean;
   disabled?: boolean;
+  type?: "primary" | "secondary";
+  width?: number | string;
 }
 
 const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
-  isLoading,
   disabled,
+  type = "primary",
+  width = "auto",
 }) => {
+  const buttonColorStyle =
+    type === "primary" ? styles.primaryButton : styles.secondaryButton;
+  const dynamicPadding = typeof width === "number" ? width / 2 : 30;
+
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.buttonDisabled]}
+      style={[
+        styles.button,
+        buttonColorStyle,
+        { paddingHorizontal: dynamicPadding },
+        disabled && styles.buttonDisabled,
+      ]}
       onPress={onPress}
-      disabled={disabled || isLoading}
+      disabled={disabled}
     >
-      {isLoading ? (
-        <ActivityIndicator size="small" color="#ffffff" />
-      ) : (
-        <Text
-          style={[styles.buttonText, disabled && styles.buttonTextDisabled]}
-        >
-          {title}
-        </Text>
-      )}
+      <Text style={[styles.buttonText, disabled && styles.buttonTextDisabled]}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    backgroundColor: Colors.secondaryTransparent,
+    paddingVertical: 8,
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
+  },
+  primaryButton: {
+    backgroundColor: Colors.primaryTransparent,
+    borderColor: Colors.primaryTransparent,
+  },
+  secondaryButton: {
+    backgroundColor: Colors.secondaryTransparent,
     borderColor: Colors.secondaryTransparent,
-    marginTop: 20,
   },
   buttonDisabled: {
     color: Colors.textAccent,

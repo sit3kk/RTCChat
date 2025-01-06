@@ -18,6 +18,7 @@ export const Colors = {
   textLight: "#D2DAFB",
   textAccent: "#FFFFFF",
   textDimed: "#888888",
+  danger: "#450c0f",
   background: "#02051B",
   backgroundGradientStart: "#F1F3F080",
   backgroundGradientMid: "#35319F80",
