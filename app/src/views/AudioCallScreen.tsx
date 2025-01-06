@@ -6,6 +6,7 @@ import { InteractionStackParamList } from "../../App";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import DefaultCallControls from "../components/DefaultCallControls";
 import { formatCallDuration } from "../utils/utils";
+import InactiveCallOverlay from "../components/InactiveCallOverlay";
 
 type AudioCallRouteProp = RouteProp<InteractionStackParamList, "AudioCall">;
 
@@ -14,6 +15,7 @@ interface AudioCallScreenProps {
 }
 
 const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
+  const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
@@ -36,20 +38,30 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCallDuration((prev) => prev + 1);
-    }, 1000);
+    let interval: NodeJS.Timeout;
+    if (isCallActive) {
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    }
 
     return () => clearInterval(interval);
+  }, [isCallActive]);
+
+  useEffect(() => {
+    // TODO: Add listener for call state changes
+    setIsCallActive(true);
   }, []);
 
   return (
     <>
       <DiamondBackground />
       <View style={styles.container}>
+        {!isCallActive && <InactiveCallOverlay />}
         <View style={styles.callPartnerContainer}>
           <Image source={{ uri: callPartner.avatar }} style={styles.avatar} />
           <Text style={styles.callPartnerName}>{callPartner.name}</Text>
+
           <Text style={styles.callDuration}>
             {formatCallDuration(callDuration)}
           </Text>
@@ -106,7 +118,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 30,
-    zIndex: 1,
+    zIndex: 30,
   },
 });
 

@@ -8,6 +8,7 @@ import DefaultCallControls from "../components/DefaultCallControls";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { InteractionStackParamList } from "../../App";
 import { formatCallDuration } from "../utils/utils";
+import InactiveCallOverlay from "../components/InactiveCallOverlay";
 
 type VideoCallRouteProp = RouteProp<InteractionStackParamList, "VideoCall">;
 
@@ -16,6 +17,7 @@ interface VideoCallScreenProps {
 }
 
 const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
+  const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
@@ -47,17 +49,26 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCallDuration((prev) => prev + 1);
-    }, 1000);
+    let interval: NodeJS.Timeout;
+    if (isCallActive) {
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    }
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isCallActive]);
 
+  useEffect(() => {
+    // TODO: Add listener for call state changes
+    setIsCallActive(true);
+  }, []);
   return (
     <>
       <DiamondBackground />
       <View style={styles.container}>
+        {!isCallActive && <InactiveCallOverlay />}
+
         <View style={styles.videoControlsContainer}>
           <VideoCallControls
             cameraOn={cameraOn}
