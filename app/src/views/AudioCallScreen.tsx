@@ -4,38 +4,23 @@ import { RouteProp, useNavigation } from "@react-navigation/native";
 import { Colors } from "../styles/commonStyles";
 import { InteractionStackParamList } from "../../App";
 import DiamondBackground from "../components/ui/DiamondBackground";
-import CallControls from "../components/CallControls";
-import { StackNavigationProp } from "@react-navigation/stack";
+import DefaultCallControls from "../components/DefaultCallControls";
+import { formatCallDuration } from "../utils/utils";
 
-type ActiveAudioCallRouteProp = RouteProp<
-  InteractionStackParamList,
-  "ActiveAudioCall"
->;
+type AudioCallRouteProp = RouteProp<InteractionStackParamList, "AudioCall">;
 
-interface ActiveAudioCallScreenProps {
-  route: ActiveAudioCallRouteProp;
+interface AudioCallScreenProps {
+  route: AudioCallRouteProp;
 }
 
-const ActiveAudioCallScreen: React.FC<ActiveAudioCallScreenProps> = ({
-  route,
-}) => {
+const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
   const [callDuration, setCallDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
 
+  const navigation = useNavigation();
   const { callData } = route.params;
-  const caller = callData.caller;
-
-  const navigation =
-    useNavigation<StackNavigationProp<InteractionStackParamList>>();
-
-  const formatCallDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  const callPartner = callData.callPartner;
 
   const handleMuteToggle = () => {
     setMuted((prev) => !prev);
@@ -46,7 +31,7 @@ const ActiveAudioCallScreen: React.FC<ActiveAudioCallScreenProps> = ({
   };
 
   const handleEndCall = () => {
-    console.log("Call ended with", caller);
+    console.log("Call ended with", callPartner);
     navigation.goBack();
   };
 
@@ -62,19 +47,23 @@ const ActiveAudioCallScreen: React.FC<ActiveAudioCallScreenProps> = ({
     <>
       <DiamondBackground />
       <View style={styles.container}>
-        <Image source={{ uri: caller.avatar }} style={styles.avatar} />
-        <Text style={styles.callerName}>{caller.name}</Text>
-        <Text style={styles.callDuration}>
-          {formatCallDuration(callDuration)}
-        </Text>
+        <View style={styles.callPartnerContainer}>
+          <Image source={{ uri: callPartner.avatar }} style={styles.avatar} />
+          <Text style={styles.callPartnerName}>{callPartner.name}</Text>
+          <Text style={styles.callDuration}>
+            {formatCallDuration(callDuration)}
+          </Text>
+        </View>
 
-        <CallControls
-          muted={muted}
-          speakerOn={speakerOn}
-          onMuteToggle={handleMuteToggle}
-          onSpeakerToggle={handleSpeakerToggle}
-          onEndCall={handleEndCall}
-        />
+        <View style={styles.defaultControlsContainer}>
+          <DefaultCallControls
+            muted={muted}
+            speakerOn={speakerOn}
+            onMuteToggle={handleMuteToggle}
+            onSpeakerToggle={handleSpeakerToggle}
+            onEndCall={handleEndCall}
+          />
+        </View>
       </View>
     </>
   );
@@ -88,6 +77,10 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 50,
   },
+  callPartnerContainer: {
+    alignItems: "center",
+    marginBottom: 150,
+  },
   avatar: {
     width: 120,
     height: 120,
@@ -96,7 +89,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: Colors.primary,
   },
-  callerName: {
+  callPartnerName: {
     fontSize: 26,
     fontWeight: "bold",
     color: Colors.textLight,
@@ -107,6 +100,14 @@ const styles = StyleSheet.create({
     color: Colors.textDimmed,
     marginBottom: 40,
   },
+  defaultControlsContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 30,
+    zIndex: 1,
+  },
 });
 
-export default ActiveAudioCallScreen;
+export default AudioCallScreen;
