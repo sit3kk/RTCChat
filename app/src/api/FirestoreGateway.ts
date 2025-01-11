@@ -1,4 +1,4 @@
-import { db } from "../api/FirebaseConfig";
+import { db } from "./FirebaseConfig";
 import {
   collection,
   query,
@@ -12,8 +12,9 @@ import {
 } from "firebase/firestore";
 import { Contact, Invitation } from "../types/commonTypes";
 import { randomAvatar } from "../utils/utils";
+import { Timestamp } from "firebase/firestore";
 
-export const fetchContacts = async (userId: string): Promise<Contact[]> => {
+export const fetchContacts = async (userId: string): Promise<any[]> => {
   try {
     const contactsQuery = query(
       collection(db, "contacts"),
@@ -21,7 +22,7 @@ export const fetchContacts = async (userId: string): Promise<Contact[]> => {
     );
     const querySnapshot = await getDocs(contactsQuery);
 
-    const fetchedContacts: Contact[] = [];
+    const fetchedContacts = [];
     for (const contactDoc of querySnapshot.docs) {
       const contactData = contactDoc.data();
       const contactUserId = contactData.contactId;
@@ -30,11 +31,17 @@ export const fetchContacts = async (userId: string): Promise<Contact[]> => {
       const contactUserDoc = await getDoc(contactUserRef);
 
       if (contactUserDoc.exists()) {
-        const userData = contactUserDoc.data() as { name: string };
+        const userData = contactUserDoc.data() as {
+          name: string;
+          profilePic: string;
+        };
+
         fetchedContacts.push({
-          id: contactDoc.id,
+          contactId: contactUserId,
+          userId: contactData.userId,
+          createdAt: contactData.createdAt,
           name: userData.name,
-          avatar: randomAvatar(), // TODO: fetch user avatar
+          avatar: userData.profilePic,
         });
       }
     }
@@ -102,6 +109,7 @@ export const sendInvitation = async (
   }
 };
 
+
 export const acceptInvitation = async (
   userId: string,
   invitationId: string,
@@ -111,14 +119,16 @@ export const acceptInvitation = async (
     const invitationRef = doc(db, "invitations", invitationId);
     await updateDoc(invitationRef, { status: "accepted" });
 
-    // Add contacts in both directions
+    const createdAt = Timestamp.now();
     await addDoc(collection(db, "contacts"), {
       userId,
       contactId: fromUserId,
+      createdAt,
     });
     await addDoc(collection(db, "contacts"), {
       userId: fromUserId,
       contactId: userId,
+      createdAt,
     });
   } catch (error) {
     console.error("Error accepting invitation:", error);

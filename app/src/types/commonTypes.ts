@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface UserData {
   id: string;
   name: string;
@@ -6,9 +8,11 @@ export interface UserData {
 }
 
 export interface Contact {
-  id: string;
+  contactId: string;
+  userId: string;
   name: string;
   avatar: string;
+  createdAt: Timestamp;
 }
 
 export interface ContactSectionsType {

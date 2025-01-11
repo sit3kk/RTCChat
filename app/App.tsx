@@ -17,7 +17,7 @@ import LoadingScreen from "./src/views/LoadingScreen";
 import LoginScreen from "./src/views/LoginScreen";
 import HomeScreen from "./src/views/HomeScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
-import ChatScreen from "./src/views/ChatScreen";
+import ChatsList from "./src/views/ChatsList";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
@@ -26,11 +26,12 @@ import { CallData } from "./src/types/commonTypes";
 import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 import AudioCallScreen from "./src/views/AudioCallScreen";
 import VideoCallScreen from "./src/views/VideoCallScreen";
+import ChatDetails from "./src/views/ChatDetails";
 
 export type BottomTabParamList = {
   Contacts: undefined;
   Home: undefined;
-  Chat: { chatId: string };
+  Chats: { chatId: string };
   Settings: undefined;
 };
 
@@ -46,6 +47,11 @@ export type InteractionStackParamList = {
   VideoCall: { callData: CallData };
 };
 
+export type ChatsStackParamList = {
+  ChatsList: undefined;
+  ChatDetails: { chatId: string; contactName: string };
+};
+
 type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
 type InteractionStackProp = StackNavigationProp<InteractionStackParamList>;
 
@@ -55,6 +61,20 @@ const AuthenticatedStackNavigator =
 const InteractionStackNavigator =
   createStackNavigator<InteractionStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
+const ChatsStack = createStackNavigator<ChatsStackParamList>();
+
+const ChatsStackNavigator = () => {
+  return (
+    <ChatsStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ChatsStack.Screen name="ChatsList" component={ChatsList} />
+      <ChatsStack.Screen name="ChatDetails" component={ChatDetails} />
+    </ChatsStack.Navigator>
+  );
+};
 
 const AuthStack = () => {
   return (
@@ -144,16 +164,13 @@ const AppNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
-        initialParams={{
-          chatId: "general",
-        }}
+        name="Chats"
+        component={ChatsStackNavigator}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="chatbubbles" size={24} color={color} />
           ),
-          tabBarLabel: "Chat",
+          tabBarLabel: "Chats",
         }}
       />
       <Tab.Screen

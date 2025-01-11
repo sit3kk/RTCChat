@@ -27,6 +27,9 @@ import { Contact, ContactSectionsType } from "../types/commonTypes";
 import { Colors } from "../styles/commonStyles";
 import { alphabet } from "../utils/utils";
 import { mockContacts } from "../tests/mockData";
+import { useNavigation } from "@react-navigation/native";
+import { ChatsNavigationProp } from "../views/ChatsList";
+import { useUserData } from "../store/UserDataProvider";
 
 const ITEM_SPACING = 8;
 const AVATAR_SIZE = 36;
@@ -135,8 +138,16 @@ export function ContactsListHeader({ title }: { title: string }) {
 }
 
 export function ContactsListItem({ item }: { item: Contact }) {
+  const navigation = useNavigation<ChatsNavigationProp>();
+  const chatId = [item.userId, item.contactId].sort().join("_");
   const handleItemPress = () => {
-    console.log("Selected contact: ", item);
+    navigation.navigate("Chats", {
+      screen: "ChatDetails",
+      params: {
+        chatId: chatId,
+        contactName: item.name,
+      },
+    });
   };
   return (
     <TouchableOpacity style={styles.contactItem} onPress={handleItemPress}>
