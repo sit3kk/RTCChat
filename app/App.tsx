@@ -15,7 +15,6 @@ import { UserDataProvider } from "./src/store/UserDataProvider";
 import { Colors } from "./src/styles/commonStyles";
 import LoadingScreen from "./src/views/LoadingScreen";
 import LoginScreen from "./src/views/LoginScreen";
-import HomeScreen from "./src/views/HomeScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
 import ChatsList from "./src/views/ChatsList";
 import SettingsScreen from "./src/views/SettingsScreen";
