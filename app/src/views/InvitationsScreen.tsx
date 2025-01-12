@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { Colors } from "../styles/commonStyles";
+import { View, StyleSheet, DeviceEventEmitter } from "react-native";
 import { useUserData } from "../store/UserDataProvider";
 import { Invitation } from "../types/commonTypes";
 import {
@@ -56,6 +55,7 @@ const InvitationsScreen: React.FC = () => {
       await acceptInvitation(userId, invitationId, fromUserId);
       setStatus("Invitation accepted!");
       loadData();
+      DeviceEventEmitter.emit("onContactAdded");
     } catch (error) {
       setStatus("Failed to accept invitation.");
     }
@@ -66,6 +66,7 @@ const InvitationsScreen: React.FC = () => {
       await rejectInvitation(invitationId);
       setStatus("Invitation rejected.");
       loadData();
+      DeviceEventEmitter.emit("onContactAdded");
     } catch (error) {
       setStatus("Failed to reject invitation.");
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, DeviceEventEmitter } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useUserData } from "../store/UserDataProvider";
 import SearchBar from "../components/ui/SearchBar";
@@ -34,6 +34,15 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
     };
 
     loadData();
+
+    // listen for contact added event
+    const subscription = DeviceEventEmitter.addListener(
+      "onContactAdded",
+      () => loadData
+    );
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   useFocusEffect(
