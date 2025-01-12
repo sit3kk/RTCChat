@@ -1,0 +1,82 @@
+# Ignore build artifacts
+/build/
+/bin/
+/obj/
+/CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignore Visual Studio Code workspace settings
+.vscode/
+
+# Ignore Xcode project files
+*.xcodeproj/
+*.xcworkspace/
+*.xcuserdata/
+*.build/
+
+# Ignore binary files
+*.exe
+*.out
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Ignore object files
+*.o
+*.obj
+
+# Ignore generated documentation
+/docs/
+
+# Ignore temporary files and logs
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# Ignore compiled headers
+*.gch
+*.pch
+
+# Ignore IDE-specific files
+.idea/
+*.iml
+
+# Ignore archives
+*.tar
+*.gz
+*.zip
+*.7z
+*.rar
+
+# Ignore generated files from testing
+Testing/
+CTestTestfile.cmake
+LastTest.log
+
+# Ignore GMP-specific files
+*.lo
+*.la
+.libs/
+*.log
+
+# Ignore OpenSSL temporary files
+openssl.cnf
+.moc/
+
+# Ignore auto-generated files for React Native module (if present)
+/ios/build/
+/android/.gradle/
+/android/build/
+/android/app/build/
+/node_modules/
+
+# Ignore other miscellaneous files
+Thumbs.db
+.DS_Store

@@ -1,0 +1,38 @@
+cmake_minimum_required(VERSION 3.10)
+project(RSAEncryption)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_SYSTEM_NAME iOS)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
+
+find_path(GMP_INCLUDE_DIR gmp.h PATHS /opt/homebrew/include /usr/local/include)
+find_library(GMP_LIBRARY NAMES gmp PATHS /opt/homebrew/lib /usr/local/lib)
+find_library(GMPXX_LIBRARY NAMES gmpxx PATHS /opt/homebrew/lib /usr/local/lib)
+
+if(NOT GMP_INCLUDE_DIR OR NOT GMP_LIBRARY OR NOT GMPXX_LIBRARY)
+    message(FATAL_ERROR "GMP not found. Please install GMP (e.g., using Homebrew).")
+endif()
+
+find_package(OpenSSL REQUIRED)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${GMP_INCLUDE_DIR})
+include_directories(${OPENSSL_INCLUDE_DIR})
+
+set(SRC_FILES
+    src/rsa_module.cpp
+)
+
+add_library(rsa_native SHARED ${SRC_FILES})
+
+target_link_libraries(rsa_native PRIVATE ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${OPENSSL_LIBRARIES})
+
+set_target_properties(rsa_native PROPERTIES
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "YOUR_TEAM_ID"
+    XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "YES"
+    MACOSX_BUNDLE YES
+    OUTPUT_NAME "librsa_native"
+)
