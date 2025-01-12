@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Alert } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
@@ -12,22 +12,43 @@ import DefaultCallControls from "../components/DefaultCallControls";
 import { Ionicons } from "@expo/vector-icons";
 import { InteractionStackParamList } from "../../App";
 
+import {
+  createAgoraRtcEngine,
+  IRtcEngine,
+  IRtcEngineEventHandler,
+  ChannelProfileType,
+  ClientRoleType,
+  RtcSurfaceView,
+  RtcConnection,
+} from "react-native-agora";
+import { PermissionsAndroid, Platform } from "react-native";
+
 type VideoCallRouteProp = RouteProp<InteractionStackParamList, "VideoCall">;
 
 interface VideoCallScreenProps {
   route: VideoCallRouteProp;
 }
 
+const appId = "f2f502f3c8ee422b9511b9d0c04e6821";
+const token =
+  "007eJxTYDi1V8Quy9dq9dRuRf83y2X3qUmmbk+JFd15d8vJC5VrjzQqMKQZpZkaGKUZJ1ukppoYGSVZmhoaJlmmGCQbmKSaWRgZJs1rTm8IZGR4M20xAyMUgvgsDCWpxSUMDABbnyA3";
+const uid = 0;
+const channelName = "test";
+
 const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
+  const navigation = useNavigation();
+  const { callData } = route.params;
+  const { callPartner, callSessionId } = callData;
+
   const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
   const [cameraOn, setCameraOn] = useState(true);
+  const [remoteUid, setRemoteUid] = useState<number>(0);
 
-  const navigation = useNavigation();
-  const { callData } = route.params;
-  const { callPartner, callSessionId } = callData;
+  const agoraEngineRef = useRef<IRtcEngine | null>(null);
+  const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
 
   useEffect(() => {
     const callDocRef = doc(db, "callSessions", callSessionId);
@@ -58,38 +79,92 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
     return () => clearInterval(interval);
   }, [isCallActive]);
 
-  // Call Agora logic for video
-  // useEffect(() => {
-  //   // joinAgoraChannelVideo(...)
-  //   // ...
-  // }, []);
+  useEffect(() => {
+    initAgora().then(() => {
+      joinChannel();
+    });
 
-  const handleEndCall = async () => {
+    return () => {
+      leaveChannel();
+      agoraEngineRef.current?.unregisterEventHandler(eventHandlerRef.current!);
+      agoraEngineRef.current?.release();
+      agoraEngineRef.current = null;
+    };
+  }, []);
+
+  async function initAgora() {
+    if (Platform.OS === "android") {
+      await getPermission();
+    }
+    const engine = createAgoraRtcEngine();
+    agoraEngineRef.current = engine;
+
+    eventHandlerRef.current = {
+      onJoinChannelSuccess: (_connection, _elapsed) => {
+        console.log("Join channel success");
+      },
+      onUserJoined: (_connection: RtcConnection, remoteUid: number) => {
+        console.log("Remote user joined:", remoteUid);
+        setRemoteUid(remoteUid);
+      },
+      onUserOffline: (_connection, remoteUid) => {
+        console.log("Remote user offline:", remoteUid);
+        setRemoteUid(0);
+      },
+    };
+    engine.registerEventHandler(eventHandlerRef.current);
+
+    engine.initialize({
+      appId: appId,
+      channelProfile: ChannelProfileType.ChannelProfileCommunication,
+    });
+    engine.enableVideo();
+
+    engine.startPreview();
+  }
+
+  function joinChannel() {
+    agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+      clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+      autoSubscribeAudio: true,
+      autoSubscribeVideo: true,
+      publishCameraTrack: true,
+      publishMicrophoneTrack: true,
+    });
+  }
+
+  function leaveChannel() {
+    agoraEngineRef.current?.leaveChannel();
+  }
+
+  async function handleEndCall() {
     await updateDoc(doc(db, "callSessions", callSessionId), {
       status: "ended",
     });
     navigation.goBack();
-  };
+  }
 
-  const handleMuteToggle = () => {
-    setMuted(!muted);
-    // logic for muting in Agora
-  };
+  function handleMuteToggle() {
+    const newMuteState = !muted;
+    setMuted(newMuteState);
+    agoraEngineRef.current?.muteLocalAudioStream(newMuteState);
+  }
 
-  const handleSpeakerToggle = () => {
-    setSpeakerOn(!speakerOn);
-    // logic for speaker phone
-  };
+  function handleSpeakerToggle() {
+    const newSpeakerState = !speakerOn;
+    setSpeakerOn(newSpeakerState);
+    agoraEngineRef.current?.setEnableSpeakerphone(newSpeakerState);
+  }
 
-  const handleCameraToggle = () => {
-    setCameraOn(!cameraOn);
-    // logic for turning on/off local video
-  };
+  function handleCameraToggle() {
+    const newCameraState = !cameraOn;
+    setCameraOn(newCameraState);
+    agoraEngineRef.current?.muteLocalVideoStream(!newCameraState);
+  }
 
-  const handleSwapCamera = () => {
-    console.log("Camera swapped");
-    // logic for switching front/back camera
-  };
+  function handleSwapCamera() {
+    agoraEngineRef.current?.switchCamera();
+  }
 
   return (
     <>
@@ -111,11 +186,12 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
         </Text>
 
         <View style={styles.calleeVideoView}>
-          {cameraOn && (
-            // wstaw tutaj np. <AgoraVideoView ... />
-            <Ionicons name="camera" size={80} color={Colors.textLight} />
-          )}
-          {!cameraOn && (
+          {cameraOn ? (
+            <RtcSurfaceView
+              style={{ width: 140, height: 180 }}
+              canvas={{ uid: 0 }}
+            />
+          ) : (
             <>
               <Ionicons
                 name="videocam-off-outline"
@@ -129,10 +205,22 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 
         <View style={styles.videoCallPartnerContainer}>
           <View style={styles.callPartnerVideoView}>
-            <Image source={{ uri: callPartner.avatar }} style={styles.avatar} />
-            <Text style={styles.cameraStatus}>
-              {callPartner.name} - Remote Video
-            </Text>
+            {remoteUid !== 0 ? (
+              <RtcSurfaceView
+                style={{ width: "100%", height: "100%" }}
+                canvas={{ uid: remoteUid }}
+              />
+            ) : (
+              <>
+                <Image
+                  source={{ uri: callPartner.avatar }}
+                  style={styles.avatar}
+                />
+                <Text style={styles.cameraStatus}>
+                  {callPartner.name} - Remote Video
+                </Text>
+              </>
+            )}
           </View>
         </View>
 
@@ -151,6 +239,15 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 };
 
 export default VideoCallScreen;
+
+async function getPermission() {
+  if (Platform.OS === "android") {
+    await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    ]);
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

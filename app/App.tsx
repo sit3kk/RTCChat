@@ -27,6 +27,7 @@ import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 import AudioCallScreen from "./src/views/AudioCallScreen";
 import VideoCallScreen from "./src/views/VideoCallScreen";
 import ChatDetails from "./src/views/ChatDetails";
+import { CallSessionProvider } from "./src/store/CallSessionProvider";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -49,7 +50,7 @@ export type InteractionStackParamList = {
 
 export type ChatsStackParamList = {
   ChatsList: undefined;
-  ChatDetails: { chatId: string; contactName: string };
+  ChatDetails: { chatId: string; contactName: string; contactId: string };
 };
 
 type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
@@ -258,8 +259,10 @@ function Navigation() {
 
   return (
     <NavigationContainer>
-      {!authCtx.isAuthenticated && <AuthStack />}
-      {authCtx.isAuthenticated && <AuthenticatedStack />}
+      <CallSessionProvider>
+        {!authCtx.isAuthenticated && <AuthStack />}ą
+        {authCtx.isAuthenticated && <AuthenticatedStack />}
+      </CallSessionProvider>
     </NavigationContainer>
   );
 }
