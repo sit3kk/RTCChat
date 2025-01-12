@@ -28,6 +28,7 @@ const InvitationsScreen: React.FC = () => {
       setInvitations(fetchedInvitations);
       // setInvitations(mockInvitations);
     } catch (error) {
+      console.error("Failed to fetch invitations:", error);
       setStatus("Failed to load invitations.");
     }
     setLoading(false);
@@ -43,6 +44,7 @@ const InvitationsScreen: React.FC = () => {
       setStatus("Invitation sent!");
       setInvitationCode("");
     } else {
+      console.error("Error sending invitation:", response.message);
       setStatus(response.message);
     }
   };
@@ -57,6 +59,7 @@ const InvitationsScreen: React.FC = () => {
       loadData();
       DeviceEventEmitter.emit("onContactAdded");
     } catch (error) {
+      console.error("Error accepting invitation:", error);
       setStatus("Failed to accept invitation.");
     }
   };
@@ -68,6 +71,7 @@ const InvitationsScreen: React.FC = () => {
       loadData();
       DeviceEventEmitter.emit("onContactAdded");
     } catch (error) {
+      console.error("Error rejecting invitation:", error);
       setStatus("Failed to reject invitation.");
     }
   };

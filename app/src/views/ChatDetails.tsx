@@ -157,7 +157,7 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("ChatsList")}>
+        <TouchableOpacity onPress={() => navigation.navigate("ChatsScreen")}>
           <Ionicons name="arrow-back" size={24} color={Colors.textLight} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{contactName}</Text>

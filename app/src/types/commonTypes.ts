@@ -34,4 +34,15 @@ export interface Invitation {
 export interface CallData {
   callPartner: Contact;
   callType: "audio" | "video";
+  callSessionId: string;
+}
+
+export interface ChatItem {
+  contactId: string;
+  contactName: string;
+  avatar?: string;
+  lastMessageText?: string;
+  lastMessageDate?: number;
+  unreadCount?: number;
+  createdAt?: number;
 }

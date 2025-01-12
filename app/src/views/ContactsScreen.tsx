@@ -29,8 +29,13 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      setContacts(await fetchContacts(userId));
-      setLoading(false);
+      try {
+        setContacts(await fetchContacts(userId));
+      } catch (error) {
+        console.error("Failed to fetch contacts:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadData();
@@ -76,7 +81,7 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
           autoCorrect={false}
         />
 
-        <Text style={styles.subHeader}>Contact list</Text>
+        <Text style={styles.headerText}>Contact list</Text>
         <ContactSection contactsData={filteredContacts} />
       </View>
     </>
@@ -94,7 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  subHeader: {
+  headerText: {
     fontSize: 18,
     fontWeight: "bold",
     color: Colors.textLight,

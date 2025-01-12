@@ -28,7 +28,7 @@ import { Colors } from "../styles/commonStyles";
 import { alphabet } from "../utils/utils";
 import { mockContacts } from "../tests/mockData";
 import { useNavigation } from "@react-navigation/native";
-import { ChatsNavigationProp } from "../views/ChatsList";
+import { ChatsNavigationProp } from "../views/ChatsScreen";
 import { useUserData } from "../store/UserDataProvider";
 
 const ITEM_SPACING = 8;

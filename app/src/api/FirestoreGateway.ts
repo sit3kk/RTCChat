@@ -3,6 +3,8 @@ import {
   collection,
   query,
   where,
+  orderBy,
+  onSnapshot,
   getDocs,
   getDoc,
   doc,
@@ -10,11 +12,10 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { Contact, Invitation } from "../types/commonTypes";
-import { randomAvatar } from "../utils/utils";
+import { Contact, Invitation, ChatItem } from "../types/commonTypes";
 import { Timestamp } from "firebase/firestore";
 
-export const fetchContacts = async (userId: string): Promise<any[]> => {
+export const fetchContacts = async (userId: string): Promise<Contact[]> => {
   try {
     const contactsQuery = query(
       collection(db, "contacts"),
@@ -47,12 +48,13 @@ export const fetchContacts = async (userId: string): Promise<any[]> => {
     }
     return fetchedContacts;
   } catch (error) {
-    console.error("Failed to fetch contacts:", error);
     throw error;
   }
 };
 
-export const fetchInvitations = async (userId: string) => {
+export const fetchInvitations = async (
+  userId: string
+): Promise<Invitation[]> => {
   try {
     const invitationsQuery = query(
       collection(db, "invitations"),
@@ -67,7 +69,6 @@ export const fetchInvitations = async (userId: string) => {
     })) as Invitation[];
     return fetchedInvitations;
   } catch (error) {
-    console.error("Failed to fetch invitations:", error);
     throw error;
   }
 };
@@ -101,14 +102,12 @@ export const sendInvitation = async (
 
     return { success: true, message: "Invitation sent successfully." };
   } catch (error: any) {
-    console.error("Error sending invitation:", error);
     return {
       success: false,
       message: "Error sending invitation: " + error.message,
     };
   }
 };
-
 
 export const acceptInvitation = async (
   userId: string,
@@ -131,7 +130,6 @@ export const acceptInvitation = async (
       createdAt,
     });
   } catch (error) {
-    console.error("Error accepting invitation:", error);
     throw error;
   }
 };
@@ -141,7 +139,70 @@ export const rejectInvitation = async (invitationId: string) => {
     const invitationRef = doc(db, "invitations", invitationId);
     await deleteDoc(invitationRef);
   } catch (error) {
-    console.error("Error rejecting invitation:", error);
     throw error;
   }
+};
+
+export const fetchChats = async (userId: string): Promise<ChatItem[]> => {
+  const contactsRef = collection(db, "contacts");
+  const q = query(contactsRef, where("userId", "==", userId));
+  const contactsSnapshot = await getDocs(q);
+
+  const allChats: ChatItem[] = [];
+  const chatPromises = contactsSnapshot.docs.map(async (docSnap) => {
+    const contactData = docSnap.data() as {
+      contactId: string;
+      createdAt?: any;
+    };
+    const contactUserRef = doc(db, "users", contactData.contactId);
+    const contactUserSnapshot = await getDoc(contactUserRef);
+
+    const contactName = contactUserSnapshot.exists()
+      ? (contactUserSnapshot.data() as { name: string }).name
+      : "Unknown";
+    const avatar = contactUserSnapshot.exists()
+      ? (contactUserSnapshot.data() as { profilePic?: string }).profilePic || ""
+      : "";
+
+    const chatId = [userId, contactData.contactId].sort().join("_");
+    const messagesRef = collection(db, "chats", chatId, "messages");
+    const msgQuery = query(messagesRef, orderBy("createdAt", "desc"));
+
+    await new Promise<void>((resolve) =>
+      onSnapshot(msgQuery, (snapshot) => {
+        if (!snapshot.empty) {
+          const lastMsgDoc = snapshot.docs[0];
+          const lastMsgData = lastMsgDoc.data() as {
+            text: string;
+            createdAt: { seconds: number };
+            readBy?: string[];
+            senderId: string;
+          };
+
+          const unreadCount = snapshot.docs.filter(
+            (m) =>
+              !m.data().readBy?.includes(userId) && m.data().senderId !== userId
+          ).length;
+
+          allChats.push({
+            contactId: contactData.contactId,
+            contactName,
+            avatar,
+            lastMessageText: lastMsgData.text,
+            lastMessageDate: lastMsgData.createdAt.seconds * 1000,
+            unreadCount,
+            createdAt: contactData.createdAt?.seconds * 1000 || 0,
+          });
+        }
+        resolve();
+      })
+    );
+  });
+
+  await Promise.all(chatPromises);
+  return allChats.sort(
+    (a, b) =>
+      (b.lastMessageDate || 0) - (a.lastMessageDate || 0) ||
+      (b.createdAt || 0) - (a.createdAt || 0)
+  );
 };

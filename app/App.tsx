@@ -16,7 +16,7 @@ import { Colors } from "./src/styles/commonStyles";
 import LoadingScreen from "./src/views/LoadingScreen";
 import LoginScreen from "./src/views/LoginScreen";
 import ContactsScreen from "./src/views/ContactsScreen";
-import ChatsList from "./src/views/ChatsList";
+import ChatsScreen from "./src/views/ChatsScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
@@ -48,7 +48,7 @@ export type InteractionStackParamList = {
 };
 
 export type ChatsStackParamList = {
-  ChatsList: undefined;
+  ChatsScreen: undefined;
   ChatDetails: { chatId: string; contactName: string; contactId: string };
 };
 
@@ -70,7 +70,7 @@ const ChatsStackNavigator = () => {
         headerShown: false,
       }}
     >
-      <ChatsStack.Screen name="ChatsList" component={ChatsList} />
+      <ChatsStack.Screen name="ChatsScreen" component={ChatsScreen} />
       <ChatsStack.Screen name="ChatDetails" component={ChatDetails} />
     </ChatsStack.Navigator>
   );
