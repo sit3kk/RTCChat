@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
-import VideoCallControls from "../components/VideoCallControls";
-import { Ionicons } from "@expo/vector-icons";
-import DiamondBackground from "../components/ui/DiamondBackground";
-import { Colors } from "../styles/commonStyles";
-import DefaultCallControls from "../components/DefaultCallControls";
+import { View, Text, StyleSheet, Image, Alert } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { InteractionStackParamList } from "../../App";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { db } from "../api/FirebaseConfig";
+import { Colors } from "../styles/commonStyles";
+import DiamondBackground from "../components/ui/DiamondBackground";
 import { formatCallDuration } from "../utils/utils";
 import InactiveCallOverlay from "../components/InactiveCallOverlay";
+import VideoCallControls from "../components/VideoCallControls";
+import DefaultCallControls from "../components/DefaultCallControls";
+import { Ionicons } from "@expo/vector-icons";
+import { InteractionStackParamList } from "../../App";
 
 type VideoCallRouteProp = RouteProp<InteractionStackParamList, "VideoCall">;
 
@@ -25,29 +27,27 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 
   const navigation = useNavigation();
   const { callData } = route.params;
-  const callPartner = callData.callPartner;
+  const { callPartner, callSessionId } = callData;
 
-  const handleMuteToggle = () => {
-    setMuted(!muted);
-  };
+  useEffect(() => {
+    const callDocRef = doc(db, "callSessions", callSessionId);
+    const unsub = onSnapshot(callDocRef, (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+      if (data.status === "rejected") {
+        Alert.alert("Information", "The call was rejected.");
+        navigation.goBack();
+      }
+      if (data.status === "ended") {
+        Alert.alert("Information", "The call has ended.");
+        navigation.goBack();
+      }
+    });
 
-  const handleSpeakerToggle = () => {
-    setSpeakerOn(!speakerOn);
-  };
+    return () => unsub();
+  }, []);
 
-  const handleEndCall = () => {
-    console.log("Call ended");
-    navigation.goBack();
-  };
-
-  const handleCameraToggle = () => {
-    setCameraOn(!cameraOn);
-  };
-
-  const handleSwapCamera = () => {
-    console.log("Camera swapped");
-  };
-
+  // Timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isCallActive) {
@@ -55,14 +55,42 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
         setCallDuration((prev) => prev + 1);
       }, 1000);
     }
-
     return () => clearInterval(interval);
   }, [isCallActive]);
 
-  useEffect(() => {
-    // TODO: Add listener for call state changes
-    setIsCallActive(true);
-  }, []);
+  // Call Agora logic for video
+  // useEffect(() => {
+  //   // joinAgoraChannelVideo(...)
+  //   // ...
+  // }, []);
+
+  const handleEndCall = async () => {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "ended",
+    });
+    navigation.goBack();
+  };
+
+  const handleMuteToggle = () => {
+    setMuted(!muted);
+    // logic for muting in Agora
+  };
+
+  const handleSpeakerToggle = () => {
+    setSpeakerOn(!speakerOn);
+    // logic for speaker phone
+  };
+
+  const handleCameraToggle = () => {
+    setCameraOn(!cameraOn);
+    // logic for turning on/off local video
+  };
+
+  const handleSwapCamera = () => {
+    console.log("Camera swapped");
+    // logic for switching front/back camera
+  };
+
   return (
     <>
       <DiamondBackground />
@@ -84,7 +112,7 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 
         <View style={styles.calleeVideoView}>
           {cameraOn && (
-            // TODO: Add video stream component here
+            // wstaw tutaj np. <AgoraVideoView ... />
             <Ionicons name="camera" size={80} color={Colors.textLight} />
           )}
           {!cameraOn && (
@@ -101,22 +129,10 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 
         <View style={styles.videoCallPartnerContainer}>
           <View style={styles.callPartnerVideoView}>
-            {cameraOn && (
-              // TODO: Add video stream component here
-              <Ionicons name="camera" size={80} color={Colors.textLight} />
-            )}
-            {!cameraOn && (
-              <>
-                <Image
-                  source={{ uri: callPartner.avatar }}
-                  style={styles.avatar}
-                />
-                <Text style={styles.cameraStatus}>
-                  {callPartner.name}
-                  {"\n"}has turned off their camera.
-                </Text>
-              </>
-            )}
+            <Image source={{ uri: callPartner.avatar }} style={styles.avatar} />
+            <Text style={styles.cameraStatus}>
+              {callPartner.name} - Remote Video
+            </Text>
           </View>
         </View>
 
@@ -133,6 +149,8 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
     </>
   );
 };
+
+export default VideoCallScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -158,24 +176,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     color: Colors.textLight,
-  },
-  callPartnerContainer: {
-    alignItems: "center",
-    marginBottom: 150,
-  },
-  avatarSmall: {
-    width: 80,
-    height: 80,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: Colors.primary,
-  },
-  avatar: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 3,
-    borderColor: Colors.primary,
   },
   calleeVideoView: {
     position: "absolute",
@@ -212,10 +212,13 @@ const styles = StyleSheet.create({
     color: Colors.textLight,
     marginTop: 15,
   },
-  callType: {
-    fontSize: 14,
-    color: Colors.textLight,
-    marginTop: 5,
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginTop: 10,
+    borderWidth: 3,
+    borderColor: Colors.primary,
   },
   callDuration: {
     position: "absolute",
@@ -238,5 +241,3 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-
-export default VideoCallScreen;

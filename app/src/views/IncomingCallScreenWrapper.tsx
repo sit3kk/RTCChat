@@ -1,12 +1,10 @@
 import React from "react";
-import {
-  useNavigation,
-  RouteProp,
-  CommonActions,
-} from "@react-navigation/native";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { InteractionStackParamList } from "../../App";
 import IncomingCallScreen from "./IncomingCallScreen";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../api/FirebaseConfig";
 
 interface IncomingCallScreenWrapperProps {
   route: RouteProp<InteractionStackParamList, "IncomingCall">;
@@ -17,33 +15,44 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
 }) => {
   const navigation =
     useNavigation<StackNavigationProp<InteractionStackParamList>>();
-  const callData = route.params.callData;
-  const callPartner = callData.callPartner;
+  const { callData } = route.params;
+  const { callPartner, callType, callSessionId } = callData;
 
-  const handleAcceptAudio = () => {
-    console.log("Call accepted with", callPartner);
+  const handleAcceptAudio = async () => {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "accepted",
+    });
     navigation.replace("AudioCall", {
-      callData: callData,
+      callData: {
+        ...callData,
+        callType: "audio",
+      },
     });
   };
 
-  const handleAccept = () => {
-    console.log("Call accepted with", callPartner);
-
+  const handleAcceptVideo = async () => {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "accepted",
+    });
     navigation.replace("VideoCall", {
-      callData: callData,
+      callData: {
+        ...callData,
+        callType: "video",
+      },
     });
   };
 
-  const handleReject = () => {
-    console.log("Call rejected with", callPartner);
+  const handleReject = async () => {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "rejected",
+    });
     navigation.goBack();
   };
 
   return (
     <IncomingCallScreen
       callData={callData}
-      onAccept={handleAccept}
+      onAccept={handleAcceptVideo}
       onAcceptAudio={handleAcceptAudio}
       onReject={handleReject}
     />

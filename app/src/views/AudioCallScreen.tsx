@@ -1,12 +1,15 @@
+// src/views/AudioCallScreen.tsx
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Alert } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { db } from "../api/FirebaseConfig";
 import { Colors } from "../styles/commonStyles";
-import { InteractionStackParamList } from "../../App";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import DefaultCallControls from "../components/DefaultCallControls";
 import { formatCallDuration } from "../utils/utils";
 import InactiveCallOverlay from "../components/InactiveCallOverlay";
+import { InteractionStackParamList } from "../../App";
 
 type AudioCallRouteProp = RouteProp<InteractionStackParamList, "AudioCall">;
 
@@ -22,7 +25,49 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
 
   const navigation = useNavigation();
   const { callData } = route.params;
-  const callPartner = callData.callPartner;
+  const { callPartner, callSessionId } = callData;
+
+  useEffect(() => {
+    const callDocRef = doc(db, "callSessions", callSessionId);
+    const unsub = onSnapshot(callDocRef, (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+      if (data.status === "rejected") {
+        Alert.alert("Information", "The other party rejected the call.");
+        navigation.goBack();
+      }
+      if (data.status === "ended") {
+        Alert.alert("Information", "The call has ended.");
+        navigation.goBack();
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  // Timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isCallActive) {
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isCallActive]);
+
+  // Here you can call Agora logic: joinChannel, listenForEvents, etc.
+  // useEffect(() => {
+  //   // joinAgoraChannel(...)
+  //   // ...
+  // }, []);
+
+  const handleEndCall = async () => {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "ended",
+    });
+    navigation.goBack();
+  };
 
   const handleMuteToggle = () => {
     setMuted((prev) => !prev);
@@ -31,27 +76,6 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
   const handleSpeakerToggle = () => {
     setSpeakerOn((prev) => !prev);
   };
-
-  const handleEndCall = () => {
-    console.log("Call ended with", callPartner);
-    navigation.goBack();
-  };
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isCallActive) {
-      interval = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isCallActive]);
-
-  useEffect(() => {
-    // TODO: Add listener for call state changes
-    setIsCallActive(true);
-  }, []);
 
   return (
     <>
@@ -80,6 +104,8 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
     </>
   );
 };
+
+export default AudioCallScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -121,5 +147,3 @@ const styles = StyleSheet.create({
     zIndex: 30,
   },
 });
-
-export default AudioCallScreen;

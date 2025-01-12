@@ -214,6 +214,7 @@ const ChatsList: React.FC = () => {
           navigation.navigate("ChatDetails", {
             chatId: [userId, item.contactId].sort().join("_"),
             contactName: item.contactName,
+            contactId: item.contactId,
           });
         }}
       >

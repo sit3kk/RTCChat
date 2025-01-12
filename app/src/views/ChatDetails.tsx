@@ -40,7 +40,7 @@ type Message = {
 };
 
 const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
-  const { chatId, contactName } = route.params;
+  const { chatId, contactName, contactId } = route.params;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const { userId, userName } = useUserData();
@@ -101,6 +101,36 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
     }
   };
 
+  // ------ NOWY KOD: inicjowanie połączenia ------
+  const initiateCall = async (callType: "audio" | "video") => {
+    try {
+      const docRef = await addDoc(collection(db, "callSessions"), {
+        callerId: userId,
+        calleeId: contactId,
+        callType,
+        status: "incoming",
+        createdAt: Timestamp.now(),
+      });
+
+      navigation.navigate("InteractionStack", {
+        screen: callType === "audio" ? "AudioCall" : "VideoCall",
+        params: {
+          callData: {
+            callPartner: {
+              id: chatId,
+              name: contactName,
+              avatar: "https://example.com/avatar.jpg",
+            },
+            callType,
+            callSessionId: docRef.id,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("initiateCall error:", error);
+    }
+  };
+
   const renderMessage = ({ item }: { item: Message }) => {
     const isCurrentUser = item.senderId === userId;
 
@@ -131,9 +161,21 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
           <Ionicons name="arrow-back" size={24} color={Colors.textLight} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{contactName}</Text>
-        <TouchableOpacity>
-          <Ionicons name="call-outline" size={24} color={Colors.textLight} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            onPress={() => initiateCall("audio")}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="call-outline" size={24} color={Colors.textLight} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => initiateCall("video")}>
+            <Ionicons
+              name="videocam-outline"
+              size={24}
+              color={Colors.textLight}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Messages */}

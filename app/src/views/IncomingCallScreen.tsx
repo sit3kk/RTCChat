@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { Colors } from "../styles/commonStyles";
+import { View, Text, StyleSheet, Image } from "react-native";
 import DiamondBackground from "../components/ui/DiamondBackground";
-import { CallData } from "../types/commonTypes";
+import { Colors } from "../styles/commonStyles";
 import Button from "../components/ui/Button";
+import { CallData } from "../types/commonTypes";
 
 interface IncomingCallScreenProps {
   callData: CallData;
@@ -56,6 +56,7 @@ const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
     </>
   );
 };
+export default IncomingCallScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -93,5 +94,3 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 });
-
-export default IncomingCallScreen;
