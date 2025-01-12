@@ -20,7 +20,7 @@ import DiamondBackground from "../components/ui/DiamondBackground";
 import SegmentedControl from "../components/ui/SegmentedControl";
 import { ChatItem } from "../types/commonTypes";
 
-const ChatItemComponent: React.FC<{
+const ChatIListItem: React.FC<{
   chat: ChatItem;
   onPress: () => void;
 }> = ({ chat, onPress }) => (
@@ -33,7 +33,11 @@ const ChatItemComponent: React.FC<{
       )}
     </View>
     <View style={styles.chatInfo}>
-      <Text style={styles.contactName}>{chat.contactName}</Text>
+      <Text
+        style={chat.unreadCount ? styles.contactNameUnread : styles.contactName}
+      >
+        {chat.contactName}
+      </Text>
       <Text style={styles.lastMessage}>
         {chat.lastMessageText || "Start a conversation"}
       </Text>
@@ -103,7 +107,7 @@ const ChatsScreen: React.FC = () => {
 
   const renderChatItem = useCallback(
     ({ item }: { item: ChatItem }) => (
-      <ChatItemComponent
+      <ChatIListItem
         chat={item}
         onPress={() =>
           navigation.navigate("ChatDetails", {
@@ -192,6 +196,11 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 16,
     color: Colors.textLight,
+    fontWeight: "normal",
+  },
+  contactNameUnread: {
+    fontSize: 16,
+    color: Colors.textLight,
     fontWeight: "bold",
   },
   lastMessage: {
@@ -199,13 +208,13 @@ const styles = StyleSheet.create({
     color: Colors.textDimmed,
   },
   unreadBadge: {
-    backgroundColor: "red",
+    backgroundColor: Colors.danger,
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
   unreadBadgeText: {
-    color: "#fff",
+    color: Colors.textAccent,
     fontSize: 12,
   },
 });
