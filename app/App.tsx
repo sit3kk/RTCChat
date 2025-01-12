@@ -154,16 +154,6 @@ const AppNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={24} color={color} />
-          ),
-          tabBarLabel: "Home",
-        }}
-      />
-      <Tab.Screen
         name="Chats"
         component={ChatsStackNavigator}
         options={{

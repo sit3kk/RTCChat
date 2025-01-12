@@ -62,11 +62,14 @@ const ChatsList: React.FC = () => {
 
   const fetchChats = async () => {
     try {
+      setLoading(true);
+
       const contactsRef = collection(db, "contacts");
       const q = query(contactsRef, where("userId", "==", userId));
       const contactsSnapshot = await getDocs(q);
 
       const allChats: ChatItem[] = [];
+      const chatPromises: Promise<void>[] = [];
 
       for (const docSnap of contactsSnapshot.docs) {
         const contactData = docSnap.data() as {
@@ -78,77 +81,91 @@ const ChatsList: React.FC = () => {
         const contactUserSnapshot = await getDoc(contactUserRef);
 
         let contactName = "Unknown";
-        let avatar = ""; // Pole dla avatara
+        let avatar = "";
         if (contactUserSnapshot.exists()) {
           const userInfo = contactUserSnapshot.data() as {
             name: string;
             profilePic?: string;
           };
           contactName = userInfo.name;
-          avatar = userInfo.profilePic || ""; // Pobierz avatar lub ustaw pusty ciąg znaków
+          avatar = userInfo.profilePic || "";
         }
 
         const chatId = [userId, contactData.contactId].sort().join("_");
         const messagesRef = collection(db, "chats", chatId, "messages");
         const msgQuery = query(messagesRef, orderBy("createdAt", "desc"));
 
-        onSnapshot(msgQuery, (snapshot) => {
-          if (!snapshot.empty) {
-            const lastMsgDoc = snapshot.docs[0];
-            const lastMsgData = lastMsgDoc.data() as {
-              text: string;
-              createdAt: { seconds: number; nanoseconds: number };
-              readBy?: string[];
-              senderId: string;
-            };
-
-            const lastMsgDate = lastMsgData.createdAt
-              ? lastMsgData.createdAt.seconds * 1000
-              : 0;
-
-            let unreadCount = 0;
-            snapshot.docs.forEach((m) => {
-              const mData = m.data() as {
+        const chatPromise = new Promise<void>((resolve) => {
+          onSnapshot(msgQuery, (snapshot) => {
+            if (!snapshot.empty) {
+              const lastMsgDoc = snapshot.docs[0];
+              const lastMsgData = lastMsgDoc.data() as {
+                text: string;
+                createdAt: { seconds: number; nanoseconds: number };
                 readBy?: string[];
                 senderId: string;
               };
-              if (
-                !mData.readBy?.includes(userId) &&
-                mData.senderId !== userId
-              ) {
-                unreadCount++;
-              }
-            });
 
-            updateChatInArray(allChats, {
-              contactId: contactData.contactId,
-              contactName,
-              avatar, // Dodaj avatar do obiektu ChatItem
-              lastMessageText: lastMsgData.text,
-              lastMessageDate: lastMsgDate,
-              unreadCount,
-              createdAt: contactData.createdAt
-                ? contactData.createdAt.seconds * 1000
-                : 0,
-            });
-            setChats([...allChats]);
-          } else {
-            updateChatInArray(allChats, {
-              contactId: contactData.contactId,
-              contactName,
-              avatar,
-              lastMessageText: "",
-              lastMessageDate: 0,
-              unreadCount: 0,
-              createdAt: contactData.createdAt
-                ? contactData.createdAt.seconds * 1000
-                : 0,
-            });
-            setChats([...allChats]);
-          }
+              const lastMsgDate = lastMsgData.createdAt
+                ? lastMsgData.createdAt.seconds * 1000
+                : 0;
+
+              let unreadCount = 0;
+              snapshot.docs.forEach((m) => {
+                const mData = m.data() as {
+                  readBy?: string[];
+                  senderId: string;
+                };
+                if (
+                  !mData.readBy?.includes(userId) &&
+                  mData.senderId !== userId
+                ) {
+                  unreadCount++;
+                }
+              });
+
+              updateChatInArray(allChats, {
+                contactId: contactData.contactId,
+                contactName,
+                avatar,
+                lastMessageText: lastMsgData.text,
+                lastMessageDate: lastMsgDate,
+                unreadCount,
+                createdAt: contactData.createdAt
+                  ? contactData.createdAt.seconds * 1000
+                  : 0,
+              });
+            } else {
+              updateChatInArray(allChats, {
+                contactId: contactData.contactId,
+                contactName,
+                avatar,
+                lastMessageText: "",
+                lastMessageDate: 0,
+                unreadCount: 0,
+                createdAt: contactData.createdAt
+                  ? contactData.createdAt.seconds * 1000
+                  : 0,
+              });
+            }
+
+            resolve();
+          });
         });
+
+        chatPromises.push(chatPromise);
       }
 
+      await Promise.all(chatPromises);
+
+      const sortedChats = allChats.sort((a, b) => {
+        if ((b.lastMessageDate || 0) !== (a.lastMessageDate || 0)) {
+          return (b.lastMessageDate || 0) - (a.lastMessageDate || 0);
+        }
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      setChats(sortedChats);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching chats:", error);
@@ -218,11 +235,13 @@ const ChatsList: React.FC = () => {
           </Text>
         </View>
 
-        {item.unreadCount && item.unreadCount > 0 && (
-          <View style={styles.unreadBadge}>
-            <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
-          </View>
-        )}
+        <Text>
+          {item.unreadCount && item.unreadCount > 0 && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
+            </View>
+          )}
+        </Text>
       </TouchableOpacity>
     );
   };
