@@ -88,8 +88,8 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("ChatsStack", {
-              screen: "ChatsScreen",
+            navigation.navigate("Chats", {
+              screen: "ChatsList",
               params: {},
             })
           }

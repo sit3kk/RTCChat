@@ -53,11 +53,6 @@ const ChatIListItem: React.FC<{
   </TouchableOpacity>
 );
 
-export type ChatsNavigationProp = StackNavigationProp<
-  ChatsStackParamList,
-  "ChatsScreen"
->;
-
 const filterChatsData = (
   chats: ChatItem[],
   selectedTab: "All" | "Unread",
@@ -78,7 +73,7 @@ const filterChatsData = (
 
 const ChatsScreen: React.FC = () => {
   const { userId } = useUserData();
-  const navigation = useNavigation<ChatsNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<ChatsStackParamList>>();
 
   const [chats, setChats] = useState<ChatItem[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatItem[]>([]);

@@ -28,8 +28,7 @@ import { Colors } from "../styles/commonStyles";
 import { alphabet } from "../utils/utils";
 import { mockContacts } from "../tests/mockData";
 import { useNavigation } from "@react-navigation/native";
-import { ChatsNavigationProp } from "../views/ChatsScreen";
-import { useUserData } from "../store/UserDataProvider";
+import { AuthenticatedStackProp, ChatsStackParamList } from "../../App";
 
 const ITEM_SPACING = 8;
 const AVATAR_SIZE = 36;
@@ -138,14 +137,17 @@ export function ContactsListHeader({ title }: { title: string }) {
 }
 
 export function ContactsListItem({ item }: { item: Contact }) {
-  const navigation = useNavigation<ChatsNavigationProp>();
+  const navigation = useNavigation<AuthenticatedStackProp>();
   const chatId = [item.userId, item.contactId].sort().join("_");
   const handleItemPress = () => {
-    navigation.navigate("ChatDetails", {
-      chatId: chatId,
-      contactId: item.userId,
-      contactName: item.name,
-      contactAvatar: item.avatar,
+    navigation.navigate("Chats", {
+      screen: "ChatDetails",
+      params: {
+        chatId: chatId,
+        contactId: item.userId,
+        contactName: item.name,
+        contactAvatar: item.avatar,
+      },
     });
   };
   return (
