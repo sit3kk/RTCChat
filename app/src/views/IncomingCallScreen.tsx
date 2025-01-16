@@ -66,8 +66,6 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     marginBottom: 20,
-    borderWidth: 3,
-    borderColor: Colors.primary,
   },
   infoText: {
     fontSize: 20,

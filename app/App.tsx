@@ -22,11 +22,12 @@ import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
 import { randomAvatar } from "./src/utils/utils";
-import { CallData } from "./src/types/commonTypes";
+import { CallData, Contact } from "./src/types/commonTypes";
 import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 import AudioCallScreen from "./src/views/AudioCallScreen";
 import VideoCallScreen from "./src/views/VideoCallScreen";
 import ChatDetails from "./src/views/ChatDetails";
+import { Timestamp } from "firebase/firestore";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -132,11 +133,14 @@ const AppNavigator = () => {
                     params: {
                       callData: {
                         callPartner: {
-                          id: "1",
+                          contactId: "1",
+                          userId: "1",
                           name: "John Dough",
                           avatar: randomAvatar(),
-                        },
+                          createdAt: Timestamp.now(),
+                        } as Contact,
                         callType: "video",
+                        callSessionId: "1234",
                       },
                     },
                   });
@@ -217,7 +221,7 @@ const InteractionStack = () => {
       <InteractionStackNavigator.Screen
         name="IncomingCall"
         component={IncomingCallScreenWrapper}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
       <InteractionStackNavigator.Screen
         name="AudioCall"
@@ -270,7 +274,7 @@ function Navigation() {
   return (
     <NavigationContainer>
       <CallSessionProvider>
-        {!authCtx.isAuthenticated && <AuthStack />}ą
+        {!authCtx.isAuthenticated && <AuthStack />}
         {authCtx.isAuthenticated && <AuthenticatedStack />}
       </CallSessionProvider>
     </NavigationContainer>

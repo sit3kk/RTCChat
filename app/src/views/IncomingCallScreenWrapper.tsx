@@ -18,31 +18,17 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   const { callData } = route.params;
   const { callType, callSessionId } = callData;
 
-  const handleAcceptAudio = async () => {
+  const handleAccept = async () => {
     await updateDoc(doc(db, "callSessions", callSessionId), {
       status: "accepted",
     });
-    navigation.replace("AudioCall", {
-      callData: {
-        ...callData,
-        callType: "audio",
-      },
-    });
-  };
-
-  const handleAcceptVideo = async () => {
-    await updateDoc(doc(db, "callSessions", callSessionId), {
-      status: "accepted",
-    });
-    navigation.replace("VideoCall", {
-      callData: {
-        ...callData,
-        callType: "video",
-      },
+    navigation.replace(callType === "audio" ? "AudioCall" : "VideoCall", {
+      callData: callData,
     });
   };
 
   const handleReject = async () => {
+    console.log("FRYTKI handleReject", callData);
     await updateDoc(doc(db, "callSessions", callSessionId), {
       status: "rejected",
     });
@@ -52,7 +38,7 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   return (
     <IncomingCallScreen
       callData={callData}
-      onAccept={callType === "video" ? handleAcceptVideo : handleAcceptAudio}
+      onAccept={handleAccept}
       onReject={handleReject}
     />
   );

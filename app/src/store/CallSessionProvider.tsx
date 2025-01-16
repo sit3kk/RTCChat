@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useUserData } from "./UserDataProvider";
-import { CallSession } from "../types/commonTypes";
+import { CallData, CallSession } from "../types/commonTypes";
 import { setupCallListener } from "../services/callSessionService";
 import { AuthenticatedStackProp } from "../../App";
 
@@ -28,11 +28,7 @@ export function CallSessionProvider({
       navigation.navigate("InteractionStack", {
         screen: "IncomingCall",
         params: {
-          callData: {
-            ...callData.callPartner,
-            callType: callData.callType,
-            callSessionId: sessionId,
-          },
+          callData: { ...callData, callSessionId: sessionId },
         },
       });
     });
