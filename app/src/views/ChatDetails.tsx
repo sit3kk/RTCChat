@@ -3,8 +3,6 @@ import {
   View,
   Text,
   FlatList,
-  TextInput,
-  TouchableOpacity,
   Image,
   StyleSheet,
   KeyboardAvoidingView,
@@ -12,12 +10,65 @@ import {
 } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { AuthenticatedStackProp, ChatsStackParamList } from "../../App";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
 import { Message } from "../types/commonTypes";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { getCallSessionId, sendMessage } from "../services/chatService";
+import DiamondBackground from "../components/ui/DiamondBackground";
+import IconButton from "../components/ui/IconButton";
+import FlatTextInput from "../components/ui/FlatTextInput";
+
+interface ChatHeaderProps {
+  contactName: string;
+  contactAvatar: string;
+}
+
+interface ChatHeaderProps {
+  contactName: string;
+  contactAvatar: string;
+  onInitiateCall: (callType: "audio" | "video") => void;
+}
+
+const ChatHeader: React.FC<ChatHeaderProps> = ({
+  contactName,
+  contactAvatar,
+  onInitiateCall,
+}) => {
+  const navigation = useNavigation<AuthenticatedStackProp>();
+
+  return (
+    <View style={styles.header}>
+      <IconButton
+        name="arrow-back"
+        size={24}
+        onPress={() =>
+          navigation.navigate("Chats", {
+            screen: "ChatsList",
+            params: {},
+          })
+        }
+      />
+      <View style={styles.headerNameWrapper}>
+        <Image source={{ uri: contactAvatar }} style={styles.headerAvatar} />
+        <Text style={styles.headerName}>{contactName}</Text>
+      </View>
+
+      <View style={{ flexDirection: "row", gap: 15 }}>
+        <IconButton
+          name="call-outline"
+          size={24}
+          onPress={() => onInitiateCall("audio")}
+        />
+        <IconButton
+          name="videocam-outline"
+          size={24}
+          onPress={() => onInitiateCall("video")}
+        />
+      </View>
+    </View>
+  );
+};
 
 interface ChatMessageItemProps {
   item: Message;
@@ -26,7 +77,6 @@ interface ChatMessageItemProps {
 
 const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ item, userId }) => {
   const isCurrentUser = item.senderId === userId;
-
   return (
     <View
       style={[
@@ -84,65 +134,44 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("Chats", {
-              screen: "ChatsList",
-              params: {},
-            })
-          }
-        >
-          <Ionicons name="arrow-back" size={24} color={Colors.textLight} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{contactName}</Text>
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-            onPress={() => initiateCall("audio")}
-            style={{ marginRight: 15 }}
-          >
-            <Ionicons name="call-outline" size={24} color={Colors.textLight} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => initiateCall("video")}>
-            <Ionicons
-              name="videocam-outline"
-              size={24}
-              color={Colors.textLight}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Messages */}
-      <FlatList
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messagesContainer}
-      />
-
-      {/* Message Input */}
-      <View style={styles.inputContainer}>
-        <TouchableOpacity style={{ marginHorizontal: 5 }}>
-          <Ionicons name="image-outline" size={28} color="#888" />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          value={newMessage}
-          onChangeText={setNewMessage}
-          placeholder="Type a message..."
-          placeholderTextColor="#ccc"
+      <>
+        <DiamondBackground />
+        <ChatHeader
+          contactName={contactName}
+          contactAvatar={contactAvatar}
+          onInitiateCall={initiateCall}
         />
-        <TouchableOpacity
-          onPress={async () => {
-            await sendMessage(chatId, userId, userName, newMessage);
-          }}
-          style={{ marginLeft: 5 }}
-        >
-          <Ionicons name="send" size={28} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
+
+        {/* Messages */}
+        <FlatList
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.messagesContainer}
+        />
+
+        {/* Message Input */}
+        <View style={styles.inputContainer}>
+          <IconButton name="image-outline" size={28} onPress={() => {}} />
+          <FlatTextInput
+            isDarkMode={true}
+            value={newMessage}
+            onChangeText={setNewMessage}
+            placeholder="Type a message..."
+            style={{ marginLeft: 5, color: Colors.textLight }}
+            width={"80%"}
+          />
+          <IconButton
+            name="send"
+            size={28}
+            color={Colors.primary}
+            onPress={async () => {
+              await sendMessage(chatId, userId, userName, newMessage);
+              setNewMessage("");
+            }}
+          />
+        </View>
+      </>
     </KeyboardAvoidingView>
   );
 };
@@ -162,30 +191,32 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: Colors.background,
   },
-  headerTitle: {
+  headerNameWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  headerName: {
     fontSize: 18,
     fontWeight: "bold",
     color: Colors.textLight,
+    marginLeft: 45,
+  },
+  headerAvatar: {
+    position: "absolute",
+    width: 36,
+    height: 36,
+    borderRadius: 36 / 2,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
     paddingHorizontal: 10,
     paddingVertical: 10,
     borderTopWidth: 1,
     borderColor: "#333",
     backgroundColor: Colors.background,
-  },
-  input: {
-    flex: 1,
-    marginHorizontal: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: "#555",
-    borderRadius: 25,
-    color: Colors.textLight,
-    backgroundColor: "#222",
   },
   messagesContainer: {
     paddingHorizontal: 10,

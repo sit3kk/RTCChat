@@ -115,6 +115,7 @@ const AppNavigator = () => {
             <View style={{ marginRight: 10, flexDirection: "row" }}>
               <IconButton
                 name="add"
+                style={{ paddingHorizontal: 10 }}
                 onPress={() => {
                   navigation.navigate("InteractionStack", {
                     screen: "Invitations",
@@ -124,6 +125,7 @@ const AppNavigator = () => {
               <IconButton
                 // temporary navigation to IncomingCallScreen
                 name="call"
+                style={{ paddingHorizontal: 10 }}
                 onPress={() => {
                   navigation.navigate("InteractionStack", {
                     screen: "IncomingCall",

@@ -19,16 +19,10 @@ const IconButton: React.FC<IconButtonProps> = ({
   style,
 }) => {
   return (
-    <TouchableOpacity style={[styles.container, style]} onPress={onPress}>
+    <TouchableOpacity style={style} onPress={onPress}>
       <Ionicons name={name as any} size={size} color={color} />
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 10,
-  },
-});
 
 export default IconButton;

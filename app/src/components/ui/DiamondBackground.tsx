@@ -38,13 +38,12 @@ const DiamondBackground: React.FC = () => {
         />
 
         <Polygon
-          // points="100,50 150,100 100,150 50,100"
           points={`
-    ${windowWidth / 2},${windowHeight / 2 - windowHeight / 4}
-    ${windowWidth / 2 + windowWidth / 4},${windowHeight / 2}
-    ${windowWidth / 2},${windowHeight / 2 + windowHeight / 4}
-    ${windowWidth / 2 - windowWidth / 4},${windowHeight / 2}
-  `}
+          ${windowWidth / 2},${windowHeight / 2 - windowHeight / 4}
+          ${windowWidth / 2 + windowWidth / 4},${windowHeight / 2}
+          ${windowWidth / 2},${windowHeight / 2 + windowHeight / 4}
+          ${windowWidth / 2 - windowWidth / 4},${windowHeight / 2}
+        `}
           fill={Colors.backgroundGradientStart}
           opacity={0.1}
           filter="url(#blurFilterInner)"
