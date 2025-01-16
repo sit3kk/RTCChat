@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
 import { Message } from "../types/commonTypes";
 import { useChatMessages } from "../hooks/useChatMessages";
-import { getCallSessionId, sendMessage } from "../api/FirestoreGateway";
+import { getCallSessionId, sendMessage } from "../services/ChatService";
 
 interface ChatMessageItemProps {
   item: Message;

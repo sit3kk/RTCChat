@@ -1,4 +1,4 @@
-import { db } from "../api/FirebaseConfig";
+import { db } from "./FirebaseConfig";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 
 export const checkInvitationStatus = async (
@@ -30,7 +30,10 @@ export const sendInvitation = async (
   toInvitationCode: string
 ): Promise<void> => {
   const toUserSnapshot = await getDocs(
-    query(collection(db, "users"), where("invitationCode", "==", toInvitationCode))
+    query(
+      collection(db, "users"),
+      where("invitationCode", "==", toInvitationCode)
+    )
   );
 
   if (!toUserSnapshot.empty) {

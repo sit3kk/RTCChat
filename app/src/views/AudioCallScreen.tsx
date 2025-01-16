@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Alert } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "../api/FirebaseConfig";
+import { db } from "../services/FirebaseConfig";
 import { Colors } from "../styles/commonStyles";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import DefaultCallControls from "../components/DefaultCallControls";

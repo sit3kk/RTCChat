@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db } from "../api/FirebaseConfig";
-import { UserData } from "../types/UserData";
+import { db } from "../services/FirebaseConfig";
+import { UserData } from "../types/commonTypes";
 import { generateInvitationCode } from "../utils/utils";
 
 interface UserDataContextProps {

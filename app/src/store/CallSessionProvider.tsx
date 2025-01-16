@@ -8,7 +8,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
-import { db } from "../api/FirebaseConfig";
+import { db } from "../services/FirebaseConfig";
 import { useUserData } from "./UserDataProvider";
 import { AuthenticatedStackProp } from "../../App";
 

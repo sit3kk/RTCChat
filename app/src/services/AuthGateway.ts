@@ -1,4 +1,4 @@
-import { UserData } from "../types/UserData";
+import { UserData } from "../types/commonTypes";
 
 export const fetchUserData = async (accessToken: string): Promise<UserData> => {
   try {
