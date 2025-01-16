@@ -11,8 +11,9 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  arrayUnion,
 } from "firebase/firestore";
-import { Contact, Invitation, ChatItem } from "../types/commonTypes";
+import { Contact, Invitation, ChatItem, Message } from "../types/commonTypes";
 import { Timestamp } from "firebase/firestore";
 
 export const fetchContacts = async (userId: string): Promise<Contact[]> => {
@@ -205,4 +206,81 @@ export const fetchChats = async (userId: string): Promise<ChatItem[]> => {
       (b.lastMessageDate || 0) - (a.lastMessageDate || 0) ||
       (b.createdAt || 0) - (a.createdAt || 0)
   );
+};
+
+export const fetchMessagesAndListen = (
+  chatId: string,
+  userId: string,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+) => {
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const q = query(messagesRef, orderBy("createdAt", "asc"));
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const messages: Message[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Message[];
+    setMessages(messages);
+    markMessagesAsRead(snapshot.docs, chatId, userId);
+  });
+  return unsubscribe;
+};
+
+export const markMessagesAsRead = async (
+  docs: any[],
+  chatId: string,
+  userId: string
+) => {
+  docs.forEach(async (docSnap) => {
+    const msgData = docSnap.data() as Message;
+    if (!msgData.readBy?.includes(userId) && msgData.senderId !== userId) {
+      try {
+        await updateDoc(doc(db, "chats", chatId, "messages", docSnap.id), {
+          readBy: arrayUnion(userId),
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+  });
+};
+
+export const sendMessage = async (
+  chatId: string,
+  userId: string,
+  userName: string,
+  newMessage: string
+) => {
+  if (!newMessage.trim()) return;
+  try {
+    const messagesRef = collection(db, "chats", chatId, "messages");
+    await addDoc(messagesRef, {
+      senderId: userId,
+      username: userName,
+      text: newMessage,
+      createdAt: Timestamp.now(),
+      readBy: [userId],
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCallSessionId = async (
+  userId: string,
+  contactId: string,
+  callType: "audio" | "video"
+) => {
+  try {
+    const docRef = await addDoc(collection(db, "callSessions"), {
+      callerId: userId,
+      calleeId: contactId,
+      callType,
+      status: "incoming",
+      createdAt: Timestamp.now(),
+    });
+    return docRef.id;
+  } catch (error) {
+    throw error;
+  }
 };

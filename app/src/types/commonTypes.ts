@@ -46,3 +46,12 @@ export interface ChatItem {
   unreadCount?: number;
   createdAt?: number;
 }
+
+export interface Message {
+  id: string;
+  senderId: string;
+  text?: string;
+  imageUrl?: string;
+  createdAt: Timestamp;
+  readBy?: string[];
+}

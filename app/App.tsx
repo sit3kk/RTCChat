@@ -38,6 +38,7 @@ export type BottomTabParamList = {
 export type AuthenticatedStackParamList = {
   AppNavigator: undefined;
   InteractionStack: { screen: keyof InteractionStackParamList; params?: any };
+  ChatsStack: { screen: keyof ChatsStackParamList; params?: any };
 };
 
 export type InteractionStackParamList = {
@@ -52,8 +53,10 @@ export type ChatsStackParamList = {
   ChatDetails: { chatId: string; contactName: string; contactId: string };
 };
 
-type AuthenticatedStackProp = StackNavigationProp<AuthenticatedStackParamList>;
-type InteractionStackProp = StackNavigationProp<InteractionStackParamList>;
+export type AuthenticatedStackProp =
+  StackNavigationProp<AuthenticatedStackParamList>;
+export type InteractionStackProp =
+  StackNavigationProp<InteractionStackParamList>;
 
 const AuthStackNavigator = createStackNavigator();
 const AuthenticatedStackNavigator =
@@ -62,19 +65,6 @@ const InteractionStackNavigator =
   createStackNavigator<InteractionStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 const ChatsStack = createStackNavigator<ChatsStackParamList>();
-
-const ChatsStackNavigator = () => {
-  return (
-    <ChatsStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <ChatsStack.Screen name="ChatsScreen" component={ChatsScreen} />
-      <ChatsStack.Screen name="ChatDetails" component={ChatDetails} />
-    </ChatsStack.Navigator>
-  );
-};
 
 const AuthStack = () => {
   return (
@@ -233,6 +223,19 @@ const InteractionStack = () => {
         options={{ headerShown: false, gestureEnabled: false }}
       />
     </InteractionStackNavigator.Navigator>
+  );
+};
+
+const ChatsStackNavigator = () => {
+  return (
+    <ChatsStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ChatsStack.Screen name="ChatsScreen" component={ChatsScreen} />
+      <ChatsStack.Screen name="ChatDetails" component={ChatDetails} />
+    </ChatsStack.Navigator>
   );
 };
 

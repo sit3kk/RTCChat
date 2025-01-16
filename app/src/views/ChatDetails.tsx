@@ -11,106 +11,50 @@ import {
   Platform,
 } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  addDoc,
-  Timestamp,
-  updateDoc,
-  doc,
-  arrayUnion,
-} from "firebase/firestore";
-import { db } from "../api/FirebaseConfig";
-import { ChatsStackParamList } from "../../App";
+import { AuthenticatedStackProp, ChatsStackParamList } from "../../App";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
+import { Message } from "../types/commonTypes";
+import { useChatMessages } from "../hooks/useChatMessages";
+import { getCallSessionId, sendMessage } from "../api/FirestoreGateway";
+
+interface ChatMessageItemProps {
+  item: Message;
+  userId: string;
+}
+
+const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ item, userId }) => {
+  const isCurrentUser = item.senderId === userId;
+
+  return (
+    <View
+      style={[
+        styles.messageContainer,
+        isCurrentUser ? styles.myMessage : styles.theirMessage,
+      ]}
+    >
+      {item.imageUrl ? (
+        <Image source={{ uri: item.imageUrl }} style={styles.messageImage} />
+      ) : (
+        <Text style={styles.messageText}>{item.text}</Text>
+      )}
+    </View>
+  );
+};
 
 type ChatDetailsRouteProp = RouteProp<ChatsStackParamList, "ChatDetails">;
 
-type Message = {
-  id: string;
-  senderId: string;
-  text?: string;
-  imageUrl?: string;
-  createdAt: Timestamp;
-  readBy?: string[];
-};
-
 const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
   const { chatId, contactName, contactId } = route.params;
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const { userId, userName } = useUserData();
-  const navigation = useNavigation();
+  const navigation = useNavigation<AuthenticatedStackProp>();
+  const messages = useChatMessages(chatId, userId);
 
-  useEffect(() => {
-    const fetchMessages = () => {
-      const messagesRef = collection(db, "chats", chatId, "messages");
-      const q = query(messagesRef, orderBy("createdAt", "asc"));
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const fetchedMessages: Message[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Message[];
-        setMessages(fetchedMessages);
-
-        markAsRead(snapshot.docs);
-      });
-
-      return unsubscribe;
-    };
-
-    const unsubscribe = fetchMessages();
-    return () => unsubscribe();
-  }, [chatId]);
-
-  const markAsRead = async (docs: any[]) => {
-    docs.forEach(async (docSnap) => {
-      const msgData = docSnap.data() as Message;
-      if (!msgData.readBy?.includes(userId) && msgData.senderId !== userId) {
-        try {
-          await updateDoc(doc(db, "chats", chatId, "messages", docSnap.id), {
-            readBy: arrayUnion(userId),
-          });
-        } catch (err) {
-          console.error("markAsRead error:", err);
-        }
-      }
-    });
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    try {
-      const messagesRef = collection(db, "chats", chatId, "messages");
-      await addDoc(messagesRef, {
-        senderId: userId,
-        username: userName,
-        text: newMessage,
-        createdAt: Timestamp.now(),
-        readBy: [userId],
-      });
-      setNewMessage("");
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
-  };
-
-  // ------ NOWY KOD: inicjowanie połączenia ------
   const initiateCall = async (callType: "audio" | "video") => {
     try {
-      const docRef = await addDoc(collection(db, "callSessions"), {
-        callerId: userId,
-        calleeId: contactId,
-        callType,
-        status: "incoming",
-        createdAt: Timestamp.now(),
-      });
+      const callSessionId = await getCallSessionId(userId, contactId, callType);
 
       navigation.navigate("InteractionStack", {
         screen: callType === "audio" ? "AudioCall" : "VideoCall",
@@ -119,10 +63,10 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
             callPartner: {
               id: chatId,
               name: contactName,
-              avatar: "https://example.com/avatar.jpg",
+              avatar: "https://example.com/avatar.jpg", // TODO: fetch avatar from db
             },
             callType,
-            callSessionId: docRef.id,
+            callSessionId: callSessionId,
           },
         },
       });
@@ -132,22 +76,7 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
   };
 
   const renderMessage = ({ item }: { item: Message }) => {
-    const isCurrentUser = item.senderId === userId;
-
-    return (
-      <View
-        style={[
-          styles.messageContainer,
-          isCurrentUser ? styles.myMessage : styles.theirMessage,
-        ]}
-      >
-        {item.imageUrl ? (
-          <Image source={{ uri: item.imageUrl }} style={styles.messageImage} />
-        ) : (
-          <Text style={styles.messageText}>{item.text}</Text>
-        )}
-      </View>
-    );
+    return <ChatMessageItem item={item} userId={userId} />;
   };
 
   return (
@@ -157,7 +86,14 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("ChatsScreen")}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("ChatsStack", {
+              screen: "ChatsScreen",
+              params: {},
+            })
+          }
+        >
           <Ionicons name="arrow-back" size={24} color={Colors.textLight} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{contactName}</Text>
@@ -198,7 +134,12 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
           placeholder="Type a message..."
           placeholderTextColor="#ccc"
         />
-        <TouchableOpacity onPress={sendMessage} style={{ marginLeft: 5 }}>
+        <TouchableOpacity
+          onPress={async () => {
+            await sendMessage(chatId, userId, userName, newMessage);
+          }}
+          style={{ marginLeft: 5 }}
+        >
           <Ionicons name="send" size={28} color={Colors.primary} />
         </TouchableOpacity>
       </View>
@@ -226,6 +167,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.textLight,
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderColor: "#333",
+    backgroundColor: Colors.background,
+  },
+  input: {
+    flex: 1,
+    marginHorizontal: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: "#555",
+    borderRadius: 25,
+    color: Colors.textLight,
+    backgroundColor: "#222",
+  },
   messagesContainer: {
     paddingHorizontal: 10,
     paddingBottom: 10,
@@ -252,25 +213,5 @@ const styles = StyleSheet.create({
     width: 200,
     height: 150,
     borderRadius: 8,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderColor: "#333",
-    backgroundColor: Colors.background,
-  },
-  input: {
-    flex: 1,
-    marginHorizontal: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: "#555",
-    borderRadius: 25,
-    color: Colors.textLight,
-    backgroundColor: "#222",
   },
 });

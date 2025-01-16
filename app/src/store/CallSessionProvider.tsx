@@ -10,6 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { db } from "../api/FirebaseConfig";
 import { useUserData } from "./UserDataProvider";
+import { AuthenticatedStackProp } from "../../App";
 
 type CallStatus = "incoming" | "accepted" | "rejected" | "ended";
 
@@ -32,7 +33,7 @@ export const CallSessionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeCall, setActiveCall] = useState<CallSession | null>(null);
   const { userId } = useUserData();
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<AuthenticatedStackProp>();
   const fetchCallerData = async (callerId: string) => {
     try {
       const userDoc = doc(db, "users", callerId);
