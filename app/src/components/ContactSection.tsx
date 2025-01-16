@@ -141,12 +141,11 @@ export function ContactsListItem({ item }: { item: Contact }) {
   const navigation = useNavigation<ChatsNavigationProp>();
   const chatId = [item.userId, item.contactId].sort().join("_");
   const handleItemPress = () => {
-    navigation.navigate("Chats", {
-      screen: "ChatDetails",
-      params: {
-        chatId: chatId,
-        contactName: item.name,
-      },
+    navigation.navigate("ChatDetails", {
+      chatId: chatId,
+      contactId: item.userId,
+      contactName: item.name,
+      contactAvatar: item.avatar,
     });
   };
   return (

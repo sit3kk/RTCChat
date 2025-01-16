@@ -8,14 +8,12 @@ import { CallData } from "../types/commonTypes";
 interface IncomingCallScreenProps {
   callData: CallData;
   onAccept: () => void;
-  onAcceptAudio: () => void;
   onReject: () => void;
 }
 
 const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
   callData,
   onAccept,
-  onAcceptAudio,
   onReject,
 }) => {
   const { callPartner, callType } = callData;
@@ -38,20 +36,13 @@ const IncomingCallScreen: React.FC<IncomingCallScreenProps> = ({
             height={50}
           />
           <Button
-            title="Accept Video"
+            title="Accept"
             onPress={onAccept}
             type="accept"
             width={100}
             height={50}
           />
         </View>
-        <Button
-          title="Accept Audio"
-          onPress={onAcceptAudio}
-          type="accept"
-          width={100}
-          height={50}
-        />
       </View>
     </>
   );

@@ -26,8 +26,11 @@ const ChatIListItem: React.FC<{
 }> = ({ chat, onPress }) => (
   <TouchableOpacity style={styles.chatItem} onPress={onPress}>
     <View style={styles.avatar}>
-      {chat.avatar ? (
-        <Image source={{ uri: chat.avatar }} style={styles.contactAvatar} />
+      {chat.contactAvatar ? (
+        <Image
+          source={{ uri: chat.contactAvatar }}
+          style={styles.contactAvatar}
+        />
       ) : (
         <Ionicons name="person" size={24} color={Colors.textAccent} />
       )}
@@ -112,8 +115,9 @@ const ChatsScreen: React.FC = () => {
         onPress={() =>
           navigation.navigate("ChatDetails", {
             chatId: getChatId(item.contactId),
-            contactName: item.contactName,
             contactId: item.contactId,
+            contactName: item.contactName,
+            contactAvatar: item.contactAvatar,
           })
         }
       />

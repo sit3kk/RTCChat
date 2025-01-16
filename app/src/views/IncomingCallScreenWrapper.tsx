@@ -16,7 +16,7 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   const navigation =
     useNavigation<StackNavigationProp<InteractionStackParamList>>();
   const { callData } = route.params;
-  const { callPartner, callType, callSessionId } = callData;
+  const { callType, callSessionId } = callData;
 
   const handleAcceptAudio = async () => {
     await updateDoc(doc(db, "callSessions", callSessionId), {
@@ -52,8 +52,7 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   return (
     <IncomingCallScreen
       callData={callData}
-      onAccept={handleAcceptVideo}
-      onAcceptAudio={handleAcceptAudio}
+      onAccept={callType === "video" ? handleAcceptVideo : handleAcceptAudio}
       onReject={handleReject}
     />
   );

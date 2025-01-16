@@ -50,7 +50,12 @@ export type InteractionStackParamList = {
 
 export type ChatsStackParamList = {
   ChatsScreen: undefined;
-  ChatDetails: { chatId: string; contactName: string; contactId: string };
+  ChatDetails: {
+    chatId: string;
+    contactId: string;
+    contactName: string;
+    contactAvatar: string;
+  };
 };
 
 export type AuthenticatedStackProp =
@@ -127,7 +132,7 @@ const AppNavigator = () => {
                         callPartner: {
                           id: "1",
                           name: "John Dough",
-                          avatar: randomAvatar(),
+                          avatar: randomAvatar(), // TODO: fetch avatar from db
                         },
                         callType: "video",
                       },

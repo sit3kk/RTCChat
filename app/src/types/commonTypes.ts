@@ -40,7 +40,7 @@ export interface CallData {
 export interface ChatItem {
   contactId: string;
   contactName: string;
-  avatar?: string;
+  contactAvatar: string;
   lastMessageText?: string;
   lastMessageDate?: number;
   unreadCount?: number;

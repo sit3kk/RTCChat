@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { Contact, Invitation, ChatItem, Message } from "../types/commonTypes";
 import { Timestamp } from "firebase/firestore";
+import { randomAvatar } from "../utils/utils";
 
 export const fetchContacts = async (userId: string): Promise<Contact[]> => {
   try {
@@ -161,9 +162,12 @@ export const fetchChats = async (userId: string): Promise<ChatItem[]> => {
     const contactName = contactUserSnapshot.exists()
       ? (contactUserSnapshot.data() as { name: string }).name
       : "Unknown";
-    const avatar = contactUserSnapshot.exists()
-      ? (contactUserSnapshot.data() as { profilePic?: string }).profilePic || ""
-      : "";
+
+    const defaultAvatar = randomAvatar(); // TODO set a default avatar
+    const contactAvatar = contactUserSnapshot.exists()
+      ? (contactUserSnapshot.data() as { profilePic?: string }).profilePic ||
+        defaultAvatar
+      : defaultAvatar;
 
     const chatId = [userId, contactData.contactId].sort().join("_");
     const messagesRef = collection(db, "chats", chatId, "messages");
@@ -188,7 +192,7 @@ export const fetchChats = async (userId: string): Promise<ChatItem[]> => {
           allChats.push({
             contactId: contactData.contactId,
             contactName,
-            avatar,
+            contactAvatar,
             lastMessageText: lastMsgData.text,
             lastMessageDate: lastMsgData.createdAt.seconds * 1000,
             unreadCount,

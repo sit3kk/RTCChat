@@ -46,7 +46,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ item, userId }) => {
 type ChatDetailsRouteProp = RouteProp<ChatsStackParamList, "ChatDetails">;
 
 const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
-  const { chatId, contactName, contactId } = route.params;
+  const { chatId, contactId, contactName, contactAvatar } = route.params;
   const [newMessage, setNewMessage] = useState("");
   const { userId, userName } = useUserData();
   const navigation = useNavigation<AuthenticatedStackProp>();
@@ -63,7 +63,7 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
             callPartner: {
               id: chatId,
               name: contactName,
-              avatar: "https://example.com/avatar.jpg", // TODO: fetch avatar from db
+              avatar: contactAvatar,
             },
             callType,
             callSessionId: callSessionId,
