@@ -12,6 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuth, AuthProvider } from "./src/store/AuthProvider";
 import { UserDataProvider } from "./src/store/UserDataProvider";
+import { CallSessionProvider } from "./src/store/CallSessionProvider";
 import { Colors } from "./src/styles/commonStyles";
 import LoadingScreen from "./src/views/LoadingScreen";
 import LoginScreen from "./src/views/LoginScreen";
@@ -26,19 +27,18 @@ import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 import AudioCallScreen from "./src/views/AudioCallScreen";
 import VideoCallScreen from "./src/views/VideoCallScreen";
 import ChatDetails from "./src/views/ChatDetails";
-import { CallSessionProvider } from "./src/store/CallSessionProvider";
 
 export type BottomTabParamList = {
   Contacts: undefined;
   Home: undefined;
-  Chats: { chatId: string };
+  Chats: undefined;
   Settings: undefined;
 };
 
 export type AuthenticatedStackParamList = {
   AppNavigator: undefined;
   InteractionStack: { screen: keyof InteractionStackParamList; params?: any };
-  ChatsStack: { screen: keyof ChatsStackParamList; params?: any };
+  Chats: { screen: keyof ChatsStackParamList; params?: any };
 };
 
 export type InteractionStackParamList = {
@@ -49,7 +49,7 @@ export type InteractionStackParamList = {
 };
 
 export type ChatsStackParamList = {
-  ChatsScreen: undefined;
+  ChatsList: undefined;
   ChatDetails: {
     chatId: string;
     contactId: string;
@@ -132,7 +132,7 @@ const AppNavigator = () => {
                         callPartner: {
                           id: "1",
                           name: "John Dough",
-                          avatar: randomAvatar(), // TODO: fetch avatar from db
+                          avatar: randomAvatar(),
                         },
                         callType: "video",
                       },
@@ -234,11 +234,12 @@ const InteractionStack = () => {
 const ChatsStackNavigator = () => {
   return (
     <ChatsStack.Navigator
+      initialRouteName="ChatsList"
       screenOptions={{
         headerShown: false,
       }}
     >
-      <ChatsStack.Screen name="ChatsScreen" component={ChatsScreen} />
+      <ChatsStack.Screen name="ChatsList" component={ChatsScreen} />
       <ChatsStack.Screen name="ChatDetails" component={ChatDetails} />
     </ChatsStack.Navigator>
   );
