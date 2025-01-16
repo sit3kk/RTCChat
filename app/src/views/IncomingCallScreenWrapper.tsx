@@ -4,7 +4,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { InteractionStackParamList } from "../../App";
 import IncomingCallScreen from "./IncomingCallScreen";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../services/FirebaseConfig";
+import { db } from "../services/firebaseConfig";
 
 interface IncomingCallScreenWrapperProps {
   route: RouteProp<InteractionStackParamList, "IncomingCall">;

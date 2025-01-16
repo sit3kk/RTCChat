@@ -31,12 +31,6 @@ export interface Invitation {
   status: string;
 }
 
-export interface CallData {
-  callPartner: Contact;
-  callType: "audio" | "video";
-  callSessionId: string;
-}
-
 export interface ChatItem {
   contactId: string;
   contactName: string;
@@ -54,4 +48,21 @@ export interface Message {
   imageUrl?: string;
   createdAt: Timestamp;
   readBy?: string[];
+}
+
+export interface CallData {
+  callPartner: Contact;
+  callType: "audio" | "video";
+  callSessionId: string;
+}
+
+export type CallStatus = "incoming" | "accepted" | "rejected" | "ended";
+
+export interface CallSession {
+  id: string;
+  callerId: string;
+  calleeId: string;
+  callType: "audio" | "video";
+  status: CallStatus;
+  createdAt: any;
 }

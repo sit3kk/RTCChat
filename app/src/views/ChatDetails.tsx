@@ -17,7 +17,7 @@ import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
 import { Message } from "../types/commonTypes";
 import { useChatMessages } from "../hooks/useChatMessages";
-import { getCallSessionId, sendMessage } from "../services/ChatService";
+import { getCallSessionId, sendMessage } from "../services/chatService";
 
 interface ChatMessageItemProps {
   item: Message;

@@ -1,4 +1,4 @@
-import { db } from "./FirebaseConfig";
+import { db } from "./firebaseConfig";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 
 export const checkInvitationStatus = async (
