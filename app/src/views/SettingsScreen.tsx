@@ -30,16 +30,23 @@ const SettingsScreen: React.FC = () => {
         </Text>
 
         <View style={{ marginTop: 100, gap: 10 }}>
-          <Button title="Edit profile" type={"secondary"} onPress={() => {}} />
+          <Button
+            title="Edit profile"
+            type={"secondary"}
+            disabled={true}
+            onPress={() => {}}
+          />
           <Button
             title="Change password"
             type={"secondary"}
             width={25}
+            disabled={true}
             onPress={() => {}}
           />
           <Button
             title="Delete account"
             type={"secondary"}
+            disabled={true}
             onPress={() => {}}
           />
 
