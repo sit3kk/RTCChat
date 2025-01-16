@@ -81,7 +81,6 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
           autoCorrect={false}
         />
 
-        <Text style={styles.headerText}>Contact list</Text>
         <ContactSection contactsData={filteredContacts} />
       </View>
     </>
@@ -93,18 +92,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     alignContent: "flex-start",
+    gap: 25,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: Colors.textLight,
-    marginTop: 20,
-    marginBottom: 10,
   },
 });
 

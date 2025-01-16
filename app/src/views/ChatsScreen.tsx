@@ -138,7 +138,6 @@ const ChatsScreen: React.FC = () => {
           autoCorrect={false}
         />
 
-        <Text style={styles.headerText}>Contact list</Text>
         <SegmentedControl
           selectedTab={selectedTab}
           onTabChange={setSelectedTab}
@@ -161,19 +160,12 @@ const styles = StyleSheet.create({
     padding: 16,
     alignContent: "flex-start",
   },
-  headerText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: Colors.textLight,
-    marginTop: 20,
-    marginBottom: 10,
-  },
   chatItem: {
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    borderBottomColor: Colors.primary,
+    borderBottomWidth: 0.5,
   },
   avatar: {
     width: 40,
@@ -194,7 +186,7 @@ const styles = StyleSheet.create({
   },
   contactName: {
     fontSize: 16,
-    color: Colors.textLight,
+    color: Colors.primary,
     fontWeight: "normal",
   },
   contactNameUnread: {
@@ -204,7 +196,7 @@ const styles = StyleSheet.create({
   },
   lastMessage: {
     fontSize: 14,
-    color: Colors.textDimmed,
+    color: Colors.primaryTransparent,
   },
   unreadBadge: {
     backgroundColor: Colors.danger,
