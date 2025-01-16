@@ -5,6 +5,7 @@ export interface UserData {
   name: string;
   email: string;
   picture: string;
+  invitationCode: string;
 }
 
 export interface Contact {

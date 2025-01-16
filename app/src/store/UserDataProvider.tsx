@@ -38,6 +38,7 @@ export function UserDataProvider({ children }: { children: React.ReactNode }) {
         setUserName(parsedData.name);
         setUserEmail(parsedData.email);
         setUserPicture(parsedData.picture);
+        setInvitationCode(parsedData.invitationCode);
       }
     } catch (error) {
       console.error("Failed to load user data:", error);
@@ -46,12 +47,16 @@ export function UserDataProvider({ children }: { children: React.ReactNode }) {
 
   const setUserData = async (data: UserData) => {
     try {
+      // Generate an invitation code if it doesn't exist
+      data.invitationCode = data.invitationCode || generateInvitationCode();
+
       await saveUserToFirestore(data);
       await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(data));
       setUserId(data.id);
       setUserName(data.name);
       setUserEmail(data.email);
       setUserPicture(data.picture);
+      setInvitationCode(data.invitationCode);
     } catch (error) {
       console.error("Failed to save user data:", error);
     }
@@ -64,6 +69,7 @@ export function UserDataProvider({ children }: { children: React.ReactNode }) {
       setUserName("");
       setUserEmail("");
       setUserPicture("");
+      setInvitationCode("");
     } catch (error) {
       console.error("Failed to clear user data:", error);
     }
@@ -74,26 +80,14 @@ export function UserDataProvider({ children }: { children: React.ReactNode }) {
       const userDoc = doc(db, "users", user.id);
       const userSnapshot = await getDoc(userDoc);
 
-      if (userSnapshot.exists()) {
-        const existingUser = userSnapshot.data();
-        console.log(
-          "Existing user invitation code:",
-          existingUser.invitationCode
-        );
-        setInvitationCode(existingUser.invitationCode);
-      } else {
-        const invitationCode = generateInvitationCode();
+      if (!userSnapshot.exists()) {
         await setDoc(userDoc, {
           name: user.name,
           email: user.email,
           profilePic: user.picture,
-          invitationCode: invitationCode,
+          invitationCode: user.invitationCode,
         });
-        console.log(
-          "User saved to Firestore with invitation code:",
-          invitationCode
-        );
-        setInvitationCode(invitationCode);
+        console.log("User saved to Firestore.");
       }
     } catch (error) {
       throw new Error("Error saving user to Firestore:" + error);

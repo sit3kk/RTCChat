@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, Button, Image, StyleSheet } from "react-native";
 import { useAuth } from "../store/AuthProvider";
 import { useUserData } from "../store/UserDataProvider";
+import DiamondBackground from "../components/ui/DiamondBackground";
+import { Colors } from "../styles/commonStyles";
 
 const SettingsScreen: React.FC = () => {
   const authCtx = useAuth();
@@ -12,20 +14,23 @@ const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Settings</Text>
-      <Image
-        source={{ uri: userCtx.userPicture }}
-        style={styles.profilePicture}
-      />
-      <Text style={styles.userName}>{userCtx.userName}</Text>
-      <Text style={styles.userEmail}>{userCtx.userEmail}</Text>
-      <Text style={styles.userEmail}>
-        Your invitation code: {userCtx.invitationCode}
-      </Text>
+    <>
+      <DiamondBackground />
+      <View style={styles.container}>
+        <Text style={styles.header}>Settings</Text>
+        <Image
+          source={{ uri: userCtx.userPicture }}
+          style={styles.profilePicture}
+        />
+        <Text style={styles.userName}>{userCtx.userName}</Text>
+        <Text style={styles.text}>{userCtx.userEmail}</Text>
+        <Text style={styles.text}>
+          Your invitation code: {userCtx.invitationCode}
+        </Text>
 
-      <Button title="Log out" onPress={handleLogOut} />
-    </View>
+        <Button title="Log out" onPress={handleLogOut} />
+      </View>
+    </>
   );
 };
 
@@ -40,6 +45,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
+    color: Colors.textLight,
   },
   profilePicture: {
     width: 100,
@@ -51,11 +57,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
+    color: Colors.textLight,
   },
-  userEmail: {
+  text: {
     fontSize: 16,
-    color: "gray",
     marginBottom: 16,
+    color: Colors.textLight,
   },
 });
 

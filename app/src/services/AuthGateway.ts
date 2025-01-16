@@ -16,6 +16,7 @@ export const fetchUserData = async (accessToken: string): Promise<UserData> => {
       name: user.name,
       email: user.email,
       picture: user.picture,
+      invitationCode: user.invitationCode,
     };
   } catch (error) {
     console.error("Failed to fetch user data:", error);
