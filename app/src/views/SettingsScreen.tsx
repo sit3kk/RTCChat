@@ -1,9 +1,10 @@
 import React from "react";
-import { View, Text, Button, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
 import { useAuth } from "../store/AuthProvider";
 import { useUserData } from "../store/UserDataProvider";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import { Colors } from "../styles/commonStyles";
+import Button from "../components/ui/Button";
 
 const SettingsScreen: React.FC = () => {
   const authCtx = useAuth();
@@ -17,7 +18,6 @@ const SettingsScreen: React.FC = () => {
     <>
       <DiamondBackground />
       <View style={styles.container}>
-        <Text style={styles.header}>Settings</Text>
         <Image
           source={{ uri: userCtx.userPicture }}
           style={styles.profilePicture}
@@ -25,10 +25,26 @@ const SettingsScreen: React.FC = () => {
         <Text style={styles.userName}>{userCtx.userName}</Text>
         <Text style={styles.text}>{userCtx.userEmail}</Text>
         <Text style={styles.text}>
-          Your invitation code: {userCtx.invitationCode}
+          Your invitation code:{" "}
+          <Text style={styles.textAccent}>{userCtx.invitationCode}</Text>
         </Text>
 
-        <Button title="Log out" onPress={handleLogOut} />
+        <View style={{ marginTop: 100, gap: 10 }}>
+          <Button title="Edit profile" type={"secondary"} onPress={() => {}} />
+          <Button
+            title="Change password"
+            type={"secondary"}
+            width={25}
+            onPress={() => {}}
+          />
+          <Button
+            title="Delete account"
+            type={"secondary"}
+            onPress={() => {}}
+          />
+
+          <Button title="Log out" type={"secondary"} onPress={handleLogOut} />
+        </View>
       </View>
     </>
   );
@@ -63,6 +79,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
     color: Colors.textLight,
+  },
+  textAccent: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: Colors.textAccent,
   },
 });
 
