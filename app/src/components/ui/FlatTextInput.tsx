@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   View,
   TextInput,
@@ -7,6 +7,7 @@ import {
   StyleProp,
   ViewStyle,
   DimensionValue,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Colors } from "../../styles/commonStyles";
 
@@ -30,6 +31,8 @@ const FlatTextInput: React.FC<FlatTextInputProps> = ({
   width = "100%",
   ...textInputProps
 }) => {
+  const textInputRef = useRef<TextInput>(null);
+
   // Temporary fix for the dark mode text color
   const textColor = isDarkMode ? Colors.textLight : Colors.ternary;
   const containerStyle: StyleProp<ViewStyle> = {
@@ -46,17 +49,20 @@ const FlatTextInput: React.FC<FlatTextInputProps> = ({
   };
 
   return (
-    <View style={containerStyle}>
-      {icon && <View style={styles.icon}>{icon}</View>}
-      <TextInput
-        style={inputStyle}
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        placeholderTextColor={textColor}
-        {...textInputProps}
-      />
-    </View>
+    <TouchableWithoutFeedback onPress={() => textInputRef.current?.focus()}>
+      <View style={containerStyle}>
+        {icon && <View style={styles.icon}>{icon}</View>}
+        <TextInput
+          ref={textInputRef}
+          style={inputStyle}
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          placeholderTextColor={textColor}
+          {...textInputProps}
+        />
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

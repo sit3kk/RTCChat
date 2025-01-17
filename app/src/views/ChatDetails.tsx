@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { AuthenticatedStackProp, ChatsStackParamList } from "../../App";
 import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
@@ -129,9 +130,11 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
     return <ChatMessageItem item={item} userId={userId} />;
   };
 
+  const headerHeight = useHeaderHeight();
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={headerHeight}
       style={styles.container}
     >
       <>
