@@ -3,8 +3,7 @@ import { useNavigation, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { InteractionStackParamList } from "../../App";
 import IncomingCallScreen from "./IncomingCallScreen";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../services/firebaseConfig";
+import { updateCallStatus } from "../services/callSessionService";
 
 interface IncomingCallScreenWrapperProps {
   route: RouteProp<InteractionStackParamList, "IncomingCall">;
@@ -19,19 +18,14 @@ const IncomingCallScreenWrapper: React.FC<IncomingCallScreenWrapperProps> = ({
   const { callType, callSessionId } = callData;
 
   const handleAccept = async () => {
-    await updateDoc(doc(db, "callSessions", callSessionId), {
-      status: "accepted",
-    });
+    await updateCallStatus(callSessionId, "accepted");
     navigation.replace(callType === "audio" ? "AudioCall" : "VideoCall", {
       callData: callData,
     });
   };
 
   const handleReject = async () => {
-    console.log("FRYTKI handleReject", callData);
-    await updateDoc(doc(db, "callSessions", callSessionId), {
-      status: "rejected",
-    });
+    await updateCallStatus(callSessionId, "rejected");
     navigation.goBack();
   };
 

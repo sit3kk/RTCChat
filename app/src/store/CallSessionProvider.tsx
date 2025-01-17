@@ -28,7 +28,7 @@ export function CallSessionProvider({
       navigation.navigate("InteractionStack", {
         screen: "IncomingCall",
         params: {
-          callData: { ...callData, callSessionId: sessionId },
+          callData: { ...callData, callSessionId: sessionId } as CallData,
         },
       });
     });

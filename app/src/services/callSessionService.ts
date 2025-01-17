@@ -5,6 +5,8 @@ import {
   where,
   doc,
   getDoc,
+  updateDoc,
+  FirestoreError,
 } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { CallSession } from "../types/commonTypes";
@@ -48,5 +50,38 @@ export const setupCallListener = (
     }
   });
 
+  return unsubscribe;
+};
+
+export const updateCallStatus = async (
+  sessionId: string,
+  status: string
+): Promise<void> => {
+  const sessionDocRef = doc(db, "callSessions", sessionId);
+  try {
+    await updateDoc(sessionDocRef, { status });
+  } catch (error) {
+    console.error("Failed to update call status:", error);
+  }
+};
+
+export const subscribeToCallSession = (
+  sessionId: string,
+  onUpdate: (data: any) => void,
+  onError: (error: FirestoreError) => void
+): (() => void) => {
+  const sessionDocRef = doc(db, "callSessions", sessionId);
+
+  const unsubscribe = onSnapshot(
+    sessionDocRef,
+    (snapshot) => {
+      if (snapshot.exists()) {
+        onUpdate(snapshot.data());
+      }
+    },
+    (error) => {
+      onError(error);
+    }
+  );
   return unsubscribe;
 };
