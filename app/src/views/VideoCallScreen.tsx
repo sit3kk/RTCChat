@@ -22,7 +22,7 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
   const { callData } = route.params;
   const { callPartner, callSessionId } = callData;
 
-  const [isCallActive, setIsCallActive] = useState(true);
+  const [isCallActive, setIsCallActive] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
@@ -43,9 +43,16 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
     return () => {
       unsubscribe.then(() => {
         updateCallStatus(callSessionId, "ended");
+        setIsCallActive(false);
+        Alert.alert("Information", "The other party has ended the call.");
+        setTimeout(() => navigation.goBack(), 2000);
       });
     };
   }, [callSessionId]);
+
+  useEffect(() => {
+    isJoined && setIsCallActive(true);
+  }, [isJoined]);
 
   useEffect(() => {
     if (!isCallActive) {

@@ -26,24 +26,29 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
   const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
 
-  const { leaveChannel, toggleMute, setSpeakerphoneOn } = useAgora();
+  const { isJoined, leaveChannel, toggleMute, setSpeakerphoneOn } = useAgora();
 
   useEffect(() => {
     const unsubscribe = subscribeToCallSession(
       callSessionId,
       (data) => {
         if (["rejected", "ended"].includes(data.status)) {
+          setIsCallActive(false);
           Alert.alert(
             "Information",
             `The other party has ${data.status} the call.`
           );
-          navigation.goBack();
+          setTimeout(() => navigation.goBack(), 2000);
         }
       },
       console.error
     );
     return () => unsubscribe();
   }, [callSessionId]);
+
+  useEffect(() => {
+    isJoined && setIsCallActive(true);
+  }, [isJoined]);
 
   useEffect(() => {
     if (!isCallActive) {
