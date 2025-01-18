@@ -15,7 +15,7 @@ import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
 import { Message } from "../types/commonTypes";
 import { useChatMessages } from "../hooks/useChatMessages";
-import { getCallSessionId, sendMessage } from "../services/ChatService";
+import { getCallSessionId, sendMessage } from "../services/chatService";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import IconButton from "../components/ui/IconButton";
 import FlatTextInput from "../components/ui/FlatTextInput";

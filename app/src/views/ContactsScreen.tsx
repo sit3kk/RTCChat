@@ -7,7 +7,7 @@ import { Colors } from "../styles/commonStyles";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import ContactSection from "../components/ContactSection";
 import { Contact } from "../types/commonTypes";
-import { fetchContacts } from "../services/ContactService";
+import { fetchContacts } from "../services/contactService";
 import { useFocusEffect } from "@react-navigation/native";
 import LoadingScreen from "./LoadingScreen";
 
