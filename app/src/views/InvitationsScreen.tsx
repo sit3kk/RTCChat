@@ -7,7 +7,7 @@ import {
   sendInvitation,
   acceptInvitation,
   rejectInvitation,
-} from "../services/contactService";
+} from "../services/ContactService";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import LoadingScreen from "./LoadingScreen";
 import PendingInvitations from "../components/PendingInvitations";

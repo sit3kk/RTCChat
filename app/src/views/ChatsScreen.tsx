@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { fetchChats } from "../services/chatService";
+import { fetchChats } from "../services/ChatService";
 import { useUserData } from "../store/UserDataProvider";
 import { Colors } from "../styles/commonStyles";
 import { ChatsStackParamList } from "../../App";

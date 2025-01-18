@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Alert, ActivityIndicator } from "react-native";
 import * as Google from "expo-auth-session/providers/google";
-import { fetchUserData } from "../services/authGateway";
+import { fetchUserData } from "../services/AuthGateway";
 import { useAuth } from "../store/AuthProvider";
 import { useUserData } from "../store/UserDataProvider";
 import { REACT_APP_IOS_CLIENT_ID, REACT_APP_WEB_CLIENT_ID } from "@env";
