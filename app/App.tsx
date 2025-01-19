@@ -123,29 +123,6 @@ const AppNavigator = () => {
                   });
                 }}
               />
-              <IconButton
-                // temporary navigation to IncomingCallScreen
-                name="call"
-                style={{ paddingHorizontal: 10 }}
-                onPress={() => {
-                  navigation.navigate("InteractionStack", {
-                    screen: "IncomingCall",
-                    params: {
-                      callData: {
-                        callPartner: {
-                          contactId: "1",
-                          userId: "1",
-                          name: "John Dough",
-                          avatar: randomAvatar(),
-                          createdAt: Timestamp.now(),
-                        } as Contact,
-                        callType: "video",
-                        callSessionId: "1234",
-                      },
-                    },
-                  });
-                }}
-              />
             </View>
           ),
           tabBarIcon: ({ color }) => (

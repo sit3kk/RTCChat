@@ -20,7 +20,7 @@ interface VideoCallScreenProps {
 const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
   const navigation = useNavigation();
   const { callData } = route.params;
-  const { callPartner, callSessionId } = callData;
+  const { callPartner, callSessionId, callType } = callData;
 
   const [isCallActive, setIsCallActive] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -36,7 +36,7 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
     toggleCamera,
     switchCamera,
     leaveChannel,
-  } = useAgora();
+  } = useAgora(callType);
 
   useEffect(() => {
     const unsubscribe = updateCallStatus(callSessionId, "joined");
@@ -44,8 +44,7 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
       unsubscribe.then(() => {
         updateCallStatus(callSessionId, "ended");
         setIsCallActive(false);
-        Alert.alert("Information", "The other party has ended the call.");
-        setTimeout(() => navigation.goBack(), 2000);
+        // Alert.alert("Information", "The other party has ended the call.");
       });
     };
   }, [callSessionId]);
