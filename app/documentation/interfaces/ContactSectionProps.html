@@ -1,0 +1,703 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>app1 documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">app1 documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  ContactSectionProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/components/ContactSection.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#contactsData" 
+>
+                                            contactsData
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="contactsData"></a>
+                                        <span class="name "><b>contactsData</b>
+                                            <a href="#contactsData">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>contactsData:         <code><a href="../interfaces/Contact.html" target="_self" >Contact[]</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="../interfaces/Contact.html" target="_self" >Contact[]</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React, { useEffect, useMemo, useRef, useState } from &quot;react&quot;;
+import {
+  View,
+  Text,
+  SectionList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from &quot;react-native&quot;;
+import sectionListGetItemLayout from &quot;react-native-section-list-get-item-layout&quot;;
+import { Gesture, GestureDetector } from &quot;react-native-gesture-handler&quot;;
+import Animated, {
+  clamp,
+  Extrapolation,
+  interpolate,
+  measure,
+  runOnJS,
+  runOnUI,
+  SharedValue,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from &quot;react-native-reanimated&quot;;
+import { Ionicons } from &quot;@expo/vector-icons&quot;;
+import { Contact, ContactSectionsType } from &quot;../types/commonTypes&quot;;
+import { Colors } from &quot;../styles/commonStyles&quot;;
+import { alphabet } from &quot;../utils/utils&quot;;
+import { mockContacts } from &quot;../tests/mockData&quot;;
+import { useNavigation } from &quot;@react-navigation/native&quot;;
+import { AuthenticatedStackProp, ChatsStackParamList } from &quot;../../App&quot;;
+
+const ITEM_SPACING &#x3D; 8;
+const AVATAR_SIZE &#x3D; 36;
+const ITEM_HEIGHT &#x3D; AVATAR_SIZE + ITEM_SPACING * 2;
+const SECTION_HEADER_HEIGHT &#x3D; 50;
+const ALPHABET_INDICATOR_SIZE &#x3D; 30;
+const KNOB_SIZE &#x3D; 25;
+const HIT_SLOP &#x3D; {
+  // controls the area for gesture recognition
+  left: 25,
+  bottom: 25,
+  right: 25,
+  top: 25,
+};
+
+type AlphabetLetterProps &#x3D; {
+  index: number;
+  letter: string;
+  scrollableIndex: SharedValue&lt;number&gt;;
+};
+
+const AlphabetLetter &#x3D; ({
+  index,
+  letter,
+  scrollableIndex,
+}: AlphabetLetterProps) &#x3D;&gt; {
+  const styles &#x3D; useAnimatedStyle(() &#x3D;&gt; {
+    return {
+      opacity: interpolate(
+        scrollableIndex.value,
+        [index - 1, index, index + 1],
+        [0.5, 1, 0.5],
+        Extrapolation.CLAMP
+      ),
+      transform: [
+        {
+          scale: interpolate(
+            scrollableIndex.value,
+            [index - 2, index, index + 2],
+            [1, 1.5, 1],
+            Extrapolation.CLAMP
+          ),
+        },
+      ],
+    };
+  });
+
+  return (
+    &lt;Animated.View
+      style&#x3D;{[
+        {
+          position: &quot;relative&quot;,
+          alignItems: &quot;center&quot;,
+          justifyContent: &quot;center&quot;,
+          flexDirection: &quot;row&quot;,
+        },
+        styles,
+      ]}
+    &gt;
+      &lt;Animated.Text
+        style&#x3D;{[
+          {
+            color: Colors.textLight,
+            position: &quot;absolute&quot;,
+            fontFamily: &quot;Menlo&quot;,
+            left: -20,
+            fontWeight: &quot;900&quot;,
+          },
+        ]}
+      &gt;
+        {letter.toUpperCase()}
+      &lt;/Animated.Text&gt;
+    &lt;/Animated.View&gt;
+  );
+};
+
+function generateContactSections(contacts: Contact[]): ContactSectionsType[] {
+  const groupedContacts: { [key: string]: Contact[] } &#x3D; {};
+
+  contacts.forEach((contact) &#x3D;&gt; {
+    const firstLetter &#x3D; contact.name[0].toUpperCase();
+    if (!groupedContacts[firstLetter]) {
+      groupedContacts[firstLetter] &#x3D; [];
+    }
+    groupedContacts[firstLetter].push(contact);
+  });
+
+  const contactSections: ContactSectionsType[] &#x3D; Object.keys(groupedContacts)
+    .sort()
+    .map((letter, index) &#x3D;&gt; ({
+      title: letter,
+      index,
+      key: &#x60;list-${letter}&#x60;,
+      data: groupedContacts[letter],
+    }));
+
+  return contactSections;
+}
+
+export function ContactsListHeader({ title }: { title: string }) {
+  return (
+    &lt;View style&#x3D;{styles.sectionHeader}&gt;
+      &lt;Text style&#x3D;{styles.sectionHeaderText}&gt;{title}&lt;/Text&gt;
+    &lt;/View&gt;
+  );
+}
+
+export function ContactsListItem({ item }: { item: Contact }) {
+  const navigation &#x3D; useNavigation&lt;AuthenticatedStackProp&gt;();
+  const chatId &#x3D; [item.userId, item.contactId].sort().join(&quot;_&quot;);
+  const handleItemPress &#x3D; () &#x3D;&gt; {
+    navigation.navigate(&quot;Chats&quot;, {
+      screen: &quot;ChatDetails&quot;,
+      params: {
+        chatId: chatId,
+        contactId: item.userId,
+        contactName: item.name,
+        contactAvatar: item.avatar,
+      },
+    });
+  };
+  return (
+    &lt;TouchableOpacity style&#x3D;{styles.contactItem} onPress&#x3D;{handleItemPress}&gt;
+      &lt;Image source&#x3D;{{ uri: item.avatar }} style&#x3D;{styles.contactAvatar} /&gt;
+      &lt;View style&#x3D;{styles.contactInnerContainer}&gt;
+        &lt;Text style&#x3D;{styles.contactName}&gt;{item.name}&lt;/Text&gt;
+        &lt;Ionicons
+          name&#x3D;{&quot;chevron-forward-outline&quot;}
+          size&#x3D;{20}
+          color&#x3D;{Colors.primary}
+        /&gt;
+      &lt;/View&gt;
+    &lt;/TouchableOpacity&gt;
+  );
+}
+
+interface ContactSectionProps {
+  contactsData: Contact[];
+}
+
+export function ContactSection({ contactsData }: ContactSectionProps) {
+  const [contactItems, setContactItems] &#x3D; useState&lt;ContactSectionsType[]&gt;(
+    generateContactSections(contactsData)
+  );
+  const y &#x3D; useSharedValue(0);
+  const isInteracting &#x3D; useSharedValue(false);
+  const scrollableIndex &#x3D; useSharedValue(0);
+  const activeScrollIndex &#x3D; useSharedValue(0);
+  const alphabetRef &#x3D; useAnimatedRef&lt;View&gt;();
+  const scrollViewRef &#x3D; useRef&lt;SectionList&gt;(null);
+
+  const firstContactIndex &#x3D; alphabet.indexOf(
+    contactItems[0]?.title.toLowerCase() ?? alphabet.charAt(0)
+  );
+  const lastContactIndex &#x3D; alphabet.indexOf(
+    contactItems[contactItems.length - 1]?.title.toLowerCase() ??
+      alphabet.charAt(alphabet.length - 1)
+  );
+
+  const snapIndicatorTo &#x3D; (index: number) &#x3D;&gt; {
+    runOnUI(() &#x3D;&gt; {
+      if (scrollableIndex.value &#x3D;&#x3D;&#x3D; index || isInteracting.value) {
+        return;
+      }
+
+      const alphabetLayout &#x3D; measure(alphabetRef);
+      if (!alphabetLayout) {
+        return;
+      }
+
+      const snapBy &#x3D;
+        (alphabetLayout.height - KNOB_SIZE) / Math.max(1, alphabet.length - 1);
+      const snapTo &#x3D; index * snapBy;
+
+      y.value &#x3D; withTiming(snapTo);
+      scrollableIndex.value &#x3D; withTiming(index);
+    })();
+  };
+
+  const scrollToLocation &#x3D; (index: number) &#x3D;&gt; {
+    scrollViewRef.current?.scrollToLocation({
+      itemIndex: 0,
+      sectionIndex: index - firstContactIndex, // adjust for the first section header offset
+      animated: false,
+      viewOffset: 0,
+      viewPosition: 0,
+    });
+  };
+
+  const panGesture &#x3D; Gesture.Pan()
+    .averageTouches(true)
+    .onBegin(() &#x3D;&gt; {
+      isInteracting.value &#x3D; true;
+    })
+    .onChange((event) &#x3D;&gt; {
+      const alphabetLayout &#x3D; measure(alphabetRef);
+      if (!alphabetLayout) {
+        return;
+      }
+      y.value &#x3D; clamp(
+        (y.value +&#x3D; event.changeY),
+        alphabetLayout.y,
+        alphabetLayout.height - KNOB_SIZE
+      );
+
+      const snapBy &#x3D;
+        (alphabetLayout.height - KNOB_SIZE) / Math.max(1, alphabet.length - 1);
+
+      scrollableIndex.value &#x3D; y.value / snapBy;
+      const snapToIndex &#x3D; Math.round(scrollableIndex.value);
+      const clampedIndex &#x3D; Math.max(
+        // clamp the index to the first and last contact index
+        firstContactIndex,
+        Math.min(snapToIndex, lastContactIndex)
+      );
+      runOnJS(scrollToLocation)(clampedIndex);
+
+      if (clampedIndex !&#x3D;&#x3D; activeScrollIndex.value) {
+        activeScrollIndex.value &#x3D; clampedIndex;
+      }
+    })
+    .onEnd(() &#x3D;&gt; {
+      runOnJS(snapIndicatorTo)(activeScrollIndex.value);
+    })
+    .onFinalize(() &#x3D;&gt; {
+      isInteracting.value &#x3D; false;
+    });
+
+  const gestureDetectorAnimatedStyle &#x3D; useAnimatedStyle(() &#x3D;&gt; {
+    return {
+      transform: [
+        {
+          translateY: y.value,
+        },
+      ],
+    };
+  });
+
+  useEffect(() &#x3D;&gt; {
+    setContactItems(generateContactSections(contactsData));
+    // setContactItems(mockContacts);
+  }, [contactsData]);
+
+  const getItemLayout &#x3D; useMemo(() &#x3D;&gt; {
+    return sectionListGetItemLayout({
+      getItemHeight: () &#x3D;&gt; ITEM_HEIGHT,
+      getSectionHeaderHeight: () &#x3D;&gt; SECTION_HEADER_HEIGHT,
+    });
+  }, []);
+
+  const onViewableItemsChanged &#x3D; useMemo(
+    () &#x3D;&gt;
+      ({
+        viewableItems,
+      }: {
+        viewableItems: { section?: ContactSectionsType }[];
+      }) &#x3D;&gt; {
+        if (isInteracting.value) {
+          return;
+        }
+
+        const half &#x3D; Math.floor(viewableItems.length / 2);
+        const section &#x3D; viewableItems[half]?.section;
+        if (section) {
+          const { index } &#x3D; section as ContactSectionsType;
+          runOnJS(snapIndicatorTo)(index + firstContactIndex); // adjust for the first section header offset
+        }
+      },
+    []
+  );
+
+  return (
+    &lt;View style&#x3D;{styles.container}&gt;
+      {contactItems.length &gt; 0 &amp;&amp; (
+        &lt;SectionList
+          ref&#x3D;{scrollViewRef}
+          sections&#x3D;{contactItems}
+          stickySectionHeadersEnabled&#x3D;{false}
+          contentContainerStyle&#x3D;{{ paddingHorizontal: ITEM_SPACING * 2 }}
+          // @ts-ignore
+          getItemLayout&#x3D;{getItemLayout}
+          onViewableItemsChanged&#x3D;{onViewableItemsChanged}
+          renderSectionHeader&#x3D;{({ section: { title } }) &#x3D;&gt; (
+            &lt;ContactsListHeader title&#x3D;{title} /&gt;
+          )}
+          renderItem&#x3D;{({ item }) &#x3D;&gt; &lt;ContactsListItem item&#x3D;{item} /&gt;}
+          keyExtractor&#x3D;{(item) &#x3D;&gt; item.id}
+        /&gt;
+      )}
+      {contactItems.length &#x3D;&#x3D;&#x3D; 0 &amp;&amp; (
+        &lt;View style&#x3D;{{ flex: 1, justifyContent: &quot;center&quot; }}&gt;
+          &lt;Text style&#x3D;{styles.text}&gt;
+            No contacts added.{&quot;\n&quot;}Tap the + button to invite new friends!
+          &lt;/Text&gt;
+        &lt;/View&gt;
+      )}
+
+      {/* Alphabet Indicator */}
+      &lt;View
+        style&#x3D;{{
+          position: &quot;absolute&quot;,
+          right: -ALPHABET_INDICATOR_SIZE,
+          top: ALPHABET_INDICATOR_SIZE,
+          bottom: ALPHABET_INDICATOR_SIZE,
+        }}
+      &gt;
+        &lt;GestureDetector gesture&#x3D;{panGesture}&gt;
+          &lt;Animated.View
+            style&#x3D;{[styles.knob, gestureDetectorAnimatedStyle]}
+            hitSlop&#x3D;{HIT_SLOP}
+          /&gt;
+        &lt;/GestureDetector&gt;
+        &lt;View
+          ref&#x3D;{alphabetRef}
+          style&#x3D;{{
+            flex: 1,
+            width: 20,
+            justifyContent: &quot;space-around&quot;,
+          }}
+          pointerEvents&#x3D;&quot;box-none&quot;
+        &gt;
+          {[...Array(alphabet.length).keys()].map((i) &#x3D;&gt; {
+            return (
+              &lt;AlphabetLetter
+                key&#x3D;{i}
+                letter&#x3D;{alphabet.charAt(i)}
+                index&#x3D;{i}
+                scrollableIndex&#x3D;{scrollableIndex}
+              /&gt;
+            );
+          })}
+        &lt;/View&gt;
+      &lt;/View&gt;
+    &lt;/View&gt;
+  );
+}
+
+const styles &#x3D; StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  sectionHeader: {
+    height: SECTION_HEADER_HEIGHT,
+    justifyContent: &quot;center&quot;,
+    paddingLeft: 10,
+  },
+  sectionHeaderText: {
+    fontSize: 20,
+    fontWeight: &quot;900&quot;,
+    color: Colors.textLight,
+  },
+  text: {
+    color: Colors.textLight,
+    textAlign: &quot;center&quot;,
+  },
+  contactItem: {
+    flexDirection: &quot;row&quot;,
+    alignItems: &quot;center&quot;,
+    padding: 10,
+    height: ITEM_HEIGHT,
+  },
+  contactInnerContainer: {
+    flexDirection: &quot;row&quot;,
+    borderBottomColor: Colors.primary,
+    borderBottomWidth: 0.5,
+    width: &quot;80%&quot;,
+    height: &quot;100%&quot;,
+    marginLeft: 5,
+    paddingLeft: 5,
+    paddingBottom: 3,
+    justifyContent: &quot;space-between&quot;,
+  },
+  contactAvatar: {
+    marginRight: 10,
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+  },
+  contactName: {
+    color: Colors.primary,
+  },
+  knob: {
+    width: KNOB_SIZE,
+    height: KNOB_SIZE,
+    // borderWidth: 4, // for debugging uncomment to see the knob
+    borderColor: Colors.primary,
+    position: &quot;absolute&quot;,
+    right: KNOB_SIZE,
+    zIndex: 1,
+  },
+});
+
+export default ContactSection;
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'ContactSectionProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
