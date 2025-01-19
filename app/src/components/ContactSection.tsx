@@ -28,7 +28,7 @@ import { Colors } from "../styles/commonStyles";
 import { alphabet } from "../utils/utils";
 import { mockContacts } from "../tests/mockData";
 import { useNavigation } from "@react-navigation/native";
-import { AuthenticatedStackProp, ChatsStackParamList } from "../../App";
+import { AuthenticatedStackProp } from "../../App";
 
 const ITEM_SPACING = 8;
 const AVATAR_SIZE = 36;
@@ -140,7 +140,7 @@ export function ContactsListItem({ item }: { item: Contact }) {
   const navigation = useNavigation<AuthenticatedStackProp>();
   const chatId = [item.userId, item.contactId].sort().join("_");
   const handleItemPress = () => {
-    navigation.navigate("Chats", {
+    navigation.navigate("InteractionStack", {
       screen: "ChatDetails",
       params: {
         chatId: chatId,

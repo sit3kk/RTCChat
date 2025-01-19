@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, DeviceEventEmitter } from "react-native";
+import { View, StyleSheet, Text, DeviceEventEmitter } from "react-native";
 import { useUserData } from "../store/UserDataProvider";
 import { Invitation } from "../types/commonTypes";
 import {
@@ -8,11 +8,41 @@ import {
   acceptInvitation,
   rejectInvitation,
 } from "../services/contactService";
+import { SafeAreaView } from "react-native-safe-area-context";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import LoadingScreen from "./LoadingScreen";
 import PendingInvitations from "../components/PendingInvitations";
 import InviteForm from "../components/InviteForm";
 import { mockInvitations } from "../tests/mockData";
+import { AuthenticatedStackProp } from "../../App";
+import { useNavigation } from "@react-navigation/native";
+import IconButton from "../components/ui/IconButton";
+import { Colors } from "../styles/commonStyles";
+
+const InvitationsHeader: React.FC = () => {
+  const navigation = useNavigation<AuthenticatedStackProp>();
+  return (
+    <View style={styles.header}>
+      <View style={{ flexDirection: "row", gap: 15 }}>
+        <IconButton
+          name="arrow-back"
+          size={24}
+          onPress={() => navigation.goBack()}
+        />
+        <Text style={{ fontSize: 18, color: Colors.textLight }}>Back</Text>
+      </View>
+      <Text
+        style={{
+          fontSize: 32,
+          fontWeight: "bold",
+          color: Colors.textLight,
+        }}
+      >
+        Invitations
+      </Text>
+    </View>
+  );
+};
 
 const InvitationsScreen: React.FC = () => {
   const { userId, userName } = useUserData();
@@ -83,29 +113,44 @@ const InvitationsScreen: React.FC = () => {
   return (
     <>
       <DiamondBackground />
-      {loading && <LoadingScreen />}
-      {!loading && (
-        <View style={styles.container}>
-          <InviteForm
-            invitationCode={invitationCode}
-            setInvitationCode={setInvitationCode}
-            handleSendInvitation={handleSendInvitation}
-            status={status}
-          />
+      <SafeAreaView style={styles.container}>
+        <InvitationsHeader />
+        {loading && <LoadingScreen />}
+        {!loading && (
+          <View style={styles.innerContainer}>
+            <InviteForm
+              invitationCode={invitationCode}
+              setInvitationCode={setInvitationCode}
+              handleSendInvitation={handleSendInvitation}
+              status={status}
+            />
 
-          <PendingInvitations
-            invitations={invitations}
-            handleAcceptInvitation={handleAcceptInvitation}
-            handleRejectInvitation={handleRejectInvitation}
-          />
-        </View>
-      )}
+            <PendingInvitations
+              invitations={invitations}
+              handleAcceptInvitation={handleAcceptInvitation}
+              handleRejectInvitation={handleRejectInvitation}
+            />
+          </View>
+        )}
+      </SafeAreaView>
     </>
   );
 };
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: Colors.background,
+  },
   container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  innerContainer: {
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",

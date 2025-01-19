@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { View, Text, StyleSheet, DeviceEventEmitter } from "react-native";
+import { View, StyleSheet, DeviceEventEmitter } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useUserData } from "../store/UserDataProvider";
 import SearchBar from "../components/ui/SearchBar";
-import { Colors } from "../styles/commonStyles";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import ContactSection from "../components/ContactSection";
 import { Contact } from "../types/commonTypes";
