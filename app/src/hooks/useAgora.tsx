@@ -30,7 +30,8 @@ const useAgora = (callType: "audio" | "video") => {
   const engineRef = useRef<IRtcEngine | null>(null);
   const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
   const [isJoined, setIsJoined] = useState<boolean>(false);
-  const [remoteUid, setRemoteUid] = useState<number[]>([]);
+  const [remoteUid, setRemoteUid] = useState<number>(0);
+  // const [remoteUid, setRemoteUid] = useState<number[]>([]);
   const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -68,13 +69,15 @@ const useAgora = (callType: "audio" | "video") => {
         setIsJoined(true);
         console.log("Join channel success");
       },
-      onUserJoined: (_connection, uid, _elapsed) => {
-        console.log("Remote user joined:", uid);
-        setRemoteUid((prevUids) => [...prevUids, uid]);
+      onUserJoined: (_connection, remoteUid, _elapsed) => {
+        console.log("Remote user joined:", remoteUid);
+        // setRemoteUid((prevUids) => [...prevUids, uid]);
+        setRemoteUid(remoteUid);
       },
       onUserOffline: (_connection, uid, _reason) => {
         console.log("Remote user offline:", uid);
-        setRemoteUid((prevUids) => prevUids.filter((id) => id !== uid));
+        // setRemoteUid((prevUids) => prevUids.filter((id) => id !== uid));
+        setRemoteUid(0);
       },
     };
 
@@ -89,15 +92,23 @@ const useAgora = (callType: "audio" | "video") => {
 
   const joinChannel = useCallback(async () => {
     if (!engineRef.current) return;
+
+    const joinChannelVideoOptions = {
+      autoSubscribeVideo: true,
+      publishCameraTrack: true,
+    };
+
     try {
       engineRef.current?.joinChannel(token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
         autoSubscribeAudio: true,
+        publishMicrophoneTrack: true,
+        ...(callType === "video" ? joinChannelVideoOptions : {}),
       });
     } catch (error) {
       console.warn("Join channel error", error);
     }
-  }, [token, channelName, uid]);
+  }, [callType, token, channelName, uid]);
 
   const leaveChannel = async () => {
     if (!engineRef.current) return;
@@ -123,12 +134,12 @@ const useAgora = (callType: "audio" | "video") => {
 
   const destroy = useCallback(async () => {
     if (!engineRef.current) return;
-    await engineRef.current.leaveChannel();
+    engineRef.current.leaveChannel();
     engineRef.current.unregisterEventHandler(eventHandlerRef.current!);
     engineRef.current?.release();
     engineRef.current = null;
     setIsJoined(false);
-    setRemoteUid([]);
+    // setRemoteUid(0);
   }, []);
 
   useEffect(() => {

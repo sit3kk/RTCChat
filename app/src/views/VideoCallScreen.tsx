@@ -131,10 +131,10 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 
         <View style={styles.videoCallPartnerContainer}>
           <View style={styles.callPartnerVideoView}>
-            {remoteUid.at(0) !== 0 ? ( // TODO: tmp condition for remoteUid
+            {remoteUid !== 0 ? ( // TODO: tmp condition for remoteUid
               <RtcSurfaceView
                 style={{ width: "100%", height: "100%" }}
-                canvas={{ uid: remoteUid.at(0) }} // TODO: we assume that uid is at index 0
+                canvas={{ uid: remoteUid }} // TODO: we assume that uid is at index 0
               />
             ) : (
               <>
@@ -252,6 +252,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 30,
-    zIndex: 1,
   },
 });
