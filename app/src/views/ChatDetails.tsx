@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -102,6 +102,7 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
   const { userId, userName } = useUserData();
   const navigation = useNavigation<AuthenticatedStackProp>();
   const messages = useChatMessages(chatId, userId);
+  const messagesListRef = useRef(null);
 
   const initiateCall = async (callType: "audio" | "video") => {
     try {
@@ -130,6 +131,13 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
     return <ChatMessageItem item={item} userId={userId} />;
   };
 
+  const scrollToBottom = () => {
+    if (messagesListRef.current) {
+      // @ts-ignore
+      messagesListRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
   const headerHeight = useHeaderHeight();
   return (
     <KeyboardAvoidingView
@@ -151,6 +159,10 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messagesContainer}
+          ref={messagesListRef}
+          onContentSizeChange={() => {
+            scrollToBottom();
+          }}
         />
 
         {/* Message Input */}
@@ -163,6 +175,11 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
             placeholder="Type a message..."
             style={{ marginLeft: 5, color: Colors.textLight }}
             width={"80%"}
+            onPress={() => {
+              setTimeout(() => {
+                scrollToBottom();
+              }, 250);
+            }}
           />
           <IconButton
             name="send"
