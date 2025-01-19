@@ -1,9 +1,20 @@
-#ifndef BIG_INT_UTILS_HPP
-#define BIG_INT_UTILS_HPP
+#ifndef BIGINT_UTILS_HPP
+#define BIGINT_UTILS_HPP
 
-#include <gmpxx.h>
+#include <concepts>
 
+// Concept for modular arithmetic
 template <typename T>
+concept ModularType = requires(T a, T b, T c) {
+    { a % b } -> std::convertible_to<T>;
+    { a * b } -> std::convertible_to<T>;
+    { a / b } -> std::convertible_to<T>;
+    { a - b } -> std::convertible_to<T>;
+    { a + b } -> std::convertible_to<T>;
+};
+
+// Declaration of BigIntUtils with concept validation
+template <ModularType T>
 class BigIntUtils {
 public:
     static T modExp(T base, T exp, T mod);
@@ -11,4 +22,4 @@ public:
 
 #include "BigIntUtils.tpp"
 
-#endif // BIG_INT_UTILS_HPP
+#endif // BIGINT_UTILS_HPP

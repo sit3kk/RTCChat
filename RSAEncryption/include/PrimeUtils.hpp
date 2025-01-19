@@ -3,7 +3,15 @@
 
 #include <gmpxx.h>
 
+// Koncept dla liczb całkowitych
 template <typename T>
+concept IntegerType = requires(T a, T b) {
+    { a % b } -> std::convertible_to<T>;
+    { a / b } -> std::convertible_to<T>;
+    { a > b } -> std::convertible_to<bool>;
+};
+
+template <IntegerType T>
 class PrimeUtils {
 public:
     static bool isPrime(T num);
