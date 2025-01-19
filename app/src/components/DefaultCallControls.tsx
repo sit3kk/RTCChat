@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     paddingHorizontal: 10,
     marginBottom: 40,
+    zIndex: 25, // to make sure it's above the InactiveCallOverlay
   },
   controlButton: {
     alignItems: "center",
