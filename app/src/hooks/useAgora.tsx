@@ -21,11 +21,11 @@ const config = {
   appId: "f2f502f3c8ee422b9511b9d0c04e6821",
   channelName: "test",
   token:
-    "007eJxTYDi1V8Quy9dq9dRuRf83y2X3qUmmbk+JFd15d8vJC5VrjzQqMKQZpZkaGKUZJ1ukppoYGSVZmhoaJlmmGCQbmKSaWRgZJs1rTm8IZGR4M20xAyMUgvgsDCWpxSUMDABbnyA3",
+    "007eJxTYGBVmr+g/fnecKfVm/ZeMMnZJ8T+YHbw5su7CpTuWDKtFSxRYEgzSjM1MEozTrZITTUxMkqyNDU0TLJMMUg2MEk1szAyfM7am94QyMhgn9bIzMgAgSA+C0NJanEJAwMAN0Qesw==",
   uid: 0,
 } as AgoraConfig;
 
-const useAgora = () => {
+const useAgora = (callType: "audio" | "video") => {
   const { appId, channelName, token, uid } = config;
   const engineRef = useRef<IRtcEngine | null>(null);
   const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
@@ -80,8 +80,11 @@ const useAgora = () => {
 
     engineRef.current.registerEventHandler(eventHandlerRef.current);
 
-    // await engineRef.current.enableAudio();
-    engineRef.current.enableVideo();
+    if (callType === "audio") {
+      engineRef.current.enableAudio();
+    } else {
+      engineRef.current.enableVideo();
+    }
   }, [appId, permissionsGranted]);
 
   const joinChannel = useCallback(async () => {
@@ -102,19 +105,19 @@ const useAgora = () => {
     setIsJoined(false);
   };
 
-  const toggleMute = (mute: boolean) => {
+  const toggleMute = async (mute: boolean) => {
     engineRef.current?.muteLocalAudioStream(mute);
   };
 
-  const setSpeakerphoneOn = (on: boolean) => {
+  const setSpeakerphoneOn = async (on: boolean) => {
     engineRef.current?.setEnableSpeakerphone(on);
   };
 
-  const toggleCamera = useCallback((enable: boolean) => {
+  const toggleCamera = useCallback(async (enable: boolean) => {
     engineRef.current?.muteLocalVideoStream(!enable);
   }, []);
 
-  const switchCamera = useCallback(() => {
+  const switchCamera = useCallback(async () => {
     engineRef.current?.switchCamera();
   }, []);
 

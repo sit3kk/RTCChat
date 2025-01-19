@@ -20,13 +20,14 @@ interface AudioCallScreenProps {
 const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
   const navigation = useNavigation();
   const { callData } = route.params;
-  const { callPartner, callSessionId } = callData;
+  const { callPartner, callSessionId, callType } = callData;
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
   const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
 
-  const { isJoined, leaveChannel, toggleMute, setSpeakerphoneOn } = useAgora();
+  const { isJoined, leaveChannel, toggleMute, setSpeakerphoneOn } =
+    useAgora(callType);
 
   useEffect(() => {
     const unsubscribe = subscribeToCallSession(
@@ -34,11 +35,10 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
       (data) => {
         if (["rejected", "ended"].includes(data.status)) {
           setIsCallActive(false);
-          Alert.alert(
-            "Information",
-            `The other party has ${data.status} the call.`
-          );
-          setTimeout(() => navigation.goBack(), 2000);
+          // Alert.alert(
+          //   "Information",
+          //   `The other party has ${data.status} the call.`
+          // );
         }
       },
       console.error
