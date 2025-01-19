@@ -175,6 +175,7 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
             placeholder="Type a message..."
             style={{ marginLeft: 5, color: Colors.textLight }}
             width={"80%"}
+            textAlign="left"
             onPress={() => {
               setTimeout(() => {
                 scrollToBottom();
