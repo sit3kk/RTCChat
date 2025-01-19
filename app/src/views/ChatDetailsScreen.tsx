@@ -141,14 +141,14 @@ const ChatDetailsScreen: React.FC<{ route: InteractionStackRouteProp }> = ({
 
   const headerHeight = useHeaderHeight();
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={headerHeight}
-      style={{ flex: 1 }}
-    >
-      <>
-        <DiamondBackground />
-        <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={headerHeight}
+        style={{ flex: 1 }}
+      >
+        <>
+          <DiamondBackground />
           <ChatHeader
             contactName={contactName}
             contactAvatar={contactAvatar}
@@ -194,9 +194,9 @@ const ChatDetailsScreen: React.FC<{ route: InteractionStackRouteProp }> = ({
               }}
             />
           </View>
-        </SafeAreaView>
-      </>
-    </KeyboardAvoidingView>
+        </>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -205,6 +205,7 @@ export default ChatDetailsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
