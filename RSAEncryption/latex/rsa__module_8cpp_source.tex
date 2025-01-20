@@ -1,0 +1,86 @@
+\doxysection{rsa\+\_\+module.\+cpp}
+\hypertarget{rsa__module_8cpp_source}{}\label{rsa__module_8cpp_source}\index{src/rsa\_module.cpp@{src/rsa\_module.cpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <sstream>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}RSAKeyGenerator.hpp"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}RSAEncryptor.hpp"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}RSAKeyExporter.hpp"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <gmpxx.h>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ generateKeys(\textcolor{keywordtype}{int}\ minPrimeBits)\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{using\ }MyType\ =\ mpz\_class;}
+\DoxyCodeLine{00013\ \ \ \ \ MyType\ min\ =\ MyType(1)\ <<\ (minPrimeBits\ -\/\ 1);}
+\DoxyCodeLine{00014\ \ \ \ \ MyType\ max\ =\ (MyType(1)\ <<\ minPrimeBits)\ -\/\ 1;}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{auto}\ [publicKey,\ privateKey]\ =\ RSAKeyGenerator<MyType>::generateKeys(min,\ max);}
+\DoxyCodeLine{00017\ \ \ \ \ std::string\ publicKeyJSON\ =\ \mbox{\hyperlink{class_r_s_a_key_exporter}{RSAKeyExporter<MyType>::exportPublicKeyToJSON}}(publicKey);}
+\DoxyCodeLine{00018\ \ \ \ \ std::string\ privateKeyJSON\ =\ \mbox{\hyperlink{class_r_s_a_key_exporter}{RSAKeyExporter<MyType>::exportPrivateKeyToJSON}}(privateKey);}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ std::string\ result\ =\ \textcolor{stringliteral}{"{}\{\(\backslash\)"{}publicKey\(\backslash\)"{}:\ "{}}\ +\ publicKeyJSON\ +\ \textcolor{stringliteral}{"{},\ \(\backslash\)"{}privateKey\(\backslash\)"{}:\ "{}}\ +\ privateKeyJSON\ +\ \textcolor{stringliteral}{"{}\}"{}};}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordflow}{return}\ strdup(result.c\_str());}
+\DoxyCodeLine{00022\ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ encryptMessage(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ message,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ publicKeyJSON)\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{using\ }MyType\ =\ mpz\_class;}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{auto}\ publicKey\ =\ RSAKeyGenerator<MyType>::importPublicKeyFromJSON(publicKeyJSON);}
+\DoxyCodeLine{00028\ \ \ \ \ MyType\ e\ =\ publicKey.first;}
+\DoxyCodeLine{00029\ \ \ \ \ MyType\ n\ =\ publicKey.second;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{auto}\ encryptedBlocks\ =\ RSAEncryptor<MyType>::encryptMessage(std::string(message),\ e,\ n);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ std::string\ encrypted;}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ block\ :\ encryptedBlocks)\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ encrypted\ +=\ block.get\_str()\ +\ \textcolor{stringliteral}{"{},"{}};}
+\DoxyCodeLine{00036\ \ \ \ \ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordflow}{return}\ strdup(encrypted.c\_str());}
+\DoxyCodeLine{00039\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ decryptMessage(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ encryptedMessage,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ privateKeyJSON)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{using\ }MyType\ =\ mpz\_class;}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keyword}{auto}\ privateKey\ =\ RSAKeyGenerator<MyType>::importPrivateKeyFromJSON(privateKeyJSON);}
+\DoxyCodeLine{00045\ \ \ \ \ MyType\ d\ =\ privateKey.first;}
+\DoxyCodeLine{00046\ \ \ \ \ MyType\ n\ =\ privateKey.second;}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ std::vector<MyType>\ encryptedBlocks;}
+\DoxyCodeLine{00049\ \ \ \ \ std::istringstream\ iss(std::string(encryptedMessage));}
+\DoxyCodeLine{00050\ \ \ \ \ std::string\ block;}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordflow}{while}\ (std::getline(iss,\ block,\ \textcolor{charliteral}{','}))\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ encryptedBlocks.emplace\_back(block);}
+\DoxyCodeLine{00053\ \ \ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ std::string\ decryptedMessage\ =\ RSAEncryptor<MyType>::decryptMessage(encryptedBlocks,\ d,\ n);}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{return}\ strdup(decryptedMessage.c\_str());}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ generateSignature(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ message,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ privateKeyJSON)\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keyword}{using\ }MyType\ =\ mpz\_class;}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keyword}{auto}\ privateKey\ =\ RSAKeyGenerator<MyType>::importPrivateKeyFromJSON(privateKeyJSON);}
+\DoxyCodeLine{00063\ \ \ \ \ MyType\ d\ =\ privateKey.first;}
+\DoxyCodeLine{00064\ \ \ \ \ MyType\ n\ =\ privateKey.second;}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ MyType\ signature\ =\ RSAEncryptor<MyType>::generateSignature(std::string(message),\ d,\ n);}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{return}\ strdup(signature.get\_str().c\_str());}
+\DoxyCodeLine{00068\ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{keywordtype}{bool}\ verifySignature(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ signatureStr,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ message,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ publicKeyJSON)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keyword}{using\ }MyType\ =\ mpz\_class;}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{auto}\ publicKey\ =\ RSAKeyGenerator<MyType>::importPublicKeyFromJSON(publicKeyJSON);}
+\DoxyCodeLine{00074\ \ \ \ \ MyType\ e\ =\ publicKey.first;}
+\DoxyCodeLine{00075\ \ \ \ \ MyType\ n\ =\ publicKey.second;}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ MyType\ signature(signatureStr);}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordflow}{return}\ RSAEncryptor<MyType>::verifySignature(signature,\ std::string(message),\ e,\ n);}
+\DoxyCodeLine{00079\ \}}
+\DoxyCodeLine{00080\ \}}
+
+\end{DoxyCode}

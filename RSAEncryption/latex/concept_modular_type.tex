@@ -1,0 +1,13 @@
+\doxysection{Modular\+Type Concept Reference}
+\hypertarget{concept_modular_type}{}\label{concept_modular_type}\index{ModularType@{ModularType}}
+\doxysubsection{Concept definition}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{\textcolor{keyword}{concept\ }\mbox{\hyperlink{concept_modular_type}{ModularType}}\ =\ \ \textcolor{keyword}{requires}(T\ a,\ T\ b)\ \{}
+\DoxyCodeLine{\ \ \ \ \{\ a\ \%\ b\ \};}
+\DoxyCodeLine{\ \ \ \ \{\ a\ *\ b\ \};}
+\DoxyCodeLine{\ \ \ \ \{\ a\ /\ b\ \};}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}

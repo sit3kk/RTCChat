@@ -1,0 +1,13 @@
+\doxysection{Integer\+Type Concept Reference}
+\hypertarget{concept_integer_type}{}\label{concept_integer_type}\index{IntegerType@{IntegerType}}
+\doxysubsection{Concept definition}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{\textcolor{keyword}{concept\ }\mbox{\hyperlink{concept_integer_type}{IntegerType}}\ =\ \ \textcolor{keyword}{requires}(T\ a,\ T\ b)\ \{}
+\DoxyCodeLine{\ \ \ \ \{\ a\ \%\ b\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{\ \ \ \ \{\ a\ /\ b\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{\ \ \ \ \{\ a\ >\ b\ \}\ -\/>\ std::convertible\_to<bool>;}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}

@@ -1,0 +1,115 @@
+\doxysection{RSACertificate\+Manager.\+tpp}
+\hypertarget{_r_s_a_certificate_manager_8tpp_source}{}\label{_r_s_a_certificate_manager_8tpp_source}\index{include/RSACertificateManager.tpp@{include/RSACertificateManager.tpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \#ifndef\ RSA\_CERTIFICATE\_MANAGER\_TPP}
+\DoxyCodeLine{00002\ \#define\ RSA\_CERTIFICATE\_MANAGER\_TPP}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \#include\ "{}RSACertificateManager.hpp"{}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ template\ <typename\ T>}
+\DoxyCodeLine{00007\ RSACertificate<T>::RSACertificate(const\ std::string\&\ ownerName,\ const\ std::pair<T,\ T>\&\ publicKey,\ const\ T\&\ privateKey,\ const\ T\&\ n)}
+\DoxyCodeLine{00008\ \ \ \ \ :\ ownerName(ownerName),\ publicKey(publicKey)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ std::string\ certificateData\ =\ ownerName\ +\ publicKey.first.get\_str()\ +\ publicKey.second.get\_str();}
+\DoxyCodeLine{00010\ \ \ \ \ signature\ =\ RSAEncryptor<T>::generateSignature(certificateData,\ privateKey,\ n);}
+\DoxyCodeLine{00011\ \}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ template\ <typename\ T>}
+\DoxyCodeLine{00014\ const\ std::string\&\ RSACertificate<T>::getOwnerName()\ const\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ return\ ownerName;}
+\DoxyCodeLine{00016\ \}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ template\ <typename\ T>}
+\DoxyCodeLine{00019\ const\ std::pair<T,\ T>\&\ RSACertificate<T>::getPublicKey()\ const\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ return\ publicKey;}
+\DoxyCodeLine{00021\ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ template\ <typename\ T>}
+\DoxyCodeLine{00024\ const\ T\&\ RSACertificate<T>::getSignature()\ const\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ return\ signature;}
+\DoxyCodeLine{00026\ \}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ template\ <typename\ T>}
+\DoxyCodeLine{00029\ template\ <typename\ Format>}
+\DoxyCodeLine{00030\ std::string\ RSACertificate<T>::exportCertificate()\ const\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ if\ constexpr\ (std::is\_same\_v<Format,\ PGPFormat>)\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ std::string\ data\ =\ ownerName\ +\ "{}\(\backslash\)n"{}\ +}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ "{}e="{}\ +\ publicKey.first.get\_str()\ +\ "{}\(\backslash\)n"{}\ +}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ "{}n="{}\ +\ publicKey.second.get\_str()\ +\ "{}\(\backslash\)n"{}\ +}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ "{}signature="{}\ +\ signature.get\_str();}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ return\ exportPGPMessage(data);}
+\DoxyCodeLine{00037\ \ \ \ \ \}\ else\ if\ constexpr\ (std::is\_same\_v<Format,\ JSONFormat>)\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ std::ostringstream\ oss;}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ oss\ <<\ "{}\{\(\backslash\)n"{}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\ \ \(\backslash\)"{}ownerName\(\backslash\)"{}:\ \(\backslash\)"{}"{}\ <<\ ownerName\ <<\ "{}\(\backslash\)"{},\(\backslash\)n"{}}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\ \ \(\backslash\)"{}publicKey\(\backslash\)"{}:\ \{\(\backslash\)n"{}}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\ \ \ \ \(\backslash\)"{}e\(\backslash\)"{}:\ \(\backslash\)"{}"{}\ <<\ publicKey.first.get\_str()\ <<\ "{}\(\backslash\)"{},\(\backslash\)n"{}}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\ \ \ \ \(\backslash\)"{}n\(\backslash\)"{}:\ \(\backslash\)"{}"{}\ <<\ publicKey.second.get\_str()\ <<\ "{}\(\backslash\)"{}\(\backslash\)n"{}}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\ \ \},\(\backslash\)n"{}}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\ \ \(\backslash\)"{}signature\(\backslash\)"{}:\ \(\backslash\)"{}"{}\ <<\ signature.get\_str()\ <<\ "{}\(\backslash\)"{}\(\backslash\)n"{}}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}\}"{};}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ return\ oss.str();}
+\DoxyCodeLine{00048\ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Unsupported\ format\ for\ certificate\ export"{});}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ template\ <typename\ T>}
+\DoxyCodeLine{00054\ template\ <typename\ Format>}
+\DoxyCodeLine{00055\ RSACertificate<T>\ RSACertificate<T>::importCertificate(const\ std::string\&\ data)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ std::string\ ownerName;}
+\DoxyCodeLine{00057\ \ \ \ \ std::pair<T,\ T>\ publicKey;}
+\DoxyCodeLine{00058\ \ \ \ \ T\ signature;}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ if\ constexpr\ (std::is\_same\_v<Format,\ PGPFormat>)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ std::string\ decoded\ =\ importPGPMessage(data);}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ size\_t\ ownerEnd\ =\ decoded.find('\(\backslash\)n');}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ ownerName\ =\ decoded.substr(0,\ ownerEnd);}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ size\_t\ ePos\ =\ decoded.find("{}e="{},\ ownerEnd)\ +\ 2;}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ size\_t\ nPos\ =\ decoded.find("{}n="{},\ ePos);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ size\_t\ sigPos\ =\ decoded.find("{}signature="{},\ nPos);}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ publicKey.first\ =\ T(decoded.substr(ePos,\ nPos\ -\/\ ePos\ -\/\ 1));}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ publicKey.second\ =\ T(decoded.substr(nPos\ +\ 2,\ sigPos\ -\/\ nPos\ -\/\ 3));}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ signature\ =\ T(decoded.substr(sigPos\ +\ 10));}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \}\ else\ if\ constexpr\ (std::is\_same\_v<Format,\ JSONFormat>)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ auto\ start\ =\ data.find("{}\{"{});}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ auto\ end\ =\ data.rfind("{}\}"{});}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ if\ (start\ ==\ std::string::npos\ ||\ end\ ==\ std::string::npos)\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Invalid\ JSON\ certificate\ format"{});}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ auto\ ownerStart\ =\ data.find("{}\(\backslash\)"{}ownerName\(\backslash\)"{}:\ \(\backslash\)"{}"{},\ start)\ +\ 14;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ auto\ ownerEnd\ =\ data.find("{}\(\backslash\)"{}"{},\ ownerStart);}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ ownerName\ =\ data.substr(ownerStart,\ ownerEnd\ -\/\ ownerStart);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ auto\ eStart\ =\ data.find("{}\(\backslash\)"{}e\(\backslash\)"{}:\ \(\backslash\)"{}"{},\ ownerEnd)\ +\ 6;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ auto\ eEnd\ =\ data.find("{}\(\backslash\)"{}"{},\ eStart);}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ publicKey.first\ =\ T(data.substr(eStart,\ eEnd\ -\/\ eStart));}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ auto\ nStart\ =\ data.find("{}\(\backslash\)"{}n\(\backslash\)"{}:\ \(\backslash\)"{}"{},\ eEnd)\ +\ 6;}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ auto\ nEnd\ =\ data.find("{}\(\backslash\)"{}"{},\ nStart);}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ publicKey.second\ =\ T(data.substr(nStart,\ nEnd\ -\/\ nStart));}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ auto\ sigStart\ =\ data.find("{}\(\backslash\)"{}signature\(\backslash\)"{}:\ \(\backslash\)"{}"{},\ nEnd)\ +\ 14;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ auto\ sigEnd\ =\ data.find("{}\(\backslash\)"{}"{},\ sigStart);}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ signature\ =\ T(data.substr(sigStart,\ sigEnd\ -\/\ sigStart));}
+\DoxyCodeLine{00095\ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Unsupported\ format\ for\ certificate\ import"{});}
+\DoxyCodeLine{00097\ \ \ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ return\ RSACertificate<T>(ownerName,\ publicKey,\ signature,\ publicKey.second);}
+\DoxyCodeLine{00100\ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ template\ <typename\ T>}
+\DoxyCodeLine{00103\ void\ RSACertificate<T>::display()\ const\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ std::cout\ <<\ "{}Owner\ Name:\ "{}\ <<\ ownerName\ <<\ "{}\(\backslash\)n"{}}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}Public\ Key:\ (e="{}\ <<\ publicKey.first.get\_str()\ <<\ "{},\ n="{}\ <<\ publicKey.second.get\_str()\ <<\ "{})\(\backslash\)n"{}}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ "{}Signature:\ "{}\ <<\ signature.get\_str()\ <<\ "{}\(\backslash\)n"{};}
+\DoxyCodeLine{00107\ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \#endif\ //\ RSA\_CERTIFICATE\_MANAGER\_TPP}
+
+\end{DoxyCode}

@@ -1,0 +1,204 @@
+\doxysection{RSAEncryptor.\+tpp}
+\hypertarget{_r_s_a_encryptor_8tpp_source}{}\label{_r_s_a_encryptor_8tpp_source}\index{include/RSAEncryptor.tpp@{include/RSAEncryptor.tpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \#ifndef\ RSA\_ENCRYPTOR\_TPP}
+\DoxyCodeLine{00002\ \#define\ RSA\_ENCRYPTOR\_TPP}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \#include\ "{}RSAEncryptor.hpp"{}}
+\DoxyCodeLine{00005\ \#include\ "{}BigIntUtils.hpp"{}}
+\DoxyCodeLine{00006\ \#include\ "{}PaddingUtils.hpp"{}}
+\DoxyCodeLine{00007\ \#include\ <openssl/sha.h>}
+\DoxyCodeLine{00008\ \#include\ <sstream>}
+\DoxyCodeLine{00009\ \#include\ <vector>}
+\DoxyCodeLine{00010\ \#include\ <random>}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ static\ std::vector<uint8\_t>\ generateRandomBytes(size\_t\ length)\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ std::random\_device\ rd;}
+\DoxyCodeLine{00014\ \ \ \ \ std::mt19937\ gen(rd());}
+\DoxyCodeLine{00015\ \ \ \ \ std::uniform\_int\_distribution<unsigned\ char>\ dist(1,\ 255);}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ std::vector<uint8\_t>\ randomBytes(length);}
+\DoxyCodeLine{00018\ \ \ \ \ for\ (auto\ \&byte\ :\ randomBytes)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ byte\ =\ dist(gen);}
+\DoxyCodeLine{00020\ \ \ \ \ \}}
+\DoxyCodeLine{00021\ \ \ \ \ return\ randomBytes;}
+\DoxyCodeLine{00022\ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ std::vector<uint8\_t>\ sha256(const\ std::string\&\ message)\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ std::vector<uint8\_t>\ hash(SHA256\_DIGEST\_LENGTH);}
+\DoxyCodeLine{00026\ \ \ \ \ SHA256(reinterpret\_cast<const\ uint8\_t*>(message.data()),\ message.size(),\ hash.data());}
+\DoxyCodeLine{00027\ \ \ \ \ return\ hash;}
+\DoxyCodeLine{00028\ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ template\ <Encryptable\ T>}
+\DoxyCodeLine{00031\ T\ RSAEncryptor<T>::encryptNumber(T\ data,\ T\ e,\ T\ n)\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ return\ BigIntUtils<T>::modExp(data,\ e,\ n);}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ template\ <Encryptable\ T>}
+\DoxyCodeLine{00036\ T\ RSAEncryptor<T>::decryptNumber(T\ data,\ T\ d,\ T\ n)\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ return\ BigIntUtils<T>::modExp(data,\ d,\ n);}
+\DoxyCodeLine{00038\ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ template\ <Encryptable\ T>}
+\DoxyCodeLine{00042\ std::vector<T>\ RSAEncryptor<T>::encryptMessage(const\ std::string\&\ message,\ T\ e,\ T\ n)\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ size\_t\ bitSize\ =\ mpz\_sizeinbase(n.get\_mpz\_t(),\ 2);}
+\DoxyCodeLine{00044\ \ \ \ \ size\_t\ k\ =\ (bitSize\ +\ 7)\ /\ 8;\ }
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ if\ (k\ <\ 11)\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ throw\ std::runtime\_error("{}encryptMessage:\ Key\ size\ too\ small\ for\ PKCS\#1\ v1.5"{});}
+\DoxyCodeLine{00048\ \ \ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ size\_t\ maxDataPerBlock\ =\ k\ -\/\ 11;\ }
+\DoxyCodeLine{00051\ \ \ \ \ std::vector<std::string>\ chunks;}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ std::string\ paddedMessage\ =\ addPadding(message,\ k\ -\/\ 11);}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ paddedMessage.size();\ i\ +=\ maxDataPerBlock)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ chunks.push\_back(paddedMessage.substr(i,\ maxDataPerBlock));}
+\DoxyCodeLine{00057\ \ \ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ std::vector<T>\ encryptedBlocks;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ for\ (const\ auto\&\ chunk\ :\ chunks)\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ std::vector<uint8\_t>\ block(k,\ 0x00);}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ block[1]\ =\ 0x02;}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ auto\ padding\ =\ generateRandomBytes(k\ -\/\ 3\ -\/\ chunk.size());}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ std::copy(padding.begin(),\ padding.end(),\ block.begin()\ +\ 2);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ block[2\ +\ padding.size()]\ =\ 0x00;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ std::copy(chunk.begin(),\ chunk.end(),\ block.begin()\ +\ 3\ +\ padding.size());}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ T\ m\ =\ 0;}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ for\ (auto\ byte\ :\ block)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ m\ =\ (m\ <<\ 8)\ |\ byte;}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ encryptedBlocks.push\_back(encryptNumber(m,\ e,\ n));}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ return\ encryptedBlocks;}
+\DoxyCodeLine{00081\ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ template\ <Encryptable\ T>}
+\DoxyCodeLine{00084\ std::string\ RSAEncryptor<T>::decryptMessage(const\ std::vector<T>\&\ encryptedBlocks,\ T\ d,\ T\ n)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ size\_t\ bitSize\ =\ mpz\_sizeinbase(n.get\_mpz\_t(),\ 2);}
+\DoxyCodeLine{00086\ \ \ \ \ size\_t\ k\ =\ (bitSize\ +\ 7)\ /\ 8;}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ std::ostringstream\ oss;}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ for\ (const\ T\&\ block\ :\ encryptedBlocks)\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ T\ m\ =\ decryptNumber(block,\ d,\ n);}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ std::vector<uint8\_t>\ data(k,\ 0x00);}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ for\ (int\ i\ =\ k\ -\/\ 1;\ i\ >=\ 0\ \&\&\ m\ >\ 0;\ -\/-\/i)\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ data[i]\ =\ static\_cast<uint8\_t>(m.get\_ui()\ \&\ 0xFF);}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ m\ >>=\ 8;}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ if\ (data.size()\ <\ 11\ ||\ data[0]\ !=\ 0x00\ ||\ data[1]\ !=\ 0x02)\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ throw\ std::runtime\_error("{}decryptMessage:\ Invalid\ PKCS\#1\ v1.5\ padding"{});}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ size\_t\ sepPos\ =\ 0;}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ for\ (size\_t\ i\ =\ 2;\ i\ <\ data.size();\ ++i)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (data[i]\ ==\ 0x00)\ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sepPos\ =\ i;}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ break;}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ if\ (sepPos\ ==\ 0\ ||\ sepPos\ <\ 10)\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ throw\ std::runtime\_error("{}decryptMessage:\ Invalid\ PKCS\#1\ v1.5\ padding\ (separator\ not\ found)"{});}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ oss.write(reinterpret\_cast<const\ char*>(\&data[sepPos\ +\ 1]),\ data.size()\ -\/\ sepPos\ -\/\ 1);}
+\DoxyCodeLine{00115\ \ \ \ \ \}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \ \ std::string\ decryptedMessage\ =\ oss.str();}
+\DoxyCodeLine{00118\ \ \ \ \ return\ removePadding(decryptedMessage);}
+\DoxyCodeLine{00119\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ template\ <Encryptable\ T>}
+\DoxyCodeLine{00122\ T\ RSAEncryptor<T>::generateSignature(const\ std::string\&\ message,\ T\ privateKey,\ T\ n)\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ auto\ hash\ =\ sha256(message);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ T\ hashInt\ =\ 0;}
+\DoxyCodeLine{00126\ \ \ \ \ for\ (uint8\_t\ byte\ :\ hash)\ \{}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ hashInt\ =\ (hashInt\ <<\ 8)\ |\ byte;\ }
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ hashInt\ \%=\ n;\ }
+\DoxyCodeLine{00129\ \ \ \ \ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ return\ BigIntUtils<T>::modExp(hashInt,\ privateKey,\ n);}
+\DoxyCodeLine{00132\ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ template\ <Encryptable\ T>}
+\DoxyCodeLine{00135\ bool\ RSAEncryptor<T>::verifySignature(T\ signature,\ const\ std::string\&\ message,\ T\ publicKey,\ T\ n)\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ auto\ hash\ =\ sha256(message);}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \ \ T\ hashInt\ =\ 0;}
+\DoxyCodeLine{00139\ \ \ \ \ for\ (uint8\_t\ byte\ :\ hash)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ hashInt\ =\ (hashInt\ <<\ 8)\ |\ byte;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ hashInt\ \%=\ n;}
+\DoxyCodeLine{00142\ \ \ \ \ \}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ T\ decryptedHash\ =\ BigIntUtils<T>::modExp(signature,\ publicKey,\ n);}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ return\ hashInt\ ==\ decryptedHash;}
+\DoxyCodeLine{00147\ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ template\ <typename\ Format,\ typename\ T>}
+\DoxyCodeLine{00150\ std::string\ exportEncryptedMessage(const\ std::vector<T>\ \&encryptedBlocks)\ \{}
+\DoxyCodeLine{00151\ \ \ \ \ std::ostringstream\ oss;}
+\DoxyCodeLine{00152\ \ \ \ \ if\ constexpr\ (std::is\_same\_v<Format,\ PGPFormat>)\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ std::string\ concatenatedBlocks;}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ for\ (const\ auto\ \&block\ :\ encryptedBlocks)\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ concatenatedBlocks\ +=\ block.get\_str();}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ return\ exportPGPMessage(concatenatedBlocks);}
+\DoxyCodeLine{00158\ \ \ \ \ \}\ else\ if\ constexpr\ (std::is\_same\_v<Format,\ JSONFormat>)\ \{}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ oss\ <<\ "{}["{};}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ encryptedBlocks.size();\ ++i)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ oss\ <<\ "{}\(\backslash\)"{}"{}\ <<\ encryptedBlocks[i].get\_str()\ <<\ "{}\(\backslash\)"{}"{};}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (i\ !=\ encryptedBlocks.size()\ -\/\ 1)\ oss\ <<\ "{},"{};}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ oss\ <<\ "{}]"{};}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ return\ oss.str();}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ \ \ \ \ throw\ std::invalid\_argument("{}Unsupported\ format\ for\ encrypted\ message\ export"{});}
+\DoxyCodeLine{00168\ \}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ template\ <typename\ Format,\ typename\ T>}
+\DoxyCodeLine{00171\ std::vector<T>\ importEncryptedMessage(const\ std::string\ \&message)\ \{}
+\DoxyCodeLine{00172\ \ \ \ \ std::vector<T>\ encryptedBlocks;}
+\DoxyCodeLine{00173\ \ \ \ \ if\ constexpr\ (std::is\_same\_v<Format,\ PGPFormat>)\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ std::string\ decodedMessage\ =\ importPGPMessage(message);}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ encryptedBlocks.push\_back(T(decodedMessage));}
+\DoxyCodeLine{00176\ \ \ \ \ \}\ else\ if\ constexpr\ (std::is\_same\_v<Format,\ JSONFormat>)\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ size\_t\ start\ =\ message.find('[');}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ size\_t\ end\ =\ message.find(']');}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ if\ (start\ ==\ std::string::npos\ ||\ end\ ==\ std::string::npos)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Invalid\ JSON\ message\ format"{});}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ std::string\ content\ =\ message.substr(start\ +\ 1,\ end\ -\/\ start\ -\/\ 1);}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ size\_t\ pos\ =\ 0;}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ while\ ((pos\ =\ content.find(','))\ !=\ std::string::npos)\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ block\ =\ content.substr(0,\ pos);}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ encryptedBlocks.push\_back(T(block.substr(1,\ block.size()\ -\/\ 2)));}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ content.erase(0,\ pos\ +\ 1);}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ if\ (!content.empty())\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ encryptedBlocks.push\_back(T(content.substr(1,\ content.size()\ -\/\ 2)));}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00192\ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Unsupported\ format\ for\ encrypted\ message\ import"{});}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ \ \ \ \ return\ encryptedBlocks;}
+\DoxyCodeLine{00196\ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \#endif\ //\ RSA\_ENCRYPTOR\_TPP}
+
+\end{DoxyCode}

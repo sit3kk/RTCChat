@@ -1,0 +1,13 @@
+\doxysection{Encryptable Concept Reference}
+\hypertarget{concept_encryptable}{}\label{concept_encryptable}\index{Encryptable@{Encryptable}}
+\doxysubsection{Concept definition}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{\textcolor{keyword}{concept\ }\mbox{\hyperlink{concept_encryptable}{Encryptable}}\ =\ \ \textcolor{keyword}{requires}(T\ a,\ T\ b,\ T\ c)\ \{}
+\DoxyCodeLine{\ \ \ \ \{\ a\ \%\ b\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{\ \ \ \ \{\ a\ /\ b\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{\ \ \ \ \{\ BigIntUtils<T>::modExp(a,\ b,\ c)\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}

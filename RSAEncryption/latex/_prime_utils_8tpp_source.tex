@@ -1,0 +1,43 @@
+\doxysection{Prime\+Utils.\+tpp}
+\hypertarget{_prime_utils_8tpp_source}{}\label{_prime_utils_8tpp_source}\index{include/PrimeUtils.tpp@{include/PrimeUtils.tpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \#include\ <stdexcept>}
+\DoxyCodeLine{00002\ \#include\ <ctime>}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ template\ <IntegerType\ T>}
+\DoxyCodeLine{00005\ T\ PrimeUtils<T>::generateRandomPrime(T\ min,\ T\ max)\ \{}
+\DoxyCodeLine{00006\ \ \ \ \ gmp\_randclass\ randGen(gmp\_randinit\_default);}
+\DoxyCodeLine{00007\ \ \ \ \ randGen.seed(static\_cast<unsigned\ long>(std::chrono::steady\_clock::now().time\_since\_epoch().count()));}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \ \ \ \ T\ candidate;}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \ \ do\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ candidate\ =\ randGen.get\_z\_range(max\ -\/\ min\ +\ 1)\ +\ min;}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ if\ (mpz\_probab\_prime\_p(candidate.get\_mpz\_t(),\ 10))\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \ \ \ \ return\ candidate;}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00017\ \ \ \ \ \}\ while\ (true);}
+\DoxyCodeLine{00018\ \}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ template\ <IntegerType\ T>}
+\DoxyCodeLine{00021\ T\ PrimeUtils<T>::gcd(T\ a,\ T\ b)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ while\ (b\ !=\ 0)\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ T\ temp\ =\ b;}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ b\ =\ a\ \%\ b;}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ a\ =\ temp;}
+\DoxyCodeLine{00026\ \ \ \ \ \}}
+\DoxyCodeLine{00027\ \ \ \ \ return\ a;}
+\DoxyCodeLine{00028\ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ template\ <IntegerType\ T>}
+\DoxyCodeLine{00031\ T\ PrimeUtils<T>::modInverse(T\ e,\ T\ phi)\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ T\ result;}
+\DoxyCodeLine{00033\ \ \ \ \ if\ (mpz\_invert(result.get\_mpz\_t(),\ e.get\_mpz\_t(),\ phi.get\_mpz\_t())\ ==\ 0)\ \{}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ throw\ std::runtime\_error("{}Modular\ inverse\ does\ not\ exist"{});}
+\DoxyCodeLine{00035\ \ \ \ \ \}}
+\DoxyCodeLine{00036\ \ \ \ \ return\ result;}
+\DoxyCodeLine{00037\ \}}
+
+\end{DoxyCode}

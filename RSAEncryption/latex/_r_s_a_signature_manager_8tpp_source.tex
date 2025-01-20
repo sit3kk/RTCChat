@@ -1,0 +1,61 @@
+\doxysection{RSASignature\+Manager.\+tpp}
+\hypertarget{_r_s_a_signature_manager_8tpp_source}{}\label{_r_s_a_signature_manager_8tpp_source}\index{include/RSASignatureManager.tpp@{include/RSASignatureManager.tpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \#ifndef\ RSA\_SIGNATURE\_MANAGER\_TPP}
+\DoxyCodeLine{00002\ \#define\ RSA\_SIGNATURE\_MANAGER\_TPP}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \#include\ "{}RSASignatureManager.hpp"{}}
+\DoxyCodeLine{00005\ \#include\ <stdexcept>}
+\DoxyCodeLine{00006\ \#include\ <nlohmann/json.hpp>\ }
+\DoxyCodeLine{00007\ using\ json\ =\ nlohmann::json;}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ template\ <typename\ T>}
+\DoxyCodeLine{00010\ template\ <typename\ Format>}
+\DoxyCodeLine{00011\ std::string\ RSASignatureManager<T>::exportSignature(const\ T\&\ signature,\ const\ std::string\&\ message)\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ std::ostringstream\ oss;}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \ \ if\ constexpr\ (std::is\_same\_v<Format,\ PGPFormat>)\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ std::string\ signatureData\ =\ "{}Message:\ "{}\ +\ message\ +\ "{}\(\backslash\)nSignature:\ "{}\ +\ signature.get\_str();}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ return\ exportPGPMessage(signatureData);}
+\DoxyCodeLine{00017\ \ \ \ \ \}\ else\ if\ constexpr\ (std::is\_same\_v<Format,\ JSONFormat>)\ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ json\ j;}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ j["{}message"{}]\ =\ message;}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ j["{}signature"{}]\ =\ signature.get\_str();}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ return\ j.dump(4);\ //\ Formatowanie\ z\ wcięciami}
+\DoxyCodeLine{00022\ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Unsupported\ format\ for\ signature\ export."{});}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ template\ <typename\ T>}
+\DoxyCodeLine{00028\ template\ <typename\ Format>}
+\DoxyCodeLine{00029\ std::pair<T,\ std::string>\ RSASignatureManager<T>::importSignature(const\ std::string\&\ encodedSignature)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ if\ constexpr\ (std::is\_same\_v<Format,\ PGPFormat>)\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ std::string\ decoded\ =\ importPGPMessage(encodedSignature);}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ std::istringstream\ iss(decoded);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ std::string\ messageLine,\ signatureLine;}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ std::getline(iss,\ messageLine);}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ std::getline(iss,\ signatureLine);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ if\ (messageLine.rfind("{}Message:\ "{},\ 0)\ !=\ 0\ ||\ signatureLine.rfind("{}Signature:\ "{},\ 0)\ !=\ 0)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Invalid\ PGP\ signature\ format."{});}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ std::string\ message\ =\ messageLine.substr(9);\ }
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ T\ signature(signatureLine.substr(11));\ \ \ \ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ return\ \{signature,\ message\};}
+\DoxyCodeLine{00045\ \ \ \ \ \}\ else\ if\ constexpr\ (std::is\_same\_v<Format,\ JSONFormat>)\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ json\ j\ =\ json::parse(encodedSignature);}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ std::string\ message\ =\ j.at("{}message"{}).get<std::string>();}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ T\ signature(j.at("{}signature"{}).get<std::string>());}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ return\ \{signature,\ message\};}
+\DoxyCodeLine{00050\ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Unsupported\ format\ for\ signature\ import."{});}
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \#endif\ //\ RSA\_SIGNATURE\_MANAGER\_TPP}
+
+\end{DoxyCode}

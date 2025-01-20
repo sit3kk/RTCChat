@@ -1,0 +1,29 @@
+\doxysection{PGPFormatter.\+hpp}
+\hypertarget{_p_g_p_formatter_8hpp_source}{}\label{_p_g_p_formatter_8hpp_source}\index{include/PGPFormatter.hpp@{include/PGPFormatter.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ PGP\_FORMATTER\_HPP}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ PGP\_FORMATTER\_HPP}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ PGP\_MESSAGE\_BEGIN\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/BEGIN\ PGP\ MESSAGE-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00008\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ PGP\_MESSAGE\_END\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/END\ PGP\ MESSAGE-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00009\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ PGP\_PUBLIC\_KEY\_BEGIN\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/BEGIN\ PGP\ PUBLIC\ KEY-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00010\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ PGP\_PUBLIC\_KEY\_END\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/END\ PGP\ PUBLIC\ KEY-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ PGP\_CERTIFICATE\_BEGIN\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/BEGIN\ PGP\ CERTIFICATE-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00013\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ PGP\_CERTIFICATE\_END\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/END\ PGP\ CERTIFICATE-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00016\ std::string\ exportPGPCertificate(\textcolor{keyword}{const}\ std::string\&\ ownerName,\ \textcolor{keyword}{const}\ std::pair<T,\ T>\&\ publicKey,\ \textcolor{keyword}{const}\ T\&\ signature);}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00019\ std::tuple<std::string,\ std::pair<T,\ T>,\ T>\ importPGPCertificate(\textcolor{keyword}{const}\ std::string\&\ certificate);}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}PGPFormatter.tpp"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ PGP\_FORMATTER\_HPP}}
+
+\end{DoxyCode}

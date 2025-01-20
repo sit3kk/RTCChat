@@ -1,0 +1,38 @@
+\doxysection{RSAEncryptor.\+hpp}
+\hypertarget{_r_s_a_encryptor_8hpp_source}{}\label{_r_s_a_encryptor_8hpp_source}\index{include/RSAEncryptor.hpp@{include/RSAEncryptor.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ RSA\_ENCRYPTOR\_HPP}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ RSA\_ENCRYPTOR\_HPP}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}BigIntUtils.hpp"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}RSAKeyExporter.hpp"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <concepts>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00011\ \textcolor{keyword}{concept\ }\mbox{\hyperlink{concept_encryptable}{Encryptable}}\ =\ \textcolor{keyword}{requires}(T\ a,\ T\ b,\ T\ c)\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \{\ a\ \%\ b\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{00013\ \ \ \ \ \{\ a\ /\ b\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{00014\ \ \ \ \ \{\ BigIntUtils<T>::modExp(a,\ b,\ c)\ \}\ -\/>\ std::convertible\_to<T>;}
+\DoxyCodeLine{00015\ \};}
+\DoxyCodeLine{00016\ \textcolor{keyword}{template}\ <Encryptable\ T>}
+\DoxyCodeLine{00017\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_r_s_a_encryptor}{RSAEncryptor}}\ \{}
+\DoxyCodeLine{00018\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{static}\ T\ encryptNumber(T\ data,\ T\ e,\ T\ n);}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{static}\ T\ decryptNumber(T\ data,\ T\ d,\ T\ n);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{static}\ std::vector<T>\ encryptMessage(\textcolor{keyword}{const}\ std::string\&\ message,\ T\ e,\ T\ n);}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{static}\ std::string\ decryptMessage(\textcolor{keyword}{const}\ std::vector<T>\&\ encryptedBlocks,\ T\ d,\ T\ n);}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{static}\ T\ generateSignature(\textcolor{keyword}{const}\ std::string\&\ message,\ T\ privateKey,\ T\ n);}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ verifySignature(T\ signature,\ \textcolor{keyword}{const}\ std::string\&\ message,\ T\ publicKey,\ T\ n);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}RSAEncryptor.tpp"{}}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ RSA\_ENCRYPTOR\_HPP}}
+
+\end{DoxyCode}

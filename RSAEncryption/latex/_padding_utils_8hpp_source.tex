@@ -1,0 +1,52 @@
+\doxysection{Padding\+Utils.\+hpp}
+\hypertarget{_padding_utils_8hpp_source}{}\label{_padding_utils_8hpp_source}\index{include/PaddingUtils.hpp@{include/PaddingUtils.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <random>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <sstream>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <iomanip>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{inline}\ std::string\ addPadding(\textcolor{keyword}{const}\ std::string\ \&message,\ \textcolor{keywordtype}{size\_t}\ desiredMinLen)\ \{}
+\DoxyCodeLine{00008\ \ \ \ \ std::ostringstream\ lengthHeader;}
+\DoxyCodeLine{00009\ \ \ \ \ lengthHeader\ <<\ std::setw(8)\ <<\ std::setfill(\textcolor{charliteral}{'0'})\ <<\ message.size();}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \ \ std::string\ result\ =\ lengthHeader.str()\ +\ message;}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keywordflow}{if}\ (result.size()\ <\ desiredMinLen)\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ padNeeded\ =\ desiredMinLen\ -\/\ result.size();}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::random\_device\ rd;}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::mt19937\ gen(rd());}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::uniform\_int\_distribution<unsigned\ char>\ dist(0,\ 255);}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ padNeeded;\ i++)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ result.push\_back(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{char}\textcolor{keyword}{>}(dist(gen)));}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00023\ \ \ \ \ \}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00025\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{inline}\ std::string\ removePadding(\textcolor{keyword}{const}\ std::string\ \&padded)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordflow}{if}\ (padded.size()\ <\ 8)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}removePadding:\ Padded\ message\ too\ short."{}});}
+\DoxyCodeLine{00031\ \ \ \ \ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ std::string\ lengthHeader\ =\ padded.substr(0,\ 8);}
+\DoxyCodeLine{00034\ \ \ \ \ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordflow}{if}\ (!std::all\_of(lengthHeader.begin(),\ lengthHeader.end(),\ ::isdigit))\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}removePadding:\ Invalid\ length\ header."{}});}
+\DoxyCodeLine{00037\ \ \ \ \ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ originalLen\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(std::stoul(lengthHeader));}
+\DoxyCodeLine{00040\ \ \ \ \ std::string\ data\ =\ padded.substr(8);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordflow}{if}\ (data.size()\ <\ originalLen)\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}removePadding:\ Insufficient\ data\ after\ padding."{}});}
+\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordflow}{return}\ data.substr(0,\ originalLen);}
+\DoxyCodeLine{00046\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,58 @@
+\doxysection{Big\+Int\+Utils.\+tpp}
+\hypertarget{_big_int_utils_8tpp_source}{}\label{_big_int_utils_8tpp_source}\index{include/BigIntUtils.tpp@{include/BigIntUtils.tpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \#ifndef\ BIGINT\_UTILS\_TPP}
+\DoxyCodeLine{00002\ \#define\ BIGINT\_UTILS\_TPP}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \#include\ "{}BigIntUtils.hpp"{}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ template\ <ModularType\ T>}
+\DoxyCodeLine{00007\ T\ BigIntUtils<T>::modExp(T\ base,\ T\ exp,\ T\ mod)\ \{}
+\DoxyCodeLine{00008\ \ \ \ \ if\ (mod\ ==\ 0)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Modulus\ cannot\ be\ zero."{});}
+\DoxyCodeLine{00010\ \ \ \ \ \}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \ \ T\ result\ =\ 1;\ \ \ \ \ }
+\DoxyCodeLine{00013\ \ \ \ \ base\ =\ base\ \%\ mod;\ \ \ \ }
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \ \ while\ (exp\ >\ 0)\ \{}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ if\ (exp\ \%\ 2\ ==\ 1)\ \{\ }
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ (result\ *\ base)\ \%\ mod;}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ exp\ >>=\ 1;\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ base\ =\ (base\ *\ base)\ \%\ mod;}
+\DoxyCodeLine{00021\ \ \ \ \ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ return\ result;}
+\DoxyCodeLine{00024\ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ template\ <>}
+\DoxyCodeLine{00027\ mpz\_class\ BigIntUtils<mpz\_class>::modExp(mpz\_class\ base,\ mpz\_class\ exp,\ mpz\_class\ mod)\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ if\ (mod\ ==\ 0)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Modulus\ cannot\ be\ zero."{});}
+\DoxyCodeLine{00030\ \ \ \ \ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ mpz\_class\ result;}
+\DoxyCodeLine{00033\ \ \ \ \ mpz\_powm\_sec(result.get\_mpz\_t(),\ base.get\_mpz\_t(),\ exp.get\_mpz\_t(),\ mod.get\_mpz\_t());}
+\DoxyCodeLine{00034\ \ \ \ \ return\ result;}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ template\ <ModularType\ T>}
+\DoxyCodeLine{00038\ T\ BigIntUtils<T>::modInverse(T\ a,\ T\ mod)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ if\ (mod\ ==\ 0)\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ throw\ std::invalid\_argument("{}Modulus\ cannot\ be\ zero."{});}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ T\ result;}
+\DoxyCodeLine{00044\ \ \ \ \ if\ (mpz\_invert(result.get\_mpz\_t(),\ a.get\_mpz\_t(),\ mod.get\_mpz\_t())\ ==\ 0)\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ throw\ std::runtime\_error("{}Modular\ inverse\ does\ not\ exist"{});}
+\DoxyCodeLine{00046\ \ \ \ \ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ return\ result;}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \#endif\ //\ BIGINT\_UTILS\_TPP}
+\DoxyCodeLine{00052\ }
+
+\end{DoxyCode}

@@ -1,0 +1,38 @@
+\doxysection{RSAKey\+Generator\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{class_r_s_a_key_generator}{}\label{class_r_s_a_key_generator}\index{RSAKeyGenerator$<$ T $>$@{RSAKeyGenerator$<$ T $>$}}
+
+
+Collaboration diagram for RSAKey\+Generator\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>}\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=229pt]{class_r_s_a_key_generator__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_r_s_a_key_generator_a5805231928235bb25bdad3d9d142a4f6}\label{class_r_s_a_key_generator_a5805231928235bb25bdad3d9d142a4f6} 
+using {\bfseries Public\+Key} = std\+::pair$<$T, T$>$
+\item 
+\Hypertarget{class_r_s_a_key_generator_ad1fce0bfa3857379b5e64b7031c1ea94}\label{class_r_s_a_key_generator_ad1fce0bfa3857379b5e64b7031c1ea94} 
+using {\bfseries Private\+Key} = std\+::pair$<$T, T$>$
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_r_s_a_key_generator_a4af81bd1473aa8bdd9d8ed72cd79623a}\label{class_r_s_a_key_generator_a4af81bd1473aa8bdd9d8ed72cd79623a} 
+static std\+::pair$<$ Public\+Key, Private\+Key $>$ {\bfseries generate\+Keys} (T min\+Prime, T max\+Prime)
+\item 
+\Hypertarget{class_r_s_a_key_generator_ac6607da85c3562827e7b0f4f6f7909e5}\label{class_r_s_a_key_generator_ac6607da85c3562827e7b0f4f6f7909e5} 
+static Public\+Key {\bfseries import\+Public\+Key\+From\+JSON} (const std\+::string \&json)
+\item 
+\Hypertarget{class_r_s_a_key_generator_a5b7eefbf9d019398b8effcf0ffbd8e51}\label{class_r_s_a_key_generator_a5b7eefbf9d019398b8effcf0ffbd8e51} 
+static Private\+Key {\bfseries import\+Private\+Key\+From\+JSON} (const std\+::string \&json)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/RSAKey\+Generator.\+hpp\end{DoxyCompactItemize}

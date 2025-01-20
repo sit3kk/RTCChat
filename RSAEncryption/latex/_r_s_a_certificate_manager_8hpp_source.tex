@@ -1,0 +1,43 @@
+\doxysection{RSACertificate\+Manager.\+hpp}
+\hypertarget{_r_s_a_certificate_manager_8hpp_source}{}\label{_r_s_a_certificate_manager_8hpp_source}\index{include/RSACertificateManager.hpp@{include/RSACertificateManager.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ RSA\_CERTIFICATE\_MANAGER\_HPP}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ RSA\_CERTIFICATE\_MANAGER\_HPP}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}RSAEncryptor.hpp"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}RSAKeyExporter.hpp"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}Base64.hpp"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}PGPFormatter.hpp"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }RSACertificate\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00015\ \ \ \ \ std::string\ ownerName;}
+\DoxyCodeLine{00016\ \ \ \ \ std::pair<T,\ T>\ publicKey;}
+\DoxyCodeLine{00017\ \ \ \ \ T\ signature;}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00020\ \ \ \ \ RSACertificate(\textcolor{keyword}{const}\ std::string\&\ ownerName,\ \textcolor{keyword}{const}\ std::pair<T,\ T>\&\ publicKey,\ \textcolor{keyword}{const}\ T\&\ privateKey,\ \textcolor{keyword}{const}\ T\&\ n);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ getOwnerName()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{const}\ std::pair<T,\ T>\&\ getPublicKey()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{const}\ T\&\ getSignature()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ Format>}
+\DoxyCodeLine{00027\ \ \ \ \ std::string\ exportCertificate()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ Format>}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{static}\ RSACertificate<T>\ importCertificate(\textcolor{keyword}{const}\ std::string\&\ data);}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{void}\ display()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00033\ \};}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#include\ "{}RSACertificateManager.tpp"{}}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ RSA\_CERTIFICATE\_MANAGER\_HPP}}
+
+\end{DoxyCode}
