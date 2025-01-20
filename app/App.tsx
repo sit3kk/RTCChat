@@ -21,13 +21,11 @@ import ChatsScreen from "./src/views/ChatsScreen";
 import SettingsScreen from "./src/views/SettingsScreen";
 import IconButton from "./src/components/ui/IconButton";
 import InvitationsScreen from "./src/views/InvitationsScreen";
-import { randomAvatar } from "./src/utils/utils";
-import { CallData, Contact } from "./src/types/commonTypes";
+import { CallData } from "./src/types/commonTypes";
 import IncomingCallScreenWrapper from "./src/views/IncomingCallScreenWrapper";
 import AudioCallScreen from "./src/views/AudioCallScreen";
 import VideoCallScreen from "./src/views/VideoCallScreen";
-import ChatDetails from "./src/views/ChatDetails";
-import { Timestamp } from "firebase/firestore";
+import ChatDetailsScreen from "./src/views/ChatDetailsScreen";
 
 export type BottomTabParamList = {
   Contacts: undefined;
@@ -39,30 +37,23 @@ export type BottomTabParamList = {
 export type AuthenticatedStackParamList = {
   AppNavigator: undefined;
   InteractionStack: { screen: keyof InteractionStackParamList; params?: any };
-  Chats: { screen: keyof ChatsStackParamList; params?: any };
 };
 
 export type InteractionStackParamList = {
   Invitations: undefined;
-  IncomingCall: { callData: CallData };
-  AudioCall: { callData: CallData };
-  VideoCall: { callData: CallData };
-};
-
-export type ChatsStackParamList = {
-  ChatsList: undefined;
   ChatDetails: {
     chatId: string;
     contactId: string;
     contactName: string;
     contactAvatar: string;
   };
+  IncomingCall: { callData: CallData };
+  AudioCall: { callData: CallData };
+  VideoCall: { callData: CallData };
 };
 
 export type AuthenticatedStackProp =
   StackNavigationProp<AuthenticatedStackParamList>;
-export type InteractionStackProp =
-  StackNavigationProp<InteractionStackParamList>;
 
 const AuthStackNavigator = createStackNavigator();
 const AuthenticatedStackNavigator =
@@ -70,7 +61,6 @@ const AuthenticatedStackNavigator =
 const InteractionStackNavigator =
   createStackNavigator<InteractionStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
-const ChatsStack = createStackNavigator<ChatsStackParamList>();
 
 const AuthStack = () => {
   return (
@@ -123,29 +113,6 @@ const AppNavigator = () => {
                   });
                 }}
               />
-              <IconButton
-                // temporary navigation to IncomingCallScreen
-                name="call"
-                style={{ paddingHorizontal: 10 }}
-                onPress={() => {
-                  navigation.navigate("InteractionStack", {
-                    screen: "IncomingCall",
-                    params: {
-                      callData: {
-                        callPartner: {
-                          contactId: "1",
-                          userId: "1",
-                          name: "John Dough",
-                          avatar: randomAvatar(),
-                          createdAt: Timestamp.now(),
-                        } as Contact,
-                        callType: "video",
-                        callSessionId: "1234",
-                      },
-                    },
-                  });
-                }}
-              />
             </View>
           ),
           tabBarIcon: ({ color }) => (
@@ -156,7 +123,7 @@ const AppNavigator = () => {
       />
       <Tab.Screen
         name="Chats"
-        component={ChatsStackNavigator}
+        component={ChatsScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="chatbubbles" size={24} color={color} />
@@ -179,44 +146,17 @@ const AppNavigator = () => {
 };
 
 const InteractionStack = () => {
-  const navigation = useNavigation<InteractionStackProp>();
   return (
     <InteractionStackNavigator.Navigator>
       <InteractionStackNavigator.Screen
         name="Invitations"
         component={InvitationsScreen}
-        options={{
-          headerStyle: {
-            backgroundColor: Colors.background,
-            height: 120,
-          },
-          headerTitleStyle: {
-            fontSize: 32,
-            fontWeight: "bold",
-            color: Colors.textLight,
-          },
-          headerTitleAlign: "left",
-          headerLeft: () => (
-            <View
-              style={{
-                marginLeft: 10,
-                marginRight: 140,
-                gap: 5,
-                flexDirection: "row",
-              }}
-            >
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={Colors.textLight}
-                onPress={() => navigation.goBack()}
-              />
-              <Text style={{ fontSize: 18, color: Colors.textLight }}>
-                Back
-              </Text>
-            </View>
-          ),
-        }}
+        options={{ headerShown: false }}
+      />
+      <InteractionStackNavigator.Screen
+        name="ChatDetails"
+        component={ChatDetailsScreen}
+        options={{ headerShown: false }}
       />
       <InteractionStackNavigator.Screen
         name="IncomingCall"
@@ -234,20 +174,6 @@ const InteractionStack = () => {
         options={{ headerShown: false, gestureEnabled: false }}
       />
     </InteractionStackNavigator.Navigator>
-  );
-};
-
-const ChatsStackNavigator = () => {
-  return (
-    <ChatsStack.Navigator
-      initialRouteName="ChatsList"
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <ChatsStack.Screen name="ChatsList" component={ChatsScreen} />
-      <ChatsStack.Screen name="ChatDetails" component={ChatDetails} />
-    </ChatsStack.Navigator>
   );
 };
 

@@ -15,6 +15,7 @@ interface FlatTextInputProps extends TextInputProps {
   placeholder?: string;
   value: string;
   onChangeText: (text: string) => void;
+  handlePress?: () => void;
   icon?: React.ReactNode;
   textAlign?: "left" | "center" | "right";
   isDarkMode?: boolean;
@@ -25,6 +26,7 @@ const FlatTextInput: React.FC<FlatTextInputProps> = ({
   placeholder = "Enter text...",
   value,
   onChangeText,
+  handlePress,
   icon,
   textAlign = "left",
   isDarkMode = false,
@@ -49,7 +51,12 @@ const FlatTextInput: React.FC<FlatTextInputProps> = ({
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => textInputRef.current?.focus()}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        textInputRef.current?.focus();
+        handlePress && handlePress();
+      }}
+    >
       <View style={containerStyle}>
         {icon && <View style={styles.icon}>{icon}</View>}
         <TextInput

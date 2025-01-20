@@ -21,16 +21,17 @@ const config = {
   appId: "f2f502f3c8ee422b9511b9d0c04e6821",
   channelName: "test",
   token:
-    "007eJxTYDi1V8Quy9dq9dRuRf83y2X3qUmmbk+JFd15d8vJC5VrjzQqMKQZpZkaGKUZJ1ukppoYGSVZmhoaJlmmGCQbmKSaWRgZJs1rTm8IZGR4M20xAyMUgvgsDCWpxSUMDABbnyA3",
+    "007eJxTYGBVmr+g/fnecKfVm/ZeMMnZJ8T+YHbw5su7CpTuWDKtFSxRYEgzSjM1MEozTrZITTUxMkqyNDU0TLJMMUg2MEk1szAyfM7am94QyMhgn9bIzMgAgSA+C0NJanEJAwMAN0Qesw==",
   uid: 0,
 } as AgoraConfig;
 
-const useAgora = () => {
+const useAgora = (callType: "audio" | "video") => {
   const { appId, channelName, token, uid } = config;
   const engineRef = useRef<IRtcEngine | null>(null);
   const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
   const [isJoined, setIsJoined] = useState<boolean>(false);
-  const [remoteUid, setRemoteUid] = useState<number[]>([]);
+  const [remoteUid, setRemoteUid] = useState<number>(0);
+  // const [remoteUid, setRemoteUid] = useState<number[]>([]);
   const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -68,33 +69,46 @@ const useAgora = () => {
         setIsJoined(true);
         console.log("Join channel success");
       },
-      onUserJoined: (_connection, uid, _elapsed) => {
-        console.log("Remote user joined:", uid);
-        setRemoteUid((prevUids) => [...prevUids, uid]);
+      onUserJoined: (_connection, remoteUid, _elapsed) => {
+        console.log("Remote user joined:", remoteUid);
+        // setRemoteUid((prevUids) => [...prevUids, uid]);
+        setRemoteUid(remoteUid);
       },
       onUserOffline: (_connection, uid, _reason) => {
         console.log("Remote user offline:", uid);
-        setRemoteUid((prevUids) => prevUids.filter((id) => id !== uid));
+        // setRemoteUid((prevUids) => prevUids.filter((id) => id !== uid));
+        setRemoteUid(0);
       },
     };
 
     engineRef.current.registerEventHandler(eventHandlerRef.current);
 
-    // await engineRef.current.enableAudio();
-    engineRef.current.enableVideo();
+    if (callType === "audio") {
+      engineRef.current.enableAudio();
+    } else {
+      engineRef.current.enableVideo();
+    }
   }, [appId, permissionsGranted]);
 
   const joinChannel = useCallback(async () => {
     if (!engineRef.current) return;
+
+    const joinChannelVideoOptions = {
+      autoSubscribeVideo: true,
+      publishCameraTrack: true,
+    };
+
     try {
       engineRef.current?.joinChannel(token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
         autoSubscribeAudio: true,
+        publishMicrophoneTrack: true,
+        ...(callType === "video" ? joinChannelVideoOptions : {}),
       });
     } catch (error) {
       console.warn("Join channel error", error);
     }
-  }, [token, channelName, uid]);
+  }, [callType, token, channelName, uid]);
 
   const leaveChannel = async () => {
     if (!engineRef.current) return;
@@ -102,30 +116,30 @@ const useAgora = () => {
     setIsJoined(false);
   };
 
-  const toggleMute = (mute: boolean) => {
+  const toggleMute = async (mute: boolean) => {
     engineRef.current?.muteLocalAudioStream(mute);
   };
 
-  const setSpeakerphoneOn = (on: boolean) => {
+  const setSpeakerphoneOn = async (on: boolean) => {
     engineRef.current?.setEnableSpeakerphone(on);
   };
 
-  const toggleCamera = useCallback((enable: boolean) => {
+  const toggleCamera = useCallback(async (enable: boolean) => {
     engineRef.current?.muteLocalVideoStream(!enable);
   }, []);
 
-  const switchCamera = useCallback(() => {
+  const switchCamera = useCallback(async () => {
     engineRef.current?.switchCamera();
   }, []);
 
   const destroy = useCallback(async () => {
     if (!engineRef.current) return;
-    await engineRef.current.leaveChannel();
+    engineRef.current.leaveChannel();
     engineRef.current.unregisterEventHandler(eventHandlerRef.current!);
     engineRef.current?.release();
     engineRef.current = null;
     setIsJoined(false);
-    setRemoteUid([]);
+    // setRemoteUid(0);
   }, []);
 
   useEffect(() => {

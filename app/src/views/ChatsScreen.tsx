@@ -8,11 +8,10 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { fetchChats } from "../services/chatService";
 import { useUserData } from "../store/UserDataProvider";
 import { Colors } from "../styles/commonStyles";
-import { ChatsStackParamList } from "../../App";
+import { AuthenticatedStackProp } from "../../App";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../components/ui/SearchBar";
 import LoadingScreen from "./LoadingScreen";
@@ -73,7 +72,7 @@ const filterChatsData = (
 
 const ChatsScreen: React.FC = () => {
   const { userId } = useUserData();
-  const navigation = useNavigation<StackNavigationProp<ChatsStackParamList>>();
+  const navigation = useNavigation<AuthenticatedStackProp>();
 
   const [chats, setChats] = useState<ChatItem[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatItem[]>([]);
@@ -108,11 +107,14 @@ const ChatsScreen: React.FC = () => {
       <ChatIListItem
         chat={item}
         onPress={() =>
-          navigation.navigate("ChatDetails", {
-            chatId: getChatId(item.contactId),
-            contactId: item.contactId,
-            contactName: item.contactName,
-            contactAvatar: item.contactAvatar,
+          navigation.navigate("InteractionStack", {
+            screen: "ChatDetails",
+            params: {
+              chatId: getChatId(item.contactId),
+              contactId: item.contactId,
+              contactName: item.contactName,
+              contactAvatar: item.contactAvatar,
+            },
           })
         }
       />

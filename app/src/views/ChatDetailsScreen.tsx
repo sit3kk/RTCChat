@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { AuthenticatedStackProp, ChatsStackParamList } from "../../App";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthenticatedStackProp, InteractionStackParamList } from "../../App";
 import { Colors } from "../styles/commonStyles";
 import { useUserData } from "../store/UserDataProvider";
 import { Message } from "../types/commonTypes";
@@ -43,12 +44,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       <IconButton
         name="arrow-back"
         size={24}
-        onPress={() =>
-          navigation.navigate("Chats", {
-            screen: "ChatsList",
-            params: {},
-          })
-        }
+        onPress={() => navigation.goBack()}
       />
       <View style={styles.headerNameWrapper}>
         <Image source={{ uri: contactAvatar }} style={styles.headerAvatar} />
@@ -94,14 +90,20 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ item, userId }) => {
   );
 };
 
-type ChatDetailsRouteProp = RouteProp<ChatsStackParamList, "ChatDetails">;
+type InteractionStackRouteProp = RouteProp<
+  InteractionStackParamList,
+  "ChatDetails"
+>;
 
-const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
+const ChatDetailsScreen: React.FC<{ route: InteractionStackRouteProp }> = ({
+  route,
+}) => {
   const { chatId, contactId, contactName, contactAvatar } = route.params;
   const [newMessage, setNewMessage] = useState("");
   const { userId, userName } = useUserData();
   const navigation = useNavigation<AuthenticatedStackProp>();
   const messages = useChatMessages(chatId, userId);
+  const messagesListRef = useRef(null);
 
   const initiateCall = async (callType: "audio" | "video") => {
     try {
@@ -130,56 +132,75 @@ const ChatDetails: React.FC<{ route: ChatDetailsRouteProp }> = ({ route }) => {
     return <ChatMessageItem item={item} userId={userId} />;
   };
 
+  const scrollToBottom = () => {
+    if (messagesListRef.current) {
+      // @ts-ignore
+      messagesListRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
   const headerHeight = useHeaderHeight();
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={headerHeight}
-      style={styles.container}
-    >
-      <>
-        <DiamondBackground />
-        <ChatHeader
-          contactName={contactName}
-          contactAvatar={contactAvatar}
-          onInitiateCall={initiateCall}
-        />
-
-        {/* Messages */}
-        <FlatList
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.messagesContainer}
-        />
-
-        {/* Message Input */}
-        <View style={styles.inputContainer}>
-          <IconButton name="image-outline" size={28} onPress={() => {}} />
-          <FlatTextInput
-            isDarkMode={true}
-            value={newMessage}
-            onChangeText={setNewMessage}
-            placeholder="Type a message..."
-            style={{ marginLeft: 5, color: Colors.textLight }}
-            width={"80%"}
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={headerHeight}
+        style={{ flex: 1 }}
+      >
+        <>
+          <DiamondBackground />
+          <ChatHeader
+            contactName={contactName}
+            contactAvatar={contactAvatar}
+            onInitiateCall={initiateCall}
           />
-          <IconButton
-            name="send"
-            size={28}
-            color={Colors.primary}
-            onPress={async () => {
-              await sendMessage(chatId, userId, userName, newMessage);
-              setNewMessage("");
+
+          {/* Messages */}
+          <FlatList
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.messagesContainer}
+            ref={messagesListRef}
+            onContentSizeChange={() => {
+              scrollToBottom();
             }}
           />
-        </View>
-      </>
-    </KeyboardAvoidingView>
+
+          {/* Message Input */}
+          <View style={styles.inputContainer}>
+            <IconButton name="image-outline" size={28} onPress={() => {}} />
+            <FlatTextInput
+              isDarkMode={true}
+              value={newMessage}
+              onChangeText={setNewMessage}
+              placeholder="Type a message..."
+              style={{ marginLeft: 5, color: Colors.textLight }}
+              width={"80%"}
+              textAlign="left"
+              onPress={() => {
+                setTimeout(() => {
+                  scrollToBottom();
+                }, 250);
+              }}
+            />
+            <IconButton
+              name="send"
+              size={28}
+              color={Colors.primary}
+              onPress={async () => {
+                await sendMessage(chatId, userId, userName, newMessage);
+                setNewMessage("");
+              }}
+            />
+          </View>
+        </>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-export default ChatDetails;
+export default ChatDetailsScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -193,6 +214,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     backgroundColor: Colors.background,
+    paddingBottom: 15,
   },
   headerNameWrapper: {
     flexDirection: "row",
