@@ -3,23 +3,24 @@
 
 #include <concepts>
 
-// Concept for modular arithmetic
 template <typename T>
-concept ModularType = requires(T a, T b, T c) {
-    { a % b } -> std::convertible_to<T>;
-    { a * b } -> std::convertible_to<T>;
-    { a / b } -> std::convertible_to<T>;
-    { a - b } -> std::convertible_to<T>;
-    { a + b } -> std::convertible_to<T>;
+concept ModularType = requires(T a, T b) {
+    { a % b };
+    { a * b };
+    { a / b };
 };
 
-// Declaration of BigIntUtils with concept validation
+
 template <ModularType T>
 class BigIntUtils {
 public:
     static T modExp(T base, T exp, T mod);
+    static T modInverse(T a, T mod);
 };
+
+
 
 #include "BigIntUtils.tpp"
 
 #endif // BIGINT_UTILS_HPP
+

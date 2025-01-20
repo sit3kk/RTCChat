@@ -1,17 +1,18 @@
 #ifndef RSA_ENCRYPTOR_HPP
 #define RSA_ENCRYPTOR_HPP
 
-#include <concepts>
+#include "BigIntUtils.hpp"
+#include "RSAKeyExporter.hpp"
 #include <vector>
 #include <string>
-#include "BigIntUtils.hpp"
+#include <concepts>
 
-// Concept for encryptable types
 template <typename T>
 concept Encryptable = requires(T a, T b, T c) {
+    { a % b } -> std::convertible_to<T>;
+    { a / b } -> std::convertible_to<T>;
     { BigIntUtils<T>::modExp(a, b, c) } -> std::convertible_to<T>;
 };
-
 template <Encryptable T>
 class RSAEncryptor {
 public:
@@ -23,6 +24,7 @@ public:
 
     static T generateSignature(const std::string& message, T privateKey, T n);
     static bool verifySignature(T signature, const std::string& message, T publicKey, T n);
+
 };
 
 #include "RSAEncryptor.tpp"

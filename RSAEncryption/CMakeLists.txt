@@ -15,10 +15,12 @@ endif()
 include_directories(${GMP_INCLUDE_DIR})
 
 find_package(OpenSSL REQUIRED)
-
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
+
+set(OPTIMIZATION_FLAGS "-O3 -march=native -funroll-loops")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPTIMIZATION_FLAGS}")
 
 add_executable(RSAEncryptionTest
     src/main.cpp

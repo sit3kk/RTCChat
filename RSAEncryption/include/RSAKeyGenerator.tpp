@@ -3,7 +3,6 @@
 
 template <typename T>
 std::pair<std::pair<T, T>, std::pair<T, T>> RSAKeyGenerator<T>::generateKeys(T min, T max) {
-    // Ensure p != q by re-generating if they match
     T p, q;
     do {
         p = PrimeUtils<T>::generateRandomPrime(min, max);
@@ -13,7 +12,7 @@ std::pair<std::pair<T, T>, std::pair<T, T>> RSAKeyGenerator<T>::generateKeys(T m
     T n = p * q;
     T phi = (p - 1) * (q - 1);
 
-    T e = 65537; // Typical RSA public exponent
+    T e = 65537;
     if (PrimeUtils<T>::gcd(e, phi) != 1) {
         throw std::runtime_error("e and phi(n) are not coprime");
     }
@@ -46,27 +45,28 @@ RSAKeyGenerator<T>::importPublicKeyFromJSON(const std::string& json) {
     return { e, n };
 }
 
+
 template <typename T>
 std::pair<T, T> RSAKeyGenerator<T>::importPrivateKeyFromJSON(const std::string& json) {
-    auto ePos = json.find("\"e\":");
+    auto dPos = json.find("\"d\":");
     auto nPos = json.find("\"n\":");
 
-    if (ePos == std::string::npos || nPos == std::string::npos) {
+    if (dPos == std::string::npos || nPos == std::string::npos) {
         throw std::invalid_argument("Invalid JSON format for private key");
     }
 
-    auto eStart = json.find("\"", ePos + 4) + 1;
-    auto eEnd = json.find("\"", eStart);
+    auto dStart = json.find("\"", dPos + 4) + 1;
+    auto dEnd   = json.find("\"", dStart);
     auto nStart = json.find("\"", nPos + 4) + 1;
-    auto nEnd = json.find("\"", nStart);
+    auto nEnd   = json.find("\"", nStart);
 
-    if (eStart == std::string::npos || eEnd == std::string::npos ||
+    if (dStart == std::string::npos || dEnd == std::string::npos ||
         nStart == std::string::npos || nEnd == std::string::npos) {
         throw std::invalid_argument("Invalid JSON format for private key");
     }
 
-    T e = T(json.substr(eStart, eEnd - eStart));
-    T n = T(json.substr(nStart, nEnd - nStart));
+    T dVal = T(json.substr(dStart, dEnd - dStart));
+    T nVal = T(json.substr(nStart, nEnd - nStart));
 
-    return {e, n};
+    return { dVal, nVal };
 }

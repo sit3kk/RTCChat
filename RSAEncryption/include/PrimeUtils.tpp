@@ -2,30 +2,19 @@
 #include <ctime>
 
 template <IntegerType T>
-bool PrimeUtils<T>::isPrime(T num) {
-    if (num <= 1) return false;
-    if (num <= 3) return true;
-    if (num % 2 == 0 || num % 3 == 0) return false;
-
-    T i = 5;
-    while (i * i <= num) {
-        if (num % i == 0 || num % (i + 2) == 0) return false;
-        i += 6;
-    }
-    return true;
-}
-
-template <IntegerType T>
 T PrimeUtils<T>::generateRandomPrime(T min, T max) {
-    T candidate;
     gmp_randclass randGen(gmp_randinit_default);
-    randGen.seed(static_cast<unsigned long>(time(nullptr)));
+    randGen.seed(static_cast<unsigned long>(std::chrono::steady_clock::now().time_since_epoch().count()));
+
+    T candidate;
 
     do {
         candidate = randGen.get_z_range(max - min + 1) + min;
-    } while (!isPrime(candidate));
 
-    return candidate;
+        if (mpz_probab_prime_p(candidate.get_mpz_t(), 10)) {
+            return candidate;
+        }
+    } while (true);
 }
 
 template <IntegerType T>

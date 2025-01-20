@@ -4,29 +4,30 @@
 #include <string>
 #include <utility>
 #include <sstream>
+#include <type_traits>
+#include "PGPFormatter.hpp"
 
-// Traits for serialization formats
 template <typename Format>
 struct KeyFormatTraits;
 
 struct PGPFormat {};
 struct JSONFormat {};
 
-// Specialization for PGP format
 template <>
 struct KeyFormatTraits<PGPFormat> {
     static constexpr const char* begin = "-----BEGIN PGP KEY BLOCK-----";
     static constexpr const char* end = "-----END PGP KEY BLOCK-----";
 };
 
-// Specialization for JSON format
 template <>
 struct KeyFormatTraits<JSONFormat> {
     static constexpr const char* begin = "{";
     static constexpr const char* end = "}";
 };
 
-// Template class for exporting keys
+template <typename T>
+struct always_false : std::false_type {};
+
 template <typename T, typename Format>
 class RSAKeyExporter {
 public:
@@ -38,4 +39,3 @@ public:
 #include "RSAKeyExporter.tpp"
 
 #endif // RSA_KEY_EXPORTER_HPP
-

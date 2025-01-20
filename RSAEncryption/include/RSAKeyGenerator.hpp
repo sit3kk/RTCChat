@@ -13,6 +13,7 @@ public:
     static std::pair<PublicKey, PrivateKey> generateKeys(T minPrime, T maxPrime);
     static PublicKey importPublicKeyFromJSON(const std::string& json);
     static PrivateKey importPrivateKeyFromJSON(const std::string& json);
+
 };
 
 #include "RSAKeyGenerator.tpp"
