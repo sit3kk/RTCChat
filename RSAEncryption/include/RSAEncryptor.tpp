@@ -167,15 +167,11 @@ std::string exportEncryptedMessage(const std::vector<T> &encryptedBlocks) {
     throw std::invalid_argument("Unsupported format for encrypted message export");
 }
 
-/**
- * Import zaszyfrowanej wiadomości z wybranego formatu.
- */
 template <typename Format, typename T>
 std::vector<T> importEncryptedMessage(const std::string &message) {
     std::vector<T> encryptedBlocks;
     if constexpr (std::is_same_v<Format, PGPFormat>) {
         std::string decodedMessage = importPGPMessage(message);
-        // Zakładamy, że bloki są połączone w jeden ciąg
         encryptedBlocks.push_back(T(decodedMessage));
     } else if constexpr (std::is_same_v<Format, JSONFormat>) {
         size_t start = message.find('[');
