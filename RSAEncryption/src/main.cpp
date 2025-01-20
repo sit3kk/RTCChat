@@ -60,7 +60,7 @@ int main() {
     auto signature = RSAEncryptor<MyType>::generateSignature(message, d, n);
     std::cout << "\nGenerated Signature for message: " << message << "\n" << signature << "\n\n";
 
-    bool isValidSignature = SAEncryptor<MyType>::verifySignature(signature, message, e, n);
+    bool isValidSignature = RSAEncryptor<MyType>::verifySignature(signature, message, e, n);
     std::cout << "Signature Valid: " << (isValidSignature ? "Yes" : "No") << "\n\n";
 
     std::string signaturePGP = RSASignatureManager<MyType>::exportSignature<PGPFormat>(signature, message);
@@ -81,4 +81,4 @@ int main() {
     std::cout << "Imported Signature (JSON) Valid: " << (isImportedJSONValid ? "Yes" : "No") << "\n";
 
     return 0;
-}R
+}
