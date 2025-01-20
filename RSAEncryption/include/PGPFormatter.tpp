@@ -70,3 +70,60 @@ std::string exportPGPPrivateKey(const std::pair<T, T> &privateKey) {
         << "-----END PGP PRIVATE KEY-----";
     return oss.str();
 }
+
+template <typename T>
+std::string exportPGPCertificate(const std::string& ownerName, const std::pair<T, T>& publicKey, const T& signature) {
+
+    std::ostringstream oss;
+    oss << "Owner Name: " << ownerName << "\n";
+    oss << "Public Key: (e=" << publicKey.first.get_str() << ", n=" << publicKey.second.get_str() << ")\n";
+    oss << "Signature: " << signature.get_str();
+
+    std::vector<uint8_t> rawBytes(oss.str().begin(), oss.str().end());
+    std::string encoded = Base64::encode(rawBytes);
+
+    std::ostringstream formatted;
+    formatted << PGP_CERTIFICATE_BEGIN << "\n";
+    formatted << wrap64(encoded);
+    formatted << PGP_CERTIFICATE_END;
+    return formatted.str();
+}
+
+
+template <typename T>
+std::tuple<std::string, std::pair<T, T>, T> importPGPCertificate(const std::string& certificate) {
+    size_t start = certificate.find(PGP_CERTIFICATE_BEGIN);
+    size_t end = certificate.find(PGP_CERTIFICATE_END);
+    if (start == std::string::npos || end == std::string::npos) {
+        throw std::invalid_argument("Invalid PGP certificate format");
+    }
+
+    std::string base64Content = certificate.substr(
+        start + std::strlen(PGP_CERTIFICATE_BEGIN),
+        end - (start + std::strlen(PGP_CERTIFICATE_BEGIN))
+    );
+    base64Content.erase(std::remove_if(base64Content.begin(), base64Content.end(), ::isspace), base64Content.end());
+
+    std::vector<uint8_t> rawBytes = Base64::decode(base64Content);
+    std::string decoded(rawBytes.begin(), rawBytes.end());
+
+    std::istringstream iss(decoded);
+    std::string line, ownerName;
+    std::pair<T, T> publicKey;
+    T signature;
+
+    while (std::getline(iss, line)) {
+        if (line.find("Owner Name: ") == 0) {
+            ownerName = line.substr(12);
+        } else if (line.find("Public Key: ") == 0) {
+            size_t ePos = line.find("e=");
+            size_t nPos = line.find(", n=");
+            publicKey.first = T(line.substr(ePos + 2, nPos - (ePos + 2)));
+            publicKey.second = T(line.substr(nPos + 4));
+        } else if (line.find("Signature: ") == 0) {
+            signature = T(line.substr(11));
+        }
+    }
+
+    return {ownerName, publicKey, signature};
+}
