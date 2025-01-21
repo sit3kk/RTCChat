@@ -81,6 +81,7 @@ const useAgora = (callType: "audio" | "video") => {
       },
     };
 
+    if (!engineRef.current) return;
     engineRef.current.registerEventHandler(eventHandlerRef.current);
 
     if (callType === "audio") {
@@ -88,7 +89,7 @@ const useAgora = (callType: "audio" | "video") => {
     } else {
       engineRef.current.enableVideo();
     }
-  }, [appId, permissionsGranted]);
+  }, [permissionsGranted]);
 
   const joinChannel = useCallback(async () => {
     if (!engineRef.current) return;
@@ -150,7 +151,7 @@ const useAgora = (callType: "audio" | "video") => {
     return () => {
       destroy();
     };
-  }, [init, destroy]);
+  }, [init, joinChannel, destroy]);
 
   return {
     isJoined,

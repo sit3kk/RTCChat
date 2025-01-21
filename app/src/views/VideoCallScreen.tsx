@@ -41,10 +41,9 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
   useEffect(() => {
     const unsubscribe = updateCallStatus(callSessionId, "joined");
     return () => {
-      unsubscribe.then(() => {
-        updateCallStatus(callSessionId, "ended");
+      unsubscribe.then(async () => {
+        await updateCallStatus(callSessionId, "ended");
         setIsCallActive(false);
-        // Alert.alert("Information", "The other party has ended the call.");
       });
     };
   }, [callSessionId]);
