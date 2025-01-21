@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Alert } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { updateCallStatus } from "../services/callSessionService";
-import useAgora from "../hooks/useAgora";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { db } from "../services/firebaseConfig";
 import { Colors } from "../styles/commonStyles";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import { formatCallDuration } from "../utils/utils";
@@ -11,84 +11,160 @@ import VideoCallControls from "../components/VideoCallControls";
 import DefaultCallControls from "../components/DefaultCallControls";
 import { Ionicons } from "@expo/vector-icons";
 import { InteractionStackParamList } from "../../App";
-import { RtcSurfaceView } from "react-native-agora";
+
+import {
+  createAgoraRtcEngine,
+  IRtcEngine,
+  IRtcEngineEventHandler,
+  ChannelProfileType,
+  ClientRoleType,
+  RtcSurfaceView,
+  RtcConnection,
+} from "react-native-agora";
+import { PermissionsAndroid, Platform } from "react-native";
+
+import { AGORA_APP_ID, AGORA_TOKEN, AGORA_UID, AGORA_CHANNEL_NAME } from "@env";
+
+type VideoCallRouteProp = RouteProp<InteractionStackParamList, "VideoCall">;
 
 interface VideoCallScreenProps {
-  route: RouteProp<InteractionStackParamList, "VideoCall">;
+  route: VideoCallRouteProp;
 }
+
+const appId = AGORA_APP_ID;
+const token = AGORA_TOKEN;
+const uid = parseInt(AGORA_UID, 10);
+const channelName = AGORA_CHANNEL_NAME;
 
 const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
   const navigation = useNavigation();
   const { callData } = route.params;
-  const { callPartner, callSessionId, callType } = callData;
+  const { callPartner, callSessionId } = callData;
 
-  const [isCallActive, setIsCallActive] = useState(false);
+  const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
   const [cameraOn, setCameraOn] = useState(true);
+  const [remoteUid, setRemoteUid] = useState<number>(0);
 
-  const {
-    isJoined,
-    remoteUid,
-    toggleMute,
-    setSpeakerphoneOn,
-    toggleCamera,
-    switchCamera,
-    leaveChannel,
-  } = useAgora(callType);
+  const agoraEngineRef = useRef<IRtcEngine | null>(null);
+  const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
 
   useEffect(() => {
-    const unsubscribe = updateCallStatus(callSessionId, "joined");
-    return () => {
-      unsubscribe.then(async () => {
-        await updateCallStatus(callSessionId, "ended");
-        setIsCallActive(false);
-      });
-    };
-  }, [callSessionId]);
+    const callDocRef = doc(db, "callSessions", callSessionId);
+    const unsub = onSnapshot(callDocRef, (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+      if (data.status === "rejected") {
+        Alert.alert("Information", "The call was rejected.");
+        navigation.goBack();
+      }
+      if (data.status === "ended") {
+        Alert.alert("Information", "The call has ended.");
+        navigation.goBack();
+      }
+    });
 
-  useEffect(() => {
-    isJoined && setIsCallActive(true);
-  }, [isJoined]);
+    return () => unsub();
+  }, []);
 
+  // Timer
   useEffect(() => {
-    if (!isCallActive) {
-      leaveChannel();
-    }
-  }, [isCallActive, leaveChannel]);
-
-  useEffect(() => {
-    let timerId: NodeJS.Timeout;
+    let interval: NodeJS.Timeout;
     if (isCallActive) {
-      timerId = setInterval(() => setCallDuration((prev) => prev + 1), 1000);
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
     }
-    return () => clearInterval(timerId);
+    return () => clearInterval(interval);
   }, [isCallActive]);
 
-  const handleEndCall = async () => {
-    await updateCallStatus(callSessionId, "ended");
-    leaveChannel();
+  useEffect(() => {
+    initAgora().then(() => {
+      joinChannel();
+    });
+
+    return () => {
+      leaveChannel();
+      agoraEngineRef.current?.unregisterEventHandler(eventHandlerRef.current!);
+      agoraEngineRef.current?.release();
+      agoraEngineRef.current = null;
+    };
+  }, []);
+
+  async function initAgora() {
+    if (Platform.OS === "android") {
+      await getPermission();
+    }
+    const engine = createAgoraRtcEngine();
+    agoraEngineRef.current = engine;
+
+    eventHandlerRef.current = {
+      onJoinChannelSuccess: (_connection, _elapsed) => {
+        console.log("Join channel success");
+      },
+      onUserJoined: (_connection: RtcConnection, remoteUid: number) => {
+        console.log("Remote user joined:", remoteUid);
+        setRemoteUid(remoteUid);
+      },
+      onUserOffline: (_connection, remoteUid) => {
+        console.log("Remote user offline:", remoteUid);
+        setRemoteUid(0);
+      },
+    };
+    engine.registerEventHandler(eventHandlerRef.current);
+
+    engine.initialize({
+      appId: appId,
+      channelProfile: ChannelProfileType.ChannelProfileCommunication,
+    });
+    engine.enableVideo();
+
+    engine.startPreview();
+  }
+
+  function joinChannel() {
+    agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+      clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+      autoSubscribeAudio: true,
+      autoSubscribeVideo: true,
+      publishCameraTrack: true,
+      publishMicrophoneTrack: true,
+    });
+  }
+
+  function leaveChannel() {
+    agoraEngineRef.current?.leaveChannel();
+  }
+
+  async function handleEndCall() {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "ended",
+    });
     navigation.goBack();
-  };
+  }
 
-  const handleMuteToggle = () => {
-    toggleMute(!muted);
-    setMuted((muted) => !muted);
-  };
+  function handleMuteToggle() {
+    const newMuteState = !muted;
+    setMuted(newMuteState);
+    agoraEngineRef.current?.muteLocalAudioStream(newMuteState);
+  }
 
-  const handleSpeakerToggle = () => {
-    setSpeakerphoneOn(!speakerOn);
-    setSpeakerOn((speakerOn) => !speakerOn);
-  };
+  function handleSpeakerToggle() {
+    const newSpeakerState = !speakerOn;
+    setSpeakerOn(newSpeakerState);
+    agoraEngineRef.current?.setEnableSpeakerphone(newSpeakerState);
+  }
 
   function handleCameraToggle() {
-    toggleCamera(!cameraOn);
-    setCameraOn((cameraOn) => !cameraOn);
+    const newCameraState = !cameraOn;
+    setCameraOn(newCameraState);
+    agoraEngineRef.current?.muteLocalVideoStream(!newCameraState);
   }
 
   function handleSwapCamera() {
-    switchCamera();
+    agoraEngineRef.current?.switchCamera();
   }
 
   return (
@@ -130,10 +206,10 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 
         <View style={styles.videoCallPartnerContainer}>
           <View style={styles.callPartnerVideoView}>
-            {remoteUid !== 0 ? ( // TODO: tmp condition for remoteUid
+            {remoteUid !== 0 ? (
               <RtcSurfaceView
                 style={{ width: "100%", height: "100%" }}
-                canvas={{ uid: remoteUid }} // TODO: we assume that uid is at index 0
+                canvas={{ uid: remoteUid }}
               />
             ) : (
               <>
@@ -164,6 +240,15 @@ const VideoCallScreen: React.FC<VideoCallScreenProps> = ({ route }) => {
 };
 
 export default VideoCallScreen;
+
+async function getPermission() {
+  if (Platform.OS === "android") {
+    await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    ]);
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -251,5 +336,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 30,
+    zIndex: 1,
   },
 });

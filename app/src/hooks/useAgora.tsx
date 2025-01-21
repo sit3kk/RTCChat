@@ -1,167 +1,152 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PermissionsAndroid, Platform } from "react-native";
 import {
   createAgoraRtcEngine,
   IRtcEngine,
   IRtcEngineEventHandler,
   ChannelProfileType,
   ClientRoleType,
+  RtcConnection,
 } from "react-native-agora";
 
-import { PermissionsAndroid, Platform } from "react-native";
-import { AGORA_APP_ID, AGORA_CHANNEL_NAME, AGORA_TOKEN, AGORA_UID } from "@env";
+import { AGORA_TOKEN, AGORA_APP_ID } from "@env";
 
-interface AgoraConfig {
-  appId: string;
+interface UseAgoraProps {
   channelName: string;
-  token: string;
-  uid: number;
+  isVideoCall?: boolean;
 }
 
-// This configuration is used to connect to the Agora service for testing purposes.
-const config: AgoraConfig = {
-  appId: AGORA_APP_ID,
-  channelName: AGORA_CHANNEL_NAME,
-  token: AGORA_TOKEN,
-  uid: parseInt(AGORA_UID, 10),
-};
-const useAgora = (callType: "audio" | "video") => {
-  const { appId, channelName, token, uid } = config;
-  const engineRef = useRef<IRtcEngine | null>(null);
+export function useAgora({ channelName, isVideoCall = false }: UseAgoraProps) {
+  const agoraEngineRef = useRef<IRtcEngine | null>(null);
   const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
-  const [isJoined, setIsJoined] = useState<boolean>(false);
+
   const [remoteUid, setRemoteUid] = useState<number>(0);
-  // const [remoteUid, setRemoteUid] = useState<number[]>([]);
-  const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
+  const [isCallActive, setIsCallActive] = useState(true);
+  const [callDuration, setCallDuration] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const [speakerOn, setSpeakerOn] = useState(true);
+  const [cameraOn, setCameraOn] = useState(isVideoCall);
 
   useEffect(() => {
-    const requestPermissions = async () => {
-      if (Platform.OS === "android") {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-        ]);
-        setPermissionsGranted(
-          granted["android.permission.RECORD_AUDIO"] ===
-            PermissionsAndroid.RESULTS.GRANTED &&
-            granted["android.permission.CAMERA"] ===
-              PermissionsAndroid.RESULTS.GRANTED
-        );
-      } else {
-        setPermissionsGranted(true);
-      }
-    };
+    let interval: ReturnType<typeof setInterval>;
+    if (isCallActive) {
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isCallActive]);
 
-    requestPermissions();
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS === "android") {
+        await requestAndroidPermissions();
+      }
+      initAgora();
+      joinChannel();
+    })();
+
+    return () => {
+      leaveChannel();
+      agoraEngineRef.current?.unregisterEventHandler(eventHandlerRef.current!);
+      agoraEngineRef.current?.release();
+      agoraEngineRef.current = null;
+    };
   }, []);
 
-  const init = useCallback(async () => {
-    if (!permissionsGranted || engineRef.current) return;
+  async function requestAndroidPermissions() {
+    await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    ]);
+  }
 
-    engineRef.current = createAgoraRtcEngine();
-    engineRef.current.initialize({
-      appId: appId,
-      channelProfile: ChannelProfileType.ChannelProfileCommunication,
-    });
+  function initAgora() {
+    const engine = createAgoraRtcEngine();
+    agoraEngineRef.current = engine;
 
     eventHandlerRef.current = {
       onJoinChannelSuccess: (_connection, _elapsed) => {
-        setIsJoined(true);
         console.log("Join channel success");
       },
-      onUserJoined: (_connection, remoteUid, _elapsed) => {
+      onUserJoined: (_connection: RtcConnection, remoteUid: number) => {
         console.log("Remote user joined:", remoteUid);
-        // setRemoteUid((prevUids) => [...prevUids, uid]);
         setRemoteUid(remoteUid);
       },
-      onUserOffline: (_connection, uid, _reason) => {
-        console.log("Remote user offline:", uid);
-        // setRemoteUid((prevUids) => prevUids.filter((id) => id !== uid));
+      onUserOffline: (_connection, remoteUid) => {
+        console.log("Remote user offline:", remoteUid);
         setRemoteUid(0);
       },
     };
+    engine.registerEventHandler(eventHandlerRef.current);
 
-    if (!engineRef.current) return;
-    engineRef.current.registerEventHandler(eventHandlerRef.current);
-
-    if (callType === "audio") {
-      engineRef.current.enableAudio();
-    } else {
-      engineRef.current.enableVideo();
-      engineRef.current.startPreview();
-    }
-  }, [permissionsGranted]);
-
-  const joinChannel = useCallback(async () => {
-    if (!engineRef.current) return;
-
-    const joinChannelVideoOptions = {
-      autoSubscribeVideo: true,
-      publishCameraTrack: true,
-    };
-
-    try {
-      engineRef.current?.joinChannel(token, channelName, uid, {
-        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
-        autoSubscribeAudio: true,
-        publishMicrophoneTrack: true,
-        ...(callType === "video" ? joinChannelVideoOptions : {}),
-      });
-    } catch (error) {
-      console.warn("Join channel error", error);
-    }
-  }, [callType, token, channelName, uid]);
-
-  const leaveChannel = async () => {
-    if (!engineRef.current) return;
-    engineRef.current.leaveChannel();
-    setIsJoined(false);
-  };
-
-  const toggleMute = async (mute: boolean) => {
-    engineRef.current?.muteLocalAudioStream(mute);
-  };
-
-  const setSpeakerphoneOn = async (on: boolean) => {
-    engineRef.current?.setEnableSpeakerphone(on);
-  };
-
-  const toggleCamera = useCallback(async (enable: boolean) => {
-    engineRef.current?.muteLocalVideoStream(!enable);
-  }, []);
-
-  const switchCamera = useCallback(async () => {
-    engineRef.current?.switchCamera();
-  }, []);
-
-  const destroy = useCallback(async () => {
-    if (!engineRef.current) return;
-    engineRef.current.leaveChannel();
-    engineRef.current.unregisterEventHandler(eventHandlerRef.current!);
-    engineRef.current?.release();
-    engineRef.current = null;
-    setIsJoined(false);
-    // setRemoteUid(0);
-  }, []);
-
-  useEffect(() => {
-    init().then(() => {
-      joinChannel();
+    engine.initialize({
+      appId: AGORA_APP_ID,
+      channelProfile: ChannelProfileType.ChannelProfileCommunication,
     });
 
-    return () => {
-      destroy();
-    };
-  }, [init, joinChannel, destroy]);
+    if (isVideoCall) {
+      engine.enableVideo();
+      engine.startPreview();
+    } else {
+      engine.enableAudio();
+    }
+
+    engine.enableAudio();
+  }
+
+  function joinChannel() {
+    agoraEngineRef.current?.joinChannel(AGORA_TOKEN, channelName, 0, {
+      clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+      autoSubscribeAudio: true,
+      autoSubscribeVideo: isVideoCall,
+      publishCameraTrack: isVideoCall,
+      publishMicrophoneTrack: true,
+    });
+  }
+
+  function leaveChannel() {
+    agoraEngineRef.current?.leaveChannel();
+  }
+
+  function toggleMute() {
+    const newMute = !muted;
+    setMuted(newMute);
+    agoraEngineRef.current?.muteLocalAudioStream(newMute);
+  }
+
+  function toggleSpeaker() {
+    const newSpeaker = !speakerOn;
+    setSpeakerOn(newSpeaker);
+    agoraEngineRef.current?.setEnableSpeakerphone(newSpeaker);
+  }
+
+  function toggleCamera() {
+    if (isVideoCall) {
+      const newCameraOn = !cameraOn;
+      setCameraOn(newCameraOn);
+      agoraEngineRef.current?.muteLocalVideoStream(!newCameraOn);
+    }
+  }
+
+  function switchCamera() {
+    if (isVideoCall) {
+      agoraEngineRef.current?.switchCamera();
+    }
+  }
 
   return {
-    isJoined,
     remoteUid,
+    isCallActive,
+    setIsCallActive,
+    callDuration,
+    muted,
+    speakerOn,
+    cameraOn,
     toggleMute,
-    setSpeakerphoneOn,
+    toggleSpeaker,
     toggleCamera,
     switchCamera,
     leaveChannel,
   };
-};
-
-export default useAgora;
+}

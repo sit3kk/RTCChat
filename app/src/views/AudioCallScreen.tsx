@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Alert } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import {
-  subscribeToCallSession,
-  updateCallStatus,
-} from "../services/callSessionService";
-import useAgora from "../hooks/useAgora";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { db } from "../services/firebaseConfig";
 import { Colors } from "../styles/commonStyles";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import DefaultCallControls from "../components/DefaultCallControls";
@@ -13,72 +10,148 @@ import { formatCallDuration } from "../utils/utils";
 import InactiveCallOverlay from "../components/InactiveCallOverlay";
 import { InteractionStackParamList } from "../../App";
 
+import {
+  createAgoraRtcEngine,
+  IRtcEngine,
+  IRtcEngineEventHandler,
+  ChannelProfileType,
+  ClientRoleType,
+} from "react-native-agora";
+
+import { PermissionsAndroid, Platform } from "react-native";
+
+import { AGORA_APP_ID, AGORA_TOKEN, AGORA_UID, AGORA_CHANNEL_NAME } from "@env";
+
+type AudioCallRouteProp = RouteProp<InteractionStackParamList, "AudioCall">;
+
 interface AudioCallScreenProps {
-  route: RouteProp<InteractionStackParamList, "AudioCall">;
+  route: AudioCallRouteProp;
 }
+
+const appId = AGORA_APP_ID;
+const token = AGORA_TOKEN;
+const uid = parseInt(AGORA_UID, 10);
+const channelName = AGORA_CHANNEL_NAME;
 
 const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
   const navigation = useNavigation();
   const { callData } = route.params;
-  const { callPartner, callSessionId, callType } = callData;
-  const [muted, setMuted] = useState(false);
-  const [speakerOn, setSpeakerOn] = useState(false);
+  const { callPartner, callSessionId } = callData;
+
+  const agoraEngineRef = useRef<IRtcEngine | null>(null);
+  const eventHandlerRef = useRef<IRtcEngineEventHandler>({});
+  const [remoteUid, setRemoteUid] = useState<number>(0);
+
   const [isCallActive, setIsCallActive] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
-
-  const { isJoined, leaveChannel, toggleMute, setSpeakerphoneOn } =
-    useAgora(callType);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToCallSession(
-      callSessionId,
-      (data) => {
-        if (["rejected", "ended"].includes(data.status)) {
-          setIsCallActive(false);
-          // Alert.alert(
-          //   "Information",
-          //   `The other party has ${data.status} the call.`
-          // );
-        }
-      },
-      console.error
-    );
-    return () => unsubscribe();
-  }, [callSessionId]);
+  const [muted, setMuted] = useState(false);
+  const [speakerOn, setSpeakerOn] = useState(false);
 
   useEffect(() => {
-    isJoined && setIsCallActive(true);
-  }, [isJoined]);
+    const callDocRef = doc(db, "callSessions", callSessionId);
+    const unsub = onSnapshot(callDocRef, (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+      if (data.status === "rejected") {
+        Alert.alert("Information", "The other party rejected the call.");
+        navigation.goBack();
+      }
+      if (data.status === "ended") {
+        Alert.alert("Information", "The call has ended.");
+        navigation.goBack();
+      }
+    });
 
-  useEffect(() => {
-    if (!isCallActive) {
-      leaveChannel();
-    }
-  }, [isCallActive, leaveChannel]);
+    return () => unsub();
+  }, []);
 
+  // Timer
   useEffect(() => {
-    let timerId: NodeJS.Timeout;
+    let interval: NodeJS.Timeout;
     if (isCallActive) {
-      timerId = setInterval(() => setCallDuration((prev) => prev + 1), 1000);
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
     }
-    return () => clearInterval(timerId);
+    return () => clearInterval(interval);
   }, [isCallActive]);
 
-  const handleEndCall = async () => {
-    await updateCallStatus(callSessionId, "ended");
-    leaveChannel();
+  useEffect(() => {
+    initAgora().then(() => {
+      joinChannel();
+    });
+
+    return () => {
+      leaveChannel();
+      agoraEngineRef.current?.unregisterEventHandler(eventHandlerRef.current!);
+      agoraEngineRef.current?.release();
+      agoraEngineRef.current = null;
+    };
+  }, []);
+
+  async function initAgora() {
+    if (Platform.OS === "android") {
+      await getPermission();
+    }
+    const agoraEngine = createAgoraRtcEngine();
+    agoraEngineRef.current = agoraEngine;
+
+    // Zarejestruj eventy
+    eventHandlerRef.current = {
+      onJoinChannelSuccess: (_connection, _elapsed) => {
+        console.log("Join channel success");
+      },
+      onUserJoined: (_connection, remoteUid) => {
+        console.log("Remote user joined:", remoteUid);
+        setRemoteUid(remoteUid);
+      },
+      onUserOffline: (_connection, remoteUid) => {
+        console.log("Remote user offline:", remoteUid);
+        setRemoteUid(0);
+      },
+    };
+    agoraEngine.registerEventHandler(eventHandlerRef.current);
+
+    agoraEngine.initialize({
+      appId: appId,
+      channelProfile: ChannelProfileType.ChannelProfileCommunication,
+    });
+    agoraEngine.enableAudio();
+  }
+
+  async function joinChannel() {
+    try {
+      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+        autoSubscribeAudio: true,
+      });
+    } catch (err) {
+      console.warn("Join channel error", err);
+    }
+  }
+
+  function leaveChannel() {
+    agoraEngineRef.current?.leaveChannel();
+  }
+
+  async function handleEndCall() {
+    await updateDoc(doc(db, "callSessions", callSessionId), {
+      status: "ended",
+    });
     navigation.goBack();
-  };
+  }
 
-  const handleMuteToggle = () => {
-    toggleMute(!muted);
-    setMuted((muted) => !muted);
-  };
+  function handleMuteToggle() {
+    const newMuteState = !muted;
+    setMuted(newMuteState);
+    agoraEngineRef.current?.muteLocalAudioStream(newMuteState);
+  }
 
-  const handleSpeakerToggle = () => {
-    setSpeakerphoneOn(!speakerOn);
-    setSpeakerOn((speakerOn) => !speakerOn);
-  };
+  function handleSpeakerToggle() {
+    const newSpeakerState = !speakerOn;
+    setSpeakerOn(newSpeakerState);
+    agoraEngineRef.current?.setEnableSpeakerphone(newSpeakerState);
+  }
 
   return (
     <>
@@ -109,6 +182,15 @@ const AudioCallScreen: React.FC<AudioCallScreenProps> = ({ route }) => {
 };
 
 export default AudioCallScreen;
+
+async function getPermission() {
+  if (Platform.OS === "android") {
+    await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    ]);
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
