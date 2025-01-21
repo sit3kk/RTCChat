@@ -19,7 +19,7 @@ import DiamondBackground from "../components/ui/DiamondBackground";
 import SegmentedControl from "../components/ui/SegmentedControl";
 import { ChatItem } from "../types/commonTypes";
 
-const ChatIListItem: React.FC<{
+const ChatListItem: React.FC<{
   chat: ChatItem;
   onPress: () => void;
 }> = ({ chat, onPress }) => (
@@ -104,7 +104,7 @@ const ChatsScreen: React.FC = () => {
 
   const renderChatItem = useCallback(
     ({ item }: { item: ChatItem }) => (
-      <ChatIListItem
+      <ChatListItem
         chat={item}
         onPress={() =>
           navigation.navigate("InteractionStack", {
