@@ -8,6 +8,7 @@ import {
 } from "react-native-agora";
 
 import { PermissionsAndroid, Platform } from "react-native";
+import { AGORA_APP_ID, AGORA_CHANNEL_NAME, AGORA_TOKEN, AGORA_UID } from "@env";
 
 interface AgoraConfig {
   appId: string;
@@ -17,14 +18,12 @@ interface AgoraConfig {
 }
 
 // This configuration is used to connect to the Agora service for testing purposes.
-const config = {
-  appId: "f2f502f3c8ee422b9511b9d0c04e6821",
-  channelName: "test",
-  token:
-    "007eJxTYGBVmr+g/fnecKfVm/ZeMMnZJ8T+YHbw5su7CpTuWDKtFSxRYEgzSjM1MEozTrZITTUxMkqyNDU0TLJMMUg2MEk1szAyfM7am94QyMhgn9bIzMgAgSA+C0NJanEJAwMAN0Qesw==",
-  uid: 0,
-} as AgoraConfig;
-
+const config: AgoraConfig = {
+  appId: AGORA_APP_ID,
+  channelName: AGORA_CHANNEL_NAME,
+  token: AGORA_TOKEN,
+  uid: parseInt(AGORA_UID, 10),
+};
 const useAgora = (callType: "audio" | "video") => {
   const { appId, channelName, token, uid } = config;
   const engineRef = useRef<IRtcEngine | null>(null);
@@ -87,6 +86,7 @@ const useAgora = (callType: "audio" | "video") => {
       engineRef.current.enableAudio();
     } else {
       engineRef.current.enableVideo();
+      engineRef.current.startPreview();
     }
   }, [appId, permissionsGranted]);
 
