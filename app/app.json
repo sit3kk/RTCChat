@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
-    "scheme": "app",
+    "name": "app1",
+    "slug": "app1",
+    "scheme": "app1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sit3kk.app"
+      "bundleIdentifier": "com.sit3kk.app1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.sit3kk.app"
+      "package": "com.sit3kk.app1"
     },
     "web": {
       "favicon": "./assets/favicon.png"

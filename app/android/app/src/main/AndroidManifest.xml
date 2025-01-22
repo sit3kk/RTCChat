@@ -27,6 +27,9 @@
         <data android:scheme="app"/>
         <data android:scheme="com.sit3kk.app"/>
         <data android:scheme="exp+app"/>
+        <data android:scheme="app1"/>
+        <data android:scheme="com.sit3kk.app1"/>
+        <data android:scheme="exp+app1"/>
       </intent-filter>
     </activity>
   </application>

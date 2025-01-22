@@ -3,7 +3,6 @@
 
 #include <gmpxx.h>
 
-// Koncept dla liczb całkowitych
 template <typename T>
 concept IntegerType = requires(T a, T b) {
     { a % b } -> std::convertible_to<T>;
