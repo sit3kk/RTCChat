@@ -45,17 +45,17 @@
 
 4. Registry
    ```
-   TODO
+   UserDataProvider, useUserData
    ```
 
 5. Separated Interface
    ```
    export interface Contact {
-    contactId: string;
-    userId: string;
-    name: string;
-    avatar: string;
-    createdAt: Timestamp;
+        contactId: string;
+        userId: string;
+        name: string;
+        avatar: string;
+        createdAt: Timestamp;
     }
 
    ```
@@ -78,7 +78,7 @@
     }
    ```
 
-8.  Foreign Key Mapping
+8. Foreign Key Mapping
    ```
     export interface Contact {
         contactId: string;
@@ -88,48 +88,44 @@
         createdAt: Timestamp;
     }
    ```
-9. Association Table Mapping
-    ```
-    TODO
-    ```
 
 #### Wzorce prezentacji internetowych
 
-10.  Template View
+9. Template View
     ```
     export function ContactsListItem({ item }: { item: Contact }) {
-    const navigation = useNavigation<AuthenticatedStackProp>();
-    const chatId = [item.userId, item.contactId].sort().join("_");
-    const handleItemPress = () => {
-        navigation.navigate("InteractionStack", {
-        screen: "ChatDetails",
-        params: {
-            chatId: chatId,
-            contactId: item.userId,
-            contactName: item.name,
-            contactAvatar: item.avatar,
-        },
-        });
-    };
-    return (
-        <TouchableOpacity style={styles.contactItem} onPress={handleItemPress}>
-        <Image source={{ uri: item.avatar }} style={styles.contactAvatar} />
-        <View style={styles.contactInnerContainer}>
-            <Text style={styles.contactName}>{item.name}</Text>
-            <Ionicons
-            name={"chevron-forward-outline"}
-            size={20}
-            color={Colors.primary}
-            />
-        </View>
-        </TouchableOpacity>
-    );
+        const navigation = useNavigation<AuthenticatedStackProp>();
+        const chatId = [item.userId, item.contactId].sort().join("_");
+        const handleItemPress = () => {
+            navigation.navigate("InteractionStack", {
+            screen: "ChatDetails",
+            params: {
+                chatId: chatId,
+                contactId: item.userId,
+                contactName: item.name,
+                contactAvatar: item.avatar,
+            },
+            });
+        };
+        return (
+            <TouchableOpacity style={styles.contactItem} onPress={handleItemPress}>
+            <Image source={{ uri: item.avatar }} style={styles.contactAvatar} />
+            <View style={styles.contactInnerContainer}>
+                <Text style={styles.contactName}>{item.name}</Text>
+                <Ionicons
+                name={"chevron-forward-outline"}
+                size={20}
+                color={Colors.primary}
+                />
+            </View>
+            </TouchableOpacity>
+        );
     }
     ```
 
 #### Wzorce zachowań dla mapowania obiektowo-relacyjnego
 
-11. Lazy Load
+10. Lazy Load
     ```
     FlatList in PendingInvitations component
 
@@ -139,14 +135,14 @@
     ```
 
 #### Wzorce logiki dziedziny
-12. Transaction Script
+11. Transaction Script
     ```
     fetchInvitations
     sendInvitation
     acceptInvitation
     rejectInvitation
     ```
-13. Service Layer
+12. Service Layer
     ```
     callSessionService.ts
     chatService.ts
