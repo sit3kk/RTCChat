@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, DeviceEventEmitter } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { useUserData } from "../store/UserDataProvider";
-import { Invitation } from "../types/commonTypes";
 import {
-  fetchInvitations,
+  listenForInvitations,
   sendInvitation,
   acceptInvitation,
   rejectInvitation,
 } from "../services/contactService";
+import { Invitation } from "../types/commonTypes";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import LoadingScreen from "./LoadingScreen";
 import PendingInvitations from "../components/PendingInvitations";
 import InviteForm from "../components/InviteForm";
-import { mockInvitations } from "../tests/mockData";
-import { AuthenticatedStackProp } from "../../App";
-import { useNavigation } from "@react-navigation/native";
-import IconButton from "../components/ui/IconButton";
 import { Colors } from "../styles/commonStyles";
+import { useNavigation } from "@react-navigation/native";
+import { AuthenticatedStackProp } from "../../App";
+import IconButton from "../components/ui/IconButton";
 
 const InvitationsHeader: React.FC = () => {
   const navigation = useNavigation<AuthenticatedStackProp>();
@@ -46,36 +45,32 @@ const InvitationsHeader: React.FC = () => {
 
 const InvitationsScreen: React.FC = () => {
   const { userId, userName } = useUserData();
-  const [invitationCode, setInvitationCode] = useState("");
   const [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [status, setStatus] = useState("");
+  const [invitationCode, setInvitationCode] = useState("");
+  const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const fetchedInvitations = await fetchInvitations(userId);
-      setInvitations(fetchedInvitations);
-      // setInvitations(mockInvitations);
-    } catch (error) {
-      console.error("Failed to fetch invitations:", error);
-      setStatus("Failed to load invitations.");
-    }
-    setLoading(false);
-  };
+  useEffect(() => {
+    const unsubscribe = listenForInvitations(userId, (newInvitations) => {
+      setInvitations(newInvitations);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
 
   const handleSendInvitation = async () => {
     if (invitationCode.length !== 4) {
       setStatus("Invitation code must be 4 characters long.");
       return;
     }
-    const response = await sendInvitation(userId, userName, invitationCode);
-    if (response.success) {
-      setStatus("Invitation sent!");
+
+    try {
+      await sendInvitation(userId, userName, invitationCode);
+      setStatus("Invitation sent successfully!");
       setInvitationCode("");
-    } else {
-      console.error("Error sending invitation:", response.message);
-      setStatus(response.message);
+    } catch (error: any) {
+      setStatus(`Error: ${error.message}`);
     }
   };
 
@@ -86,11 +81,8 @@ const InvitationsScreen: React.FC = () => {
     try {
       await acceptInvitation(userId, invitationId, fromUserId);
       setStatus("Invitation accepted!");
-      loadData();
-      DeviceEventEmitter.emit("onContactAdded");
-    } catch (error) {
-      console.error("Error accepting invitation:", error);
-      setStatus("Failed to accept invitation.");
+    } catch (error: any) {
+      setStatus(`Error: ${error.message}`);
     }
   };
 
@@ -98,17 +90,10 @@ const InvitationsScreen: React.FC = () => {
     try {
       await rejectInvitation(invitationId);
       setStatus("Invitation rejected.");
-      loadData();
-      DeviceEventEmitter.emit("onContactAdded");
-    } catch (error) {
-      console.error("Error rejecting invitation:", error);
-      setStatus("Failed to reject invitation.");
+    } catch (error: any) {
+      setStatus(`Error: ${error.message}`);
     }
   };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   return (
     <>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { View, StyleSheet, DeviceEventEmitter } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useUserData } from "../store/UserDataProvider";
 import SearchBar from "../components/ui/SearchBar";
 import DiamondBackground from "../components/ui/DiamondBackground";
 import ContactSection from "../components/ContactSection";
 import { Contact } from "../types/commonTypes";
-import { fetchContacts } from "../services/contactService";
+import { listenToContacts } from "../services/contactService";
 import { useFocusEffect } from "@react-navigation/native";
 import LoadingScreen from "./LoadingScreen";
 
@@ -24,46 +24,40 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        setContacts(await fetchContacts(userId));
-      } catch (error) {
-        console.error("Failed to fetch contacts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const unsubscribe = listenToContacts(userId, (newContacts) => {
+      setContacts(newContacts);
+      setLoading(false);
+    });
 
-    loadData();
-
-    // listen for contact added event
-    const subscription = DeviceEventEmitter.addListener(
-      "onContactAdded",
-      () => loadData
-    );
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+    return () => unsubscribe();
+  }, [userId]);
 
   useFocusEffect(
-    // clear the search query whenever the screen is focused
     useCallback(() => {
       setSearchQuery("");
     }, [])
   );
 
   const filteredContacts = useMemo(() => {
-    return contacts.filter((contact) =>
+    const filtered = contacts.filter((contact) =>
       contact.name.toLowerCase().startsWith(searchQuery.toLowerCase())
     );
+    return filtered;
   }, [searchQuery, contacts]);
 
   if (loading) {
     return <LoadingScreen />;
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error loading contacts: {error}</Text>
+      </View>
+    );
   }
 
   return (
@@ -80,7 +74,11 @@ const ContactsScreen: React.FC<ContactsScreenProps> = () => {
           autoCorrect={false}
         />
 
-        <ContactSection contactsData={filteredContacts} />
+        {filteredContacts.length > 0 ? (
+          <ContactSection contactsData={filteredContacts} />
+        ) : (
+          <Text style={styles.noContactsText}>No contacts found</Text>
+        )}
       </View>
     </>
   );
@@ -93,10 +91,22 @@ const styles = StyleSheet.create({
     alignContent: "flex-start",
     gap: 25,
   },
-  loadingContainer: {
+  errorContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "red",
+    textAlign: "center",
+  },
+  noContactsText: {
+    textAlign: "center",
+    fontSize: 18,
+    marginTop: 20,
+    color: "gray",
   },
 });
 
