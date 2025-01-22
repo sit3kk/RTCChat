@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Alert } from "react-native";
 import { useAuth } from "../store/AuthProvider";
 import { useUserData } from "../store/UserDataProvider";
 import DiamondBackground from "../components/ui/DiamondBackground";
@@ -9,6 +9,10 @@ import Button from "../components/ui/Button";
 const SettingsScreen: React.FC = () => {
   const authCtx = useAuth();
   const userCtx = useUserData();
+
+  const handleTestConnection = async () => {
+    Alert.alert("Test connection", "Connection successful!");
+  };
 
   const handleLogOut = async () => {
     authCtx.logout();
@@ -31,25 +35,10 @@ const SettingsScreen: React.FC = () => {
 
         <View style={{ marginTop: 100, gap: 10 }}>
           <Button
-            title="Edit profile"
+            title="Test connection"
             type={"secondary"}
-            disabled={true}
-            onPress={() => {}}
+            onPress={handleTestConnection}
           />
-          <Button
-            title="Change password"
-            type={"secondary"}
-            width={25}
-            disabled={true}
-            onPress={() => {}}
-          />
-          <Button
-            title="Delete account"
-            type={"secondary"}
-            disabled={true}
-            onPress={() => {}}
-          />
-
           <Button title="Log out" type={"secondary"} onPress={handleLogOut} />
         </View>
       </View>
