@@ -62,7 +62,7 @@ export default function LoginScreen() {
           style={{
             ...styles.textContainer,
             paddingTop: 100,
-            paddingRight: 20,
+            paddingRight: 13,
           }}
         >
           <Text style={styles.title}>More Than</Text>
@@ -87,9 +87,9 @@ export default function LoginScreen() {
           )}
         </View>
 
-        <View style={styles.textContainer}>
-          <Text style={{ ...styles.footerText, letterSpacing: 9 }}>
-            built on WebRTC
+        <View style={styles.footerContainer}>
+          <Text style={{ ...styles.footerText, letterSpacing: 7.8 }}>
+            built on AgoraSDK
           </Text>
           <Text style={styles.footerText}>by Konrad Sitek, Paweł Małecki</Text>
         </View>
@@ -106,15 +106,24 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   textContainer: {
+    position: "absolute",
+    top: "15%",
     justifyContent: "center",
     alignItems: "flex-start",
     height: 150,
   },
   middleContainer: {
-    height: 400,
+    position: "absolute",
+    top: "70%",
     justifyContent: "flex-end",
     alignItems: "center",
     gap: 10,
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 100,
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 40,
@@ -130,7 +139,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     color: Colors.textLight,
-    marginBottom: 10,
   },
   footerText: {
     fontSize: 14,
