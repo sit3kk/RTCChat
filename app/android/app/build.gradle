@@ -86,9 +86,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.sit3kk.app'
+    namespace "com.rtcchat"
     defaultConfig {
-        applicationId 'com.sit3kk.app'
+        applicationId 'com.sit3kk.rtcchat'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
