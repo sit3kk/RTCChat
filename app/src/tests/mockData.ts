@@ -1,7 +1,8 @@
-import { ContactSectionsType, Invitation } from "../types/commonTypes";
+import { Timestamp } from "firebase/firestore";
+import { ContactSectionsType, Invitation, Contact } from "../types/commonTypes";
 import { alphabet, randomAvatar } from "../utils/utils";
 
-export const mockContacts: ContactSectionsType[] = [
+const mockContacts: ContactSectionsType[] = [
   ...Array(alphabet.length - 15).keys(),
 ].map((sectionIndex) => {
   const letter = alphabet.charAt(sectionIndex + 5).toUpperCase();
@@ -9,15 +10,27 @@ export const mockContacts: ContactSectionsType[] = [
     title: letter,
     index: sectionIndex,
     key: `list-${letter}`,
-    data: [...Array(Math.floor(Math.random() * 7) + 5).keys()].map((i) => ({
-      id: `${letter}-Contact-${i + 1}`,
-      name: `${letter}-Contact ${i + 1}`,
-      avatar: randomAvatar(),
-    })),
+    data: [...Array(Math.floor(Math.random() * 7) + 5).keys()].map(
+      (i) =>
+        ({
+          id: `${letter}-Contact-${i + 1}`,
+          name: `${letter}-Contact ${i + 1}`,
+          contactId: `${letter}-Contact-${i + 1}`,
+          userId: `${letter}-Contact-${i + 1}`,
+          avatar: randomAvatar(),
+          createdAt: Timestamp.now(),
+        } as Contact)
+    ),
   };
 });
 
-export const mockInvitations: Invitation[] = [
+export function generateMockContactSections(
+  contacts: Contact[]
+): ContactSectionsType[] {
+  return mockContacts;
+}
+
+const mockInvitations: Invitation[] = [
   {
     id: "1",
     fromUserId: "user1",
@@ -59,3 +72,9 @@ export const mockInvitations: Invitation[] = [
     status: "Accepted",
   },
 ];
+
+export const fetchMockInvitations = async (
+  userId: string
+): Promise<Invitation[]> => {
+  return mockInvitations;
+};
