@@ -4,17 +4,21 @@ project(RSAEncryption)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
 set(OPTIMIZATION_FLAGS "-O3" "-march=native" "-funroll-loops")
 
-set(GMP_INCLUDE_DIR "/opt/homebrew/include")
-set(GMP_LIBRARY "/opt/homebrew/lib/libgmp.dylib")
-set(GMPXX_LIBRARY "/opt/homebrew/lib/libgmpxx.dylib")
-
-if(NOT EXISTS "${GMP_LIBRARY}" OR NOT EXISTS "${GMPXX_LIBRARY}" OR NOT IS_DIRECTORY "${GMP_INCLUDE_DIR}")
-    message(FATAL_ERROR "Nie znaleziono GMP w podanych ścieżkach. Zainstaluj GMP lub zaktualizuj GMP_INCLUDE_DIR/GMP_LIBRARY/GMPXX_LIBRARY.")
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(GMP_INCLUDE_DIR "/opt/homebrew/include")
+    set(GMP_LIBRARY "/opt/homebrew/lib/libgmp.dylib")
+    set(GMPXX_LIBRARY "/opt/homebrew/lib/libgmpxx.dylib")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_path(GMP_INCLUDE_DIR gmp.h)
+    find_library(GMP_LIBRARY NAMES gmp)
+    find_library(GMPXX_LIBRARY NAMES gmpxx)
 endif()
 
+if(NOT GMP_INCLUDE_DIR OR NOT GMP_LIBRARY OR NOT GMPXX_LIBRARY)
+    message(FATAL_ERROR "GMP not found. Ensure GMP is installed.")
+endif()
 
 include_directories(${GMP_INCLUDE_DIR})
 include_directories("${CMAKE_SOURCE_DIR}/include")

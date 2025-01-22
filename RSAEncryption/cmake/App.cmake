@@ -1,5 +1,3 @@
-# cmake/App.cmake
-
 add_executable(RSAEncryption
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Base64.cpp
@@ -8,7 +6,7 @@ add_executable(RSAEncryption
 target_link_libraries(RSAEncryption PRIVATE
     ${GMP_LIBRARY}
     ${GMPXX_LIBRARY}
-    OpenSSL::Crypto  # lub OpenSSL::SSL, jeżeli potrzebujesz SSL
+    OpenSSL::Crypto
 )
 
 target_compile_options(RSAEncryption PRIVATE

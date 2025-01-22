@@ -1,5 +1,3 @@
-# cmake/Tests.cmake
-
 add_executable(RSAEncryptionTests
     ${CMAKE_SOURCE_DIR}/tests/RSAEncryptionTests.cpp
 )
@@ -16,6 +14,7 @@ target_link_libraries(RSAEncryptionTests PRIVATE
 target_compile_options(RSAEncryptionTests PRIVATE
     ${OPTIMIZATION_FLAGS}
 )
+
 target_include_directories(RSAEncryptionTests PRIVATE
     ${OPENSSL_INCLUDE_DIR}
 )
