@@ -15,7 +15,6 @@ import {
 import { Contact, Invitation } from "../types/commonTypes";
 import { Timestamp } from "firebase/firestore";
 
-
 export const listenToContacts = (
   userId: string,
   onContactsChange: (contacts: Contact[]) => void
@@ -26,12 +25,19 @@ export const listenToContacts = (
   const unsubscribe = onSnapshot(contactsQuery, async (snapshot) => {
     const allContacts: Contact[] = [];
     const contactPromises = snapshot.docs.map(async (docSnap) => {
-      const contactData = docSnap.data() as { contactId: string; createdAt?: any };
+      const contactData = docSnap.data() as {
+        contactId: string;
+        createdAt?: any;
+        userId?: any;
+      };
       const contactUserRef = doc(db, "users", contactData.contactId);
       const contactUserDoc = await getDoc(contactUserRef);
 
       if (contactUserDoc.exists()) {
-        const userData = contactUserDoc.data() as { name: string; profilePic?: string };
+        const userData = contactUserDoc.data() as {
+          name: string;
+          profilePic?: string;
+        };
         allContacts.push({
           contactId: contactData.contactId,
           userId: contactData.userId,
@@ -43,7 +49,11 @@ export const listenToContacts = (
     });
 
     await Promise.all(contactPromises);
-    onContactsChange(allContacts.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+    onContactsChange(
+      allContacts.sort(
+        (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+      )
+    );
   });
 
   return unsubscribe;

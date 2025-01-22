@@ -13,9 +13,10 @@ import DiamondBackground from "../components/ui/DiamondBackground";
 import LoadingScreen from "./LoadingScreen";
 import PendingInvitations from "../components/PendingInvitations";
 import InviteForm from "../components/InviteForm";
+import { fetchMockInvitations } from "../tests/mockData";
+import { AuthenticatedStackProp } from "../../App";
 import { Colors } from "../styles/commonStyles";
 import { useNavigation } from "@react-navigation/native";
-import { AuthenticatedStackProp } from "../../App";
 import IconButton from "../components/ui/IconButton";
 
 const InvitationsHeader: React.FC = () => {

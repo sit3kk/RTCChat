@@ -26,7 +26,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Contact, ContactSectionsType } from "../types/commonTypes";
 import { Colors } from "../styles/commonStyles";
 import { alphabet } from "../utils/utils";
-import { mockContacts } from "../tests/mockData";
+import { generateMockContactSections } from "../tests/mockData";
 import { useNavigation } from "@react-navigation/native";
 import { AuthenticatedStackProp } from "../../App";
 
@@ -174,6 +174,7 @@ interface ContactSectionProps {
 export function ContactSection({ contactsData }: ContactSectionProps) {
   const [contactItems, setContactItems] = useState<ContactSectionsType[]>(
     generateContactSections(contactsData)
+    // generateMockContactSections(contactsData)
   );
   const y = useSharedValue(0);
   const isInteracting = useSharedValue(false);
@@ -273,7 +274,7 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
 
   useEffect(() => {
     setContactItems(generateContactSections(contactsData));
-    // setContactItems(mockContacts);
+    // setContactItems(generateMockContactSections(contactsData));
   }, [contactsData]);
 
   const getItemLayout = useMemo(() => {
