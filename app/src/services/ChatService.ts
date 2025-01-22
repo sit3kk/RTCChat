@@ -16,36 +16,45 @@ import { ChatItem, Message } from "../types/commonTypes";
 import { Timestamp } from "firebase/firestore";
 import { randomAvatar } from "../utils/utils";
 
-export const fetchChats = async (userId: string): Promise<ChatItem[]> => {
+
+export const listenForChats = (
+  userId: string,
+  updateChats: (chats: ChatItem[]) => void
+) => {
   const contactsRef = collection(db, "contacts");
   const q = query(contactsRef, where("userId", "==", userId));
-  const contactsSnapshot = await getDocs(q);
 
-  const allChats: ChatItem[] = [];
-  const chatPromises = contactsSnapshot.docs.map(async (docSnap) => {
-    const contactData = docSnap.data() as {
-      contactId: string;
-      createdAt?: any;
-    };
-    const contactUserRef = doc(db, "users", contactData.contactId);
-    const contactUserSnapshot = await getDoc(contactUserRef);
+  const unsubscribeContacts = onSnapshot(q, async (contactsSnapshot) => {
+    const allChats: ChatItem[] = [];
+    const chatListeners: (() => void)[] = [];
 
-    const contactName = contactUserSnapshot.exists()
-      ? (contactUserSnapshot.data() as { name: string }).name
-      : "Unknown";
+    for (const docSnap of contactsSnapshot.docs) {
+      const contactData = docSnap.data() as {
+        contactId: string;
+        createdAt?: any;
+      };
+      const contactUserRef = doc(db, "users", contactData.contactId);
+      const contactUserSnapshot = await getDoc(contactUserRef);
 
-    const defaultAvatar = randomAvatar(); // TODO set a default avatar
-    const contactAvatar = contactUserSnapshot.exists()
-      ? (contactUserSnapshot.data() as { profilePic?: string }).profilePic ||
-        defaultAvatar
-      : defaultAvatar;
+      const contactName = contactUserSnapshot.exists()
+        ? (contactUserSnapshot.data() as { name: string }).name
+        : "Unknown";
 
-    const chatId = [userId, contactData.contactId].sort().join("_");
-    const messagesRef = collection(db, "chats", chatId, "messages");
-    const msgQuery = query(messagesRef, orderBy("createdAt", "desc"));
+      const defaultAvatar = randomAvatar();
+      const contactAvatar = contactUserSnapshot.exists()
+        ? (contactUserSnapshot.data() as { profilePic?: string }).profilePic ||
+          defaultAvatar
+        : defaultAvatar;
 
-    await new Promise<void>((resolve) =>
-      onSnapshot(msgQuery, (snapshot) => {
+      const chatId = [userId, contactData.contactId].sort().join("_");
+      const messagesRef = collection(db, "chats", chatId, "messages");
+      const msgQuery = query(messagesRef, orderBy("createdAt", "desc"));
+
+      const unsubscribeMessages = onSnapshot(msgQuery, (snapshot) => {
+        const chatIndex = allChats.findIndex(
+          (chat) => chat.contactId === contactData.contactId
+        );
+
         if (!snapshot.empty) {
           const lastMsgDoc = snapshot.docs[0];
           const lastMsgData = lastMsgDoc.data() as {
@@ -60,27 +69,57 @@ export const fetchChats = async (userId: string): Promise<ChatItem[]> => {
               !m.data().readBy?.includes(userId) && m.data().senderId !== userId
           ).length;
 
-          allChats.push({
-            contactId: contactData.contactId,
-            contactName,
-            contactAvatar,
-            lastMessageText: lastMsgData.text,
-            lastMessageDate: lastMsgData.createdAt.seconds * 1000,
-            unreadCount,
-            createdAt: contactData.createdAt?.seconds * 1000 || 0,
-          });
+          if (chatIndex !== -1) {
+            allChats[chatIndex] = {
+              ...allChats[chatIndex],
+              lastMessageText: lastMsgData.text,
+              lastMessageDate: lastMsgData.createdAt.seconds * 1000,
+              unreadCount,
+            };
+          } else {
+            allChats.push({
+              contactId: contactData.contactId,
+              contactName,
+              contactAvatar,
+              lastMessageText: lastMsgData.text,
+              lastMessageDate: lastMsgData.createdAt.seconds * 1000,
+              unreadCount,
+              createdAt: contactData.createdAt?.seconds * 1000 || 0,
+            });
+          }
+        } else {
+          if (chatIndex === -1) {
+            allChats.push({
+              contactId: contactData.contactId,
+              contactName,
+              contactAvatar,
+              lastMessageText: "",
+              lastMessageDate: 0,
+              unreadCount: 0,
+              createdAt: contactData.createdAt?.seconds * 1000 || 0,
+            });
+          }
         }
-        resolve();
-      })
-    );
+
+        allChats.sort(
+          (a, b) =>
+            (b.lastMessageDate || 0) - (a.lastMessageDate || 0) ||
+            (b.createdAt || 0) - (a.createdAt || 0)
+        );
+
+        updateChats([...allChats]);
+      });
+
+      chatListeners.push(unsubscribeMessages);
+    }
+
+    return () => {
+      chatListeners.forEach((unsubscribe) => unsubscribe());
+      unsubscribeContacts();
+    };
   });
 
-  await Promise.all(chatPromises);
-  return allChats.sort(
-    (a, b) =>
-      (b.lastMessageDate || 0) - (a.lastMessageDate || 0) ||
-      (b.createdAt || 0) - (a.createdAt || 0)
-  );
+  return unsubscribeContacts;
 };
 
 export const fetchMessagesAndListen = (

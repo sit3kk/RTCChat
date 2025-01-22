@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { fetchChats } from "../services/chatService";
+import { listenForChats } from "../services/chatService";
 import { useUserData } from "../store/UserDataProvider";
 import { Colors } from "../styles/commonStyles";
 import { AuthenticatedStackProp } from "../../App";
@@ -81,19 +81,14 @@ const ChatsScreen: React.FC = () => {
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        setChats(await fetchChats(userId));
-      } catch (error) {
-        console.error("Failed to fetch chats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const unsubscribe = listenForChats(userId, (updatedChats) => {
+      setChats(updatedChats);
+      setLoading(false);
+    });
 
-    loadData();
-  }, []);
+    // Cleanup nasłuchów podczas unmount
+    return () => unsubscribe();
+  }, [userId]);
 
   useEffect(() => {
     const result = filterChatsData(chats, selectedTab, searchText);
