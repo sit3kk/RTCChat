@@ -8,7 +8,7 @@ import {
   updateDoc,
   FirestoreError,
 } from "firebase/firestore";
-import { db } from "./FirebaseConfig";
+import { db } from "./firebaseConfig";
 import { CallSession } from "../types/commonTypes";
 
 export const fetchCallerData = async (callerId: string): Promise<any> => {
