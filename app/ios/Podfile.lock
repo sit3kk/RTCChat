@@ -269,7 +269,7 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (14.0.2):
     - ExpoModulesCore
-  - ExpoLinearGradient (14.0.2):
+  - ExpoLinearGradient (14.0.1):
     - ExpoModulesCore
   - ExpoLinking (7.0.3):
     - ExpoModulesCore
@@ -2466,7 +2466,7 @@ SPEC CHECKSUMS:
   ExpoFileSystem: a0a5c44d3d3e8a2aa54fe7c70c7690df03cf4dd8
   ExpoFont: 8b14db1afebf62e9774613a082e402985f4e747c
   ExpoKeepAwake: 1f74cdf53ab3b3aeb7110f18eb053c92e7c3e710
-  ExpoLinearGradient: ee9efc5acb988b911320e964fab9b4cbdeb198c4
+  ExpoLinearGradient: 7ca3b1d1625a1ab85c129abce4a3cdc78a9500a3
   ExpoLinking: a8332a219379ba80f8e612d5a5de4a3da446886e
   ExpoModulesCore: f9546265a5e1f1fd67473bb2f0463b28252cee49
   ExpoWebBrowser: f08aaf1c8a02af8a768d83793186cb6d2c69f529
@@ -2541,7 +2541,7 @@ SPEC CHECKSUMS:
   RNSVG: 536cd3c866c878faf72beaba166c8b02fe2b762b
   RNVectorIcons: 07792a9538e8577c1263fcad187712e90d65d8fb
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  Yoga: c7ea4c36c1d78ebbf45529b6e78283e4e0fe4956
+  Yoga: fcc198acd4a55599b3468cfb6ebc526baff5f06e
 
 PODFILE CHECKSUM: f1a294bbe072c5972ade6ccd117374c1c1f98db3
 
