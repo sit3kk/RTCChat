@@ -108,13 +108,15 @@ const AlphabetLetter = ({
 function generateContactSections(contacts: Contact[]): ContactSectionsType[] {
   const groupedContacts: { [key: string]: Contact[] } = {};
 
-  contacts.forEach((contact) => {
-    const firstLetter = contact.name[0].toUpperCase();
-    if (!groupedContacts[firstLetter]) {
-      groupedContacts[firstLetter] = [];
-    }
-    groupedContacts[firstLetter].push(contact);
-  });
+  contacts
+    .filter((contact) => contact.name && contact.userId)
+    .forEach((contact) => {
+      const firstLetter = contact.name[0].toUpperCase();
+      if (!groupedContacts[firstLetter]) {
+        groupedContacts[firstLetter] = [];
+      }
+      groupedContacts[firstLetter].push(contact);
+    });
 
   const contactSections: ContactSectionsType[] = Object.keys(groupedContacts)
     .sort()
@@ -209,13 +211,15 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
   };
 
   const scrollToLocation = (index: number) => {
-    scrollViewRef.current?.scrollToLocation({
-      itemIndex: 0,
-      sectionIndex: index - firstContactIndex, // adjust for the first section header offset
-      animated: false,
-      viewOffset: 0,
-      viewPosition: 0,
-    });
+    if (index >= 0 && index < contactItems.length) {
+      scrollViewRef.current?.scrollToLocation({
+        itemIndex: 0,
+        sectionIndex: index - firstContactIndex,
+        animated: false,
+        viewOffset: 0,
+        viewPosition: 0,
+      });
+    }
   };
 
   const panGesture = Gesture.Pan()
@@ -315,7 +319,7 @@ export function ContactSection({ contactsData }: ContactSectionProps) {
             <ContactsListHeader title={title} />
           )}
           renderItem={({ item }) => <ContactsListItem item={item} />}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.name}-${index}`}
         />
       )}
       {contactItems.length === 0 && (
