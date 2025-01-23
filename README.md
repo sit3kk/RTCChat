@@ -59,10 +59,8 @@ Po zainstalowaniu aplikacji na urządzeniu skanujemy kod QR stworzony przez serv
   
 ## Screenshots
 
---
-
-
-## Demo
-
---
+<img src="https://github.com/user-attachments/assets/534d2939-c3ac-434f-beeb-25a86b3d7798" alt="Screenshot 1" width="220" />
+<img src="https://github.com/user-attachments/assets/a8c84a84-1a8f-455a-877e-ace7bdbc16ae" alt="Screenshot 2" width="220" />
+<img src="https://github.com/user-attachments/assets/9e4e2f13-475b-4796-a081-cb5590f6831d" alt="Screenshot 3" width="220" />
+<img src="https://github.com/user-attachments/assets/c176cae8-f5b8-4143-b3f4-9b5995f515d0" alt="Screenshot 4" width="220" />
 
