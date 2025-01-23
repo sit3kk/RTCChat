@@ -1,30 +1,15 @@
-import {
-  onSnapshot,
-  collection,
-  query,
-  where,
-  doc,
-  getDoc,
-  updateDoc,
-  FirestoreError,
-} from "firebase/firestore";
-import { db } from "./firebaseConfig";
-import { CallSession } from "../types/commonTypes";
+import * as DbOps from "./dbOperations";
+import { where } from "firebase/firestore";
 
 export const fetchCallerData = async (callerId: string): Promise<any> => {
-  try {
-    const userDoc = doc(db, "users", callerId);
-    const userSnap = await getDoc(userDoc);
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
-      return {
-        id: callerId,
-        name: userData.name,
-        avatar: userData.profilePic,
-      };
-    }
-  } catch (error) {
-    throw error;
+  const userDoc = await DbOps.fetchDoc("users", callerId);
+  if (userDoc.exists()) {
+    const userData = userDoc.data();
+    return {
+      id: callerId,
+      name: userData.name,
+      avatar: userData.profilePic,
+    };
   }
 };
 
@@ -34,32 +19,32 @@ export const setupCallListener = (
 ) => {
   if (!userId) return undefined;
 
-  const q = query(
-    collection(db, "callSessions"),
+  const constraints = [
     where("calleeId", "==", userId),
-    where("status", "==", "incoming")
-  );
+    where("status", "==", "incoming"),
+  ];
 
-  const unsubscribe = onSnapshot(q, async (snapshot) => {
-    for (const change of snapshot.docChanges()) {
-      if (change.type === "added") {
-        const data = change.doc.data() as Omit<CallSession, "id">;
-        const callPartner = await fetchCallerData(data.callerId);
-        callback({ ...data, callPartner }, change.doc.id);
+  return DbOps.createSnapshotListener(
+    "callSessions",
+    constraints,
+    async (snapshot) => {
+      for (const change of snapshot.docChanges()) {
+        if (change.type === "added") {
+          const data = change.doc.data();
+          const callPartner = await fetchCallerData(data.callerId);
+          callback({ ...data, callPartner }, change.doc.id);
+        }
       }
     }
-  });
-
-  return unsubscribe;
+  );
 };
 
 export const updateCallStatus = async (
   sessionId: string,
   status: string
 ): Promise<void> => {
-  const sessionDocRef = doc(db, "callSessions", sessionId);
   try {
-    await updateDoc(sessionDocRef, { status });
+    await DbOps.updateDocById("callSessions", sessionId, { status });
   } catch (error) {
     console.error("Failed to update call status:", error);
   }
@@ -67,21 +52,15 @@ export const updateCallStatus = async (
 
 export const subscribeToCallSession = (
   sessionId: string,
-  onUpdate: (data: any) => void,
-  onError: (error: FirestoreError) => void
+  onUpdate: (data: any) => void
 ): (() => void) => {
-  const sessionDocRef = doc(db, "callSessions", sessionId);
-
-  const unsubscribe = onSnapshot(
-    sessionDocRef,
-    (snapshot) => {
-      if (snapshot.exists()) {
-        onUpdate(snapshot.data());
+  return DbOps.onQuerySnapshot(
+    "callSessions",
+    [where("docId", "==", sessionId)],
+    (documents) => {
+      if (documents.length > 0) {
+        onUpdate(documents[0]);
       }
-    },
-    (error) => {
-      onError(error);
     }
   );
-  return unsubscribe;
 };
